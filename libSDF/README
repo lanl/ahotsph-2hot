@@ -1,0 +1,199 @@
+--------README from 1.3 -------------
+
+This is version 1.3 of SDF.  This version has been de-stdio-ized.  It
+uses MY* functions in lieu of all stdio functions.  Unless I've missed
+something, the only stdio function that remains is sprintf.  Because
+lex is brain-damaged and insists on writing #include "stdio.h" into
+its output, I created a "./stdio.h" to override the system one.  This
+is not strictly ANSI, but then, what is?
+
+--------README from 1.2-------
+
+This is version 1.2 of SDF ("Self Describing Files" or "Super-Duper
+Files, depending on how impressed you are).  It is the first version
+of the last i/o package you'll ever need.  SDF files are binary data
+files with an optional header which contains 1) a description of the
+layout of the data, and 2) optional ascii constants.  There is no
+output capability because the sdf files are so easy to write :-).
+This document is completely unstructured, and probably
+incomprehensible to anyone but the author.  It's a
+stream-of-consciousness first-draft.  Be generous.
+
+The user-callable SDF programs are declared with prototypes in SDF.h.
+I refuse to consider systems that can't deal with prototypes,
+<stdarg.h> and the ellipsis for variadic functions and enum types.  If
+you don't have gcc on your Sun, then call up Sun and give them a piece
+of your mind, and then go get gcc.  The ANSI standard has been out for
+long enough now.  Accept no substitutes.  The object modules are in
+the library SDF_<machine>.a.  I have tried to keep the "name-space
+pollution" to a minimum.  Unfortunately, there are a few additional
+external names used by the SDF package that do not appear explicitly in
+SDF.h.  These include anything starting with "obstack_" (SDF uses the
+gnu obstack package) and all names starting with "SDF".
+
+There are no provisions for writing SDF files.  The reason is that
+it would be more complicated to go through a programmatic interface than
+to just create the files with fprintf() and fwrite().  The basic
+idea behind SDF files is that they are self-describing.  That is, they
+have an ASCII header (human-readable, machine-parseable), which describes
+the contents of the file.  The ascii header may contain explicit
+values, like:
+
+float npart = 200000.;
+int int_npart = 200000;
+char text[] = "Perhaps a few words about the file's pedigree could go here";
+
+Notice the similarity to C declarations.
+
+In addition, the header contains declarations for the binary
+data that appears immediately after it.  The allowed data
+types are char, short, int, float and double, arrays of same, and
+structs containing the basic types and arrays.  (Multi-dimensional arrays
+are not supported.  Nor are nested structures. But some kinds of two
+dimensional arrays can be captured by an array of structs, c.f., the
+'id' vector in .tree files.  These limitations may be relaxed in the
+future.)
+
+The header is terminated by a comment of the form
+
+# <anything> SDF-EOH <anything> \n
+
+That is, any comment containing the string SDF-EOH.
+The final new-line is the last character of the header.  The
+binary data follows immediately after the new-line character.
+It is strongly recommended that the terminal comment contain
+one or more form-feeds (ctrl-L, \f in ANSI, \014 (octal), 0xc (hex),
+12 (decimal)).  That way, 'more' or similar programs can be
+used on the file without getting confused by the binary data.
+Similarly, it is strongly recommended that the first line
+of an SDF file contain the comment:
+
+# SDF <anything> \n
+
+This makes it easy for a modified version of 'file', as well as
+other utilities to figure out that they are dealing with an SDF file.
+
+Thus, the header for the output of an nbody simulation might look like:
+
+# SDF
+float npart;
+float iter;
+float time;
+...
+char tree_header_text[384];
+struct {float mass;
+	float x, y, z;
+	char id[4];
+	float vx, vy, vz;
+	} [];
+# SDF-EOH ^L^L
+
+This header means that the floats npart, iter, time, etc. are stored
+as binary data following the header.  Then comes a 384 byte character
+array, followed by an array (of unspecified length) containing the
+vectors mass, x, y, z, id, vx, vy, vz.  Only the last array in the
+header may be of unspecifiec length.  It means that when the file is
+read, the array is assumed to extend to the end of the file.  SDF
+routines figure out the length of the file by asking the OS, and hence
+can determine the number of elements in arrays of unspecified length.
+Specifications with unknown length are useful for creating generic SDF
+headers, i.e., headers that describe binary files that you may already
+be using.
+
+If one were writing out a new SDF file, it is possible to write a
+header exactly as above, followed by the identical binary data.
+However, it would be much more convenient to write the "scalar" data
+as ascii values into the header.  A new SDF file might look like:
+
+# SDF
+/* Comments may be between C-like comment delimiters */
+# Or they follow the shell-like comment delimiter to end-of-line
+# This file was created by dave@h9k.hal.com on January 12, 1992...
+float npart = 200000.;
+int int_npart = 200000;
+float Gnewt = 1.0;
+float iter = 17.;
+float masstot = 1.1;
+float epsilon = 0.02;
+...
+struct {float mass;
+	float x, y, z;
+	char id[4];
+	float vx, vy, vz;} [200000];
+# SDF-EOH ^L^L
+
+This has the great advantage that most of the file's parameters are
+now both human-readable and machine-readable.  A disadvantage to
+putting "history" information into comments is that it becomes
+inaccessable to programs (since SDF doesn't record comments).  Another
+option is to put it in a character string:
+
+char history[] = 
+"This file created by ... on ...
+200000 body torqued Jaffe model constructed using:
+cubix ...
+";
+
+Don't bother with C-syntax for newlines, etc in character strings.
+SDF just scans till it hits another " character.  It doesn't do any
+escape-interpretation, so don't bother with '\n' and especially don't
+try to put the double-quote character inside strings.
+
+Byte order is another headache.  The function SDFcpubyteorder()
+returns an unsigned int which "describes" the host-cpu's byte order, 
+in a format which may be placed into an SDF header with the.
+"parameter byteorder" keyword.
+
+parameter byteorder = 0x12345678;
+
+You can make this line in a C program with:
+fprintf(fp, "parameter byteorder = 0x%x;\n", SDFcpubyteorder());
+
+If such a parameter is in the header, then SDFread functions will
+assume that the binary data is written in the file in the byte order
+specified by the parameter.  If the machine doing the reading has a
+different byte order, then bytes are swapped automatically.  If there
+is no such parameter, you can tell the read functions to swap with
+SDFswapon().  Similarly, you can turn off swapping (for whatever
+reason) with SDFswapoff(), and you can inquire about swapping with
+SDFisswapping();
+
+Non-ieee floats are completely out of the question.  Don't even
+mention them in my presence.
+
+Dictionaries
+------------
+
+Nbody files contain a number of scalars, and a number of vectors.  The
+names of these objects must be agreed upon between the entity creating
+the file and the entity reading the file.  Since the creators of pjq,
+tree and tree_ap files could barely agree that the sun rises in the
+east and sets in the west, I have created a set of names for the items
+in common amongst these file types.  The list is in the file
+"./dictionary".  SDF files name their own contents.  It's important
+that the names continue to agree with the names in ./dictionary.
+Thus, with the current dictionary it is agreed that the name "npart"
+refers to a float value equal to the number of bodies in the file.
+Similarly, the name "masstot" refers to the total mass of the file.
+These are the strings that you have to pass as names to SDFread routines in
+order to extract the appropriate values from a file.  What you call
+these quantities inside your program is completely irrelevant, but if
+you create another SDF file, it's important to use the same names.
+
+The SDFopen function now takes two char* arguments, one for the
+filename of the header and one for the data.  If they strcmp the same,
+or if the header is NULL or if the header is "", the descriptor is
+found at the beginning of the data file.  If the name is "-", then
+stdin is used.  If you really must open a file called "-", then you
+can do it by opening "./-".  SDF will not gratuitously do random seeks
+around the file.  In fact, it will struggle mightily to read the file
+sequentially.  In many cases, SDFread will succeed on files that are
+not seekable.  However, there are some requests that simply require
+rewinding the file.  If your program does such a thing, then it MUST
+be possible to do arbitrary seeks on the data file, so taking stdin
+from a tty or a pipe would be a bad idea.  
+
+You're supposed to get an error message in SDFerrstring for this (and
+all other) errors.  Segmentation violations are increasingly rare.  I'm
+certain that bugs still remain which will blow SDF right away, but
+they're getting harder to find every day.

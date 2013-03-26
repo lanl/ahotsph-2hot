@@ -1,0 +1,313 @@
+Fri Jan  7 13:50:53 1994  John Salmon  (johns@haggis)
+
+	*  Terminate this ChangeLog.  Future changes to be logged
+	in the parent directory.
+
+Wed Dec 29 08:57:39 1993  John Salmon  (johns@sampson)
+
+	* fseekrd.c (fseekrd): #include protos.h and error.h
+
+Mon Dec 27 18:05:36 1993  John Salmon  (johns@lux)
+
+	* fseekrd.c: Bail out with Error in the event of an error.
+
+Sun Oct 10 21:02:27 1993  John Salmon  (johns@sockeye)
+
+	* SDFget.c: Added protos.h.  Silenced a warning.
+
+Tue Jul 13 11:19:20 1993  John Salmon  (johns@lux)
+
+	* libSDF/: changed some formats to silence complaints about
+	incorrect argument passing to printf.  These SHOULD all be
+	changed to singlWarning.
+
+Thu Jun 10 15:34:01 1993  John Salmon  (johns@haggis)
+
+	* SDF.h, SDFget.c: Added the functions SDFgetint, SDFgetdouble
+	SDFgetfloat and SDFgetstring to the library.  In addition, added
+	the macros SDFget*OrDie and SDFget*OrDefault to SDF.h.  The macros
+	use Error and singlWarning, which can be found in the swutils
+	library, or which the user may redefine to taste.
+
+Thu Jun  3 16:32:18 1993  John Salmon  (johns at haggis)
+
+	* Revert back to the i860_utils style of managing the PGI,
+	IPSC_XDEV, etc. environment variables.  "The management apologizes
+	for the inconvenience."  The reason is that i860_target doesn't
+	interact well with Make running inside emacs.
+
+Tue Jun  1 20:51:16 1993  John Salmon  (johns@sockeye)
+
+	*  (../SDF): Changed Make.common so it creates libraries in, e.g.,
+	sun4/libSDF.a.  Make the old-style SDF_sun4.a a symbolic link to
+	the new file.  Use of <ARCH>/libSDF.a is encouraged.
+
+Tue Jun  1 20:47:04 1993  John Salmon  (johns at haggis)
+
+	* Added (this) ChangeLog to the list of docs copied into .tar files!
+
+Wed May 26 20:02:14 1993  John Salmon  (johns at sampson)
+
+	* Removed the -delta flags from Make.delta.  Use the i860_target
+	technology instead.
+
+	* Fixed two bugs related to ascii data.  On line 399 of
+	SDF-parse.y and line 646 of SDFfuncs.c.  Recompiled sun4 and delta
+	versions.  It should now correctly handle ascii data.
+
+Tue Mar  2 20:26:09 1993  John Salmon  (johns at sampson)
+
+	* Conditionalized the #define YYDEBUG 1 so it won't get linked on
+	the delta.  It surely can't do us any good!
+
+	* Added a comment (but no code) to SDF-parse.y that worries about
+	what to do when a string constant is too long to fit in a char array.
+
+	* Changed SDFtst.c so it prints the first element of every vector
+	in the file it reads.  Just another diagnostic that might show up
+	an error...
+
+Wed Feb 10 20:12:15 1993  John Salmon  (johns at sampson)
+
+	* Don't close stdin in SDFissdf!
+
+Wed Dec  9 11:36:53 1992  John Salmon  (johns at haggis)
+
+	* Changed the #ifdef SEEK_SET conditionals in SDF.h.  Now
+	the 'preferred' usage is SDF_SEEK_SET, etc., but they are
+	almost guaranteed to be the same as SEEK_SET from stdio.h.
+	If they aren't, complete and untraceable confusion will surely
+	result.  Changed SEEK_SET, etc. in SDFfuncs.c to SDF_SEEK_SET,
+	etc. 
+
+Wed Dec  2 17:55:08 1992  John Salmon  (johns at pollux)
+
+	* Added ncube2 support.  This means setting up a Make.ncube2,
+	and getting alloca.c (unmodified) from the emacs distribution,
+	and saying  'extrasrc:=alloca.c' in Make.ncube2.  Also added
+	a call to alloca(0) to SDFopen just after yyparse, which should
+	clean up any mess left behind by the C alloca.
+
+Fri Nov 13 18:42:33 1992  John Salmon  (johns at sampson)
+
+	* Reset yylineno in SDFyyprepare().  Otherwise error message
+	line numbers accumulate!
+
+Tue Nov 10 20:21:11 1992  John Salmon  (johns at haggis)
+
+	* Changed the typedef for SDF in SDF.h.  It still doesn't tell
+	you what's really going on in an SDF hdr, but at least prototypes
+	get checked for correctness, and printing an SDF* under gdb might
+	even tell you most of what you care to know.
+
+Tue Oct 27 12:24:50 1992  John Salmon  (johns at haggis)
+
+	* Fixed a bug in SDF-lex.l that didn't recognize signed
+	integer constants.  How did this last for so long?!  The
+	{Sign} specifier was simply missing from the regex.
+
+Fri Oct 16 11:10:13 1992  John Salmon  (johns at haggis)
+
+	* Added halocenterx, halocentery and halocenterz to the
+	generic tree.sdfh and tree_ap.sdfh files.  These are used
+	by the isothermal halo integrator (i.e., Carl).
+
+Thu Oct 15 21:34:20 1992  John Salmon  (johns at haggis)
+
+	* Try to be even more defensive in SDFclose, in order to not
+	get SEGV when bailing out of a parse error.  This is not
+	a finished project!  Careful cleanup should be attempted in
+	yyerror().
+
+Fri Oct  9 08:34:50 1992  John Salmon  (johns at delilah)
+
+	* SDF now only uses SEEK_CUR to reposition itself in the file.
+	fseekrd() will work with SEEK_CUR and any positive offset by
+	freading into a junk buffer, regardless of whether the file is
+	seekable.  Thus, operations on unseekable files need not be
+	sequential.  They must still be "monotonic increasing".
+
+Thu Oct  8 10:06:49 1992  John Salmon  (johns at delilah)
+
+	* Added support for reading from unseekable files.  This means
+	keeping track of the "seek pointer" ourselves, and checking
+	whether seeking is really necessary to accomodate requests.  If
+	the caller doesn't require us to seek, then we don't.  If he does,
+	then we fail.
+
+	* Added SDFsetbufsz/SDFgetbufsz, which induce SDF to malloc a
+	buffer and call setvbuf in all subsequent SDFopen's.  Use for
+	tuning access to tape devices and pipes.
+
+Wed Sep 16 11:12:40 1992  John Salmon  (johns at haggis)
+
+	* Added the keyword "long" to the set of possible types.
+	It behaves EXACTLY the same as "int".  There is no corresponding
+	SDF_LONG.  Is this really a good idea (the same was done for unsigned).
+
+	* Fixed a bug in SDF-parse.y which caused miscounting the
+	lengths of implicit arrays, e.g., char greeting[] = "hello";
+
+	* Added Const to many of the arguments in SDF.h.
+
+Tue Sep 15 17:10:48 1992  John Salmon  (johns at haggis)
+
+	* Eliminated the huge redundancy in SDFrdvecsarr, and made it
+	call SDFseekrdvecsarr.  This not only shortens the code, but it
+	probably means more reasonable behavior on return from errors.
+	Ever wonder what would happen if you do an SDFrdvecsarr and the
+	last "name" you give it doesn't exist?  Well it's much better now.
+
+Wed Sep  2 15:12:06 1992  John Salmon  (johns at haggis)
+
+	* Changed the strategy for grabbing temporary space in SDFrdvecsarr
+	and SDFseekrdvecsarr.  Now if malloc fails, we try successively
+	smaller requests until we get something.  We only give up with
+	an error if we can't get enough for a single "record" (i.e.,
+	struct).  The memory is freed at the end of the execution of
+	SDF*rdvecsarr.
+
+	* In the interests of reducing namespace pollution, changed the enum 
+	names in SDF_type_enum to be SDF_INT, SDF_FLOAT, etc.  This will
+	break some old codes.  Old codes can be made to compile by
+	adding a #define OLD_ENUM_NAMES before #include "SDF.h".
+
+	* Changed the external name of swapn to SDFswapn.  This should
+	not effect anything.
+
+Tue Sep  1 10:13:05 1992  John Salmon  (johns at haggis)
+
+	* Added an if( hdr==NULL ) test to each of the exported SDF
+	functions.  This should cut down on memory faults from users
+	who don't check the return from SDFopen.  It might even be
+	worthwhile to put a magic number in the SDF hdr.
+
+Mon Aug 31 17:43:25 1992  John Salmon  (johns at haggis)
+
+	* Fixed a typo in SDF-lex.l and recompiled delta and sun4.
+
+	* Checked the return of realloc against NULL in the middle of
+	SDFrdvecsarr and SDFseekrdvecsarr.  The program now fails with
+	a message rather than getting a Segv.  It is probably not recoverable.
+	We really should reduce the size of some of these buffers by
+	staging them.
+
+Tue Jun 30 02:39:30 1992  John Salmon  (johns at haggis)
+
+        * Removed some spurious newlines from the ends of the .sdfh files.
+	These make trouble if you try to do "cat tree.sdfh foo.tree > foo.sdf"
+     
+	* INCOMPATIBLE CHANGE:  changed the calling convention for
+	SDFopen.  Now we pass in two char strings, both filenames, one
+	for the header and one for the data.  This has a number of
+	beneficial effects:
+	1) It means we don't have to 'agree' on what kind of FILE is
+	in use with the 'user'.  (e.g., CUBIX, NX, SRV, etc.)  All the nasty
+	business gets handled inside SDF in the Makefile and such.
+	2) It's easier for a 'user' to specify a header that comes from a
+	file.  The user doesn't have to stat the file, malloc space, read
+	it in and then call SDFopen with the contents as an arg.
+	3) SDF is reasonably careful about checking out whether fopen
+	returns NULL.  This means less obscure failure when a bad name
+	is provided.
+
+	If the hdrname is NULL, or if it is empty or if it strcmp's
+	equal to the datafname, then the data file is treated as an
+	SDF file with a header attached.
+
+	* Made a similar change to SDFissdf, so that one calls it with
+	a name rather than a FILE *.  "-" is stdin.
+
+Tue Jun  9 17:30:13 1992  John Salmon  (johns at delilah)
+
+	* Created SDF_sun4.a SDF_risc6000.a and SDF_delta.a.
+
+	* Added some new functions to SDF.h and SDFfuncs.c:
+	SDFissdf, SDFbyteorder, SDFswap, SDFnoswap, SDFisswapping.
+
+	These make it simpler to use generic header files for things
+	like pjq, tree, etc. files.  The nbio_ routines are no longer
+	the preferred way to read old-style files.  It might be worth
+	writing a function that reads an alternative header directly
+	from disk, rather than from a string.  It really is a shame
+	that there is no portable way to treat a string as a FILE *.
+
+Sat Apr  4 09:34:16 1992  John Salmon  (johns at haggis)
+
+	* Created SDF_risc6000.a.
+
+	* Changed the declaration of do_value_param so it DOES NOT say
+	Static int do_value_param(...., const_t const);
+	This caused the AIX compiler to fail in a very obscure way!
+
+Thu Mar 26 05:20:04 1992  John Salmon  (johns at kastor)
+
+	* Some minor surgery on SDF-parse.y to deal with zero-length
+	blocks at the end of the data file.  We now try to fstat the
+	file to figure out how many records will fit in the file.  This
+	should make writing generic tree-file readers easier, because
+	"npart" is implicit.
+
+Tue Mar 24 09:32:01 1992  John Salmon  (johns at haggis)
+
+	* "Released" v1.2.0.
+
+	* Changed the Makefile, SDFfuncs.c and SDF-parse.y so the
+	bison-generated	externals now start with SDFyy, i.e., 
+	SDFyyparse, SDFyyerror, etc. This makes it easier to merge 
+	SDF with programs like sm.
+
+Thu Mar 19 05:05:12 1992  John Salmon  (johns at haggis)
+
+	* Removed #pragma once from the rest of the .h files
+
+	* Changed malloc to calloc in SDFopen.	
+
+Fri Mar 13 08:24:32 1992  John Salmon  (johns at haggis)
+
+	* Rebuilt SDF_delta.a and SDF_sun4.a
+
+	* Removed #pragma once from all the .h files.
+
+	* Added dependency for SDF-lex.c and SDF-parse.o to Makefile
+	so changes to SDF-lex.l are understood by make.
+
+	* Added the 'unsigned' keyword to SDF-lex.l.  It's a total
+	no-op.  It may make it somewhat easier (and dangerous?) to
+	convert C structs into SDF headers.
+
+	* Changed the definition of the end-of-header symbol.
+	Now it's any comment line containing the string SDF-EOH.
+	The newline is the last character in the header.  It is
+	highly recommended that users add their own form-feeds
+	to this line, but it is now at the user's discretion.
+
+Thu Mar 12 22:23:37 1992  Mike Warren  (msw at sampson)
+
+	* (nbio_open) Added a break to the case NBIO_SDF_TYPE:
+
+Sun Feb  9 13:26:20 1992  John Salmon  (johns at haggis)
+
+	* Added some more error reporting to nbio.  On most errors,
+	something is now written into nbio_errstring.  If the error
+	is detected by SDF, then we (usually) copy SDFerrstring too. 
+
+	* Added the SDFhasname() and nbio_hasname() functions to test 
+	for the existence of a name in a file.
+
+Fri Feb  7 18:32:04 1992  John Salmon  (johns at haggis)
+
+        * Added missing ';' in the "parameter byteorder=blaa; "
+	strings in nbio.c
+
+        * Added the char nbio_errstring[] array for messages.
+
+	* Added the char *nbio_type_names[] array.
+
+	* Added the "seekrd" functions to SDF and nbio, which use the
+	fseekrd(...) "primitive".  Hopefully, this will be supported
+	by servix on all future parallel machines.
+
+	* Fiddled around with the header files.  There's now only
+	one copy of the prototypes in the "public" files, nbio.h and
+	SDF.h.

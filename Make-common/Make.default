@@ -1,0 +1,87 @@
+# You can override the specification of any of these variables with
+# make command line arguments.  Those that should not be completely
+# replaced require the "override" modifier.
+
+# You can further modify these values in the Make.$(ARCH) files
+
+ifndef defaultPAROS
+defaultPAROS:=seq
+endif
+
+ifndef defaultCC
+defaultCC:=cc
+endif
+
+ifndef defaultFC
+defaultFC:=g77
+endif
+
+ifndef OPTIMIZE
+OPTIMIZE:=-O2
+CC_SPECIFIC:=$(CC_SPECIFIC) -g -Wall
+endif
+
+ifndef FOPTIMIZE
+OPTIMIZE=-O
+endif
+
+PAROS:=$(defaultPAROS)
+CC:=$(defaultCC)
+FC:=$(defaultFC)
+
+ifneq ($(PAROS),$(defaultPAROS))
+PAROSsuf:=-$(PAROS)
+endif
+
+# Put a non-default CC into ARCH
+ifneq ($(defaultCC),$(CC))
+override ARCH:=$(ARCH)-$(CC)
+endif
+
+ifeq ($(FC),g77)
+OPTIMIZE:=-O2
+FC_SPECIFIC:=$(FC_SPECIFIC) -g -ffast-math
+endif
+
+# Some compilers turn off optimization with -g, so we don't specify
+# -g by default on those machines.
+ifdef DEBUG
+override ARCH:=$(ARCH)-g
+OPTIMIZE:=
+endif
+
+# i.e., specify PROFILE=-p or PROFILE=-pg
+ifdef PROFILE
+override ARCH:=$(ARCH)-p
+endif
+
+ifeq ($(PAROS),pvm)
+PAROSCFLAGS:=-I$(PVM_ROOT)/include
+LOADLIBES:=$(LOADLIBES) $(PVM_ROOT)/lib/$(PVM_ARCH)/libpvm3.a
+endif
+
+ifeq ($(EXTRALIB),efence)
+PRELIBS:=$(treedir)/Objfiles/$(ARCH)/libefence.a
+programname:=$(programname)-efence
+endif
+
+ifndef ARFLAGS
+ARFLAGS:=r
+endif
+
+ifndef RANLIB
+RANLIB:=@echo no ranlib
+endif
+
+ifdef fsrc
+LD:=$(FC)
+else
+LD:=$(CC)
+endif
+objsuf:=.o
+libext:=.a
+
+CFLAGS:=$(DEBUG) $(OPTIMIZE) $(PROFILE) $(CC_SPECIFIC) $(ARCH_SPECIFIC)
+FFLAGS:=$(DEBUG) $(FOPTIMIZE) $(PROFILE) $(FC_SPECIFIC) $(ARCH_SPECIFIC)
+LDFLAGS:=$(DEBUG) $(PROFILE) $(LDFLAGS)
+

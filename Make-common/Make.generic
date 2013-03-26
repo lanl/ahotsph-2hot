@@ -1,0 +1,217 @@
+## This is a 'generic' makefile with all the stuff that we seem to
+## repeat over and over in all our application (and library!) Makefiles.
+
+incdir=$(treedir)/include
+objdir=Objfiles/$(ARCH)
+libdir=$(treedir)/Objfiles/$(ARCH)
+override CFLAGS:=-I$(incdir) $(CFLAGS) $(EXTRACFLAGS)
+override LDFLAGS:=$(LDFLAGS) $(EXTRALDFLAGS)
+ifndef tarname
+tarname:=$(programname)
+endif
+tarpath:=$(TARPREFIX)$(tarname)
+excludepath:=$(TARPREFIX)exclude
+
+# Allow the local directory to do arch-specific stuff...
+localmake:=$(wildcard Make.$(ARCH))
+ifneq ($(localmake),)
+include $(localmake)
+endif
+
+ifeq ($(PAROS),$(defaultPAROS))
+# we don't need mpmy if we are using the default PAROS!
+LIBDEPENDS=$(libdir)/libtree.a $(libdir)/libsw.a
+else
+LIBDEPENDS=$(libdir)/mpmy_$(PAROS)$(objsuf) $(libdir)/libtree.a \
+	$(libdir)/libsw.a
+endif
+
+# If we're going to the trouble to list out the full directory names
+# in LIBDEPENDS, there's not much point in making the linker figure them
+# out (possibly erroneously) again with -L... -l...
+LOADLIBES_:=$(PRELIBS) $(LIBDEPENDS) -L$(libdir) -lm $(POSTLIBS) $(LOADLIBES)
+
+ifdef programname
+bin:=$(programname).$(ARCH)$(PAROSsuf)
+# Substitue for the string PAROS in the 'src' variable
+# It would be really nice if we could then check to make sure the
+# file exists, and if not, substitue with, e.g., "generic".  But
+# I can't figure out how to do that.
+_src:=$(subst PAROS,$(PAROS),$(src))
+obj=$(patsubst %.c,$(objdir)/%$(objsuf),$(src)) \
+	$(patsubst %.cu,$(objdir)/%$(objsuf),$(cusrc)) \
+	$(patsubst %.f,$(objdir)/%$(objsuf),$(fsrc))
+ifndef special_rule_for_all
+all: $(bin)
+endif
+
+$(bin) : $(objdir) $(obj) $(LIBDEPENDS)
+	$(LD) $(LDFLAGS) -o $@ $(obj) $(LOADLIBES_)
+	$(finishlink)
+
+release : $(bin)
+	rsync -abq $(bin) ../release
+else
+bin:=
+endif
+
+ifdef libname
+lib:=$(libdir)/$(libname)$(libext)
+libobj=$(patsubst %.c,$(lib)($(objdir)/%$(objsuf)),$(src))
+ifeq ($(libname),libsw)
+libobj:=$(libobj) $(patsubst %.c,$(lib)($(objdir)/%$(objsuf)),$(swsrc)) \
+	$(patsubst %.s,$(lib)($(objdir)/%$(objsuf)),$(asmsrc)) \
+	$(patsubst %.S,$(lib)($(objdir)/%$(objsuf)),$(cppasmsrc))
+endif
+ifndef special_rule_for_all
+all: $(lib)
+endif
+
+
+$(lib) : $(objdir) $(libdir) $(libobj)
+	$(RANLIB) $@
+
+endif
+
+$(objdir)/%$(objsuf) : %.c
+	$(CC) $(CFLAGS) -c $<
+	-@mv $*$(objsuf) $@
+
+$(objdir)/%$(objsuf) : %.cu
+	$(CUDACC) $(CUDACFLAGS) -c $<
+	-@mv $*$(objsuf) $@
+
+$(objdir)/%$(objsuf) : %.f
+	$(FC) $(FFLAGS) -c $<
+	-@mv $*$(objsuf) $@
+
+$(objdir)/%$(objsuf) : $(asmdir)/%.s
+	(cd $(asmdir); $(AS) $(ASFLAGS) -o $*$(objsuf) $*.s)
+	-@mv $(asmdir)/$*$(objsuf) $@
+
+$(objdir)/%$(objsuf) : $(asmdir)/%.S
+	(cd $(asmdir); $(CC) $(ASFLAGS) -c -o $*$(objsuf) $*.S)
+	-@mv $(asmdir)/$*$(objsuf) $@
+
+# Gnu tar doesn't seem to do -X exclude properly??  It's probably
+# because it uses names without a leading './'.  I could add a sed to
+# double each line in exclude???
+ifndef TAR
+TAR=/bin/tar
+endif
+
+ifndef FIND
+FIND=/usr/bin/find
+endif
+
+MAKEDEPEND=makedepend
+
+ifndef RANLIB
+RANLIB=/usr/bin/ranlib
+endif
+
+$(objdir) :
+	if [ ! -d Objfiles ]; then mkdir Objfiles; fi
+	if [ ! -d $(objdir) ]; then mkdir $(objdir); fi
+
+$(libdir) :
+	if [ ! -d $(treedir)/Objfiles ]; then mkdir $(treedir)/Objfiles; fi
+	if [ ! -d $(libdir) ]; then mkdir $(libdir); fi
+
+# Use appexcludes to exclude any particular application-specific directories.
+# e.g., 
+# appexcludes="-name data -prune -o -name secret_dir -prune"
+ifdef appexcludes
+extraexcludes=\( $(appexcludes) \) -o
+endif
+
+ifndef treedir_sed
+treedir_sed:=$(treedir)
+endif
+
+# Exclude emacs backups (*~), and auto-saves (#*#)
+# Exclude anything in one of the object dirs, or misc.*,
+# anything named 'core' or *.tar.* or anything that's executable and
+# bigger than 10k or anything at all that's bigger than 100k.
+# In addition, just in case they don't exist yet, we have to explicitly
+# exclude the $(tarname).tar.Z and .gz targets.
+# Finally exclude the "proprietary" ibm assembly language
+$(excludepath) : FORCE
+	($(FIND) . $(extraexcludes) -name Objfiles -prune -o -name '*.o' -o -name '#*#' -o -name '*~' -o -name '*-' -o -name '*.bak' -o -name '*.bak2' -o -name Obsolete -o -name NOT_PORTED -o -name '*.orig' -o -name core -o -name 'lsv.core.*' -o -name 'misc.*' -o -name '*.tar.*' -o -name '*gz' -o \( -perm +0111 -and -size +10k \) -o -size +100k -o -name '*readrtc.s*' ; \
+	echo ./$(tarname).tar.Z ; \
+	echo ./$(tarname).tgz ; \
+	echo ./$(tarname)-dist.tgz ; \
+	) | sed "s/^\.\//`basename $$PWD`\//" > $@
+
+tar : $(tarpath).tgz
+
+dist : $(tarpath)-dist.tgz
+
+$(tarpath).tar.Z: $(excludepath)
+	(dir=`basename $$PWD`; cd `dirname $$PWD`; $(TAR) cvfX - $$dir/$(excludepath) $$dir)| compress > $(tarpath).tar.Z
+
+$(tarpath).tgz: $(excludepath)
+	(dir=`basename $$PWD`; cd `dirname $$PWD`; $(TAR) cvfX - $$dir/$(excludepath) $$dir)| gzip > $(tarpath).tgz
+
+$(tarpath)-dist.tgz: $(excludepath)
+	(dir=`basename $$PWD`; cd `dirname $$PWD`; $(TAR) cvfX - $$dir/$(excludepath) $$dir/COPY* $$dir/Make-common $$dir/INSTRUCTIONS $$dir/GNUmakefile $$dir/include $$dir/relerr $$dir/Change* $$dir/lib* $$dir/bin $$dir/lsv $$dir/shmz $$dir/snsph $$dir/nln)| gzip > $(tarpath)-dist.tgz
+
+# Make a floppy by writing a meta-tar file containing $(tarname).tgz
+floppy: $(tarname).tgz
+	$(TAR) cvf /dev/fd0 $(tarname).tgz
+
+# clean...how much should we attempt to clean up??  Should there be
+# additional clean-ables set in the application-makefile?
+
+# clean-clutter will remove the ~ files, the #*#, etc.
+clean-clutter: FORCE
+	rm -f *~ #*# *.bak *.bakk
+
+# clean will remove the binary and object files associated with the
+# current ARCH-PAROS pair
+clean: FORCE clean-clutter
+	rm $(bin) $(objdir)/*
+
+# clean-all will attempt to remove all object files in Objfiles/ and
+# all executables in . associated with them.  USE WITH CARE!!
+clean-all: FORCE clean-clutter
+	for dir in `ls Objfiles`; do \
+	  set arch=`basename $$dir`; \
+	  rm -rf Objfiles/$$dir; \
+	  rm -f $(programname).$$dir* ; \
+	done
+
+# Run makedepend, and then massage the Makfile to the symbolic names
+# for the files in $(treedir).  WARNING!  If $(treedir) contains
+# sed meta-characters you lose in a big way!  We fix this by letting you
+# override it with $(treedir_sed), e.g., if treedir=.., you should
+# probably set treedir_sed=\.\. .  This should be automatic :-(.
+# This command kills the entire line with the /usr/ dependency.
+#	 -e '/ \/usr/d' Makefile.bak2 > foo
+# The sed below leaves lines with no dependency.  Is that a problem?
+MAKEFILENAME=GNUmakefile
+#depends: 
+#	$(MAKEDEPEND) -f$(MAKEFILENAME) '-o$$(objsuf)' '-p$$(objdir)/' -- $(CFLAGS) -- $(src)
+#	cp $(MAKEFILENAME) $(MAKEFILENAME).bak2
+#	sed \
+#	 -e '/DO NOT DELETE/,$$s!$(treedir_sed)!$$(treedir)!g'\
+#	 -e '/DO NOT DELETE/,$$s@ /usr/[^ ]*@@g'\
+#	 $(MAKEFILENAME).bak2 > $(MAKEFILENAME)
+
+# The last rule replaces -p$$(objdir)/ which doesn't work in openwin
+# and presumably in X11R4 or earlier
+depends: 
+	$(MAKEDEPEND) -f$(MAKEFILENAME) '-o$$(objsuf)' -- $(CFLAGS) -- $(src)
+	cp $(MAKEFILENAME) $(MAKEFILENAME).bak2
+	sed \
+	 -e '/DO NOT DELETE/,$$s!$(treedir_sed)!$$(treedir)!g'\
+	 -e '/DO NOT DELETE/,$$s@ /usr/[^ ]*@@g'\
+	 -e '/DO NOT DELETE/,$$s@ float.h@@g'\
+	 -e '/DO NOT DELETE/,$$s@ stdarg.h@@g'\
+	 -e '/DO NOT DELETE/,$$s@^\([A-Za-z]\)@$$(objdir)/\1@g'\
+	 $(MAKEFILENAME).bak2 > $(MAKEFILENAME)
+
+depends-nosed:
+	$(MAKEDEPEND) -f$(MAKEFILENAME) '-o$$(objsuf)' '-p$$(objdir)/' -- $(CFLAGS) -- $(src)
+
+FORCE:

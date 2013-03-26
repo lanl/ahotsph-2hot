@@ -1,0 +1,637 @@
+Thu Dec  5 14:22:18 1996  Mike Warren  <msw@cacr.caltech.edu>
+
+	* libtree/walk.c: Made a couple of key alignment fixes that never 
+	made it from johns version.
+
+Tue Feb  6 09:53:40 1996  Mike Warren  <msw@sampson.145>
+
+	Problems with adaptive timestep decomposition are caused by
+	one proc having nobj==0 and data==NULL, which was fixed in
+	johns version a few months ago.
+
+        Wed Oct  4 12:17:15 1995  John Salmon  <johns@coho>
+	* libtree/pqsort.c (pqsort): Dave P. pointed out that nobj==0,
+	causes segfaults in pqsort.  The problem was really with data==NULL,
+	q = data + (nobj-1)*size, which doesn't 'compare' properly with
+	p = data.  The code is changed now so that it never looks at
+	data[-1].  ANSI says it's ok to compare with data[nobj], but not
+	with data[-1].
+
+Mon Feb  5 14:08:44 1996  Mike Warren  <msw@sampson.145>
+
+	* libtree/decomp.c (SetupDecomp): Avoid calling qsort if
+	nobj == 0.
+
+Thu Jan 25 12:43:12 1996  Mike Warren  <msw@sampson.145>
+
+	* libtree/decomp.c (ClearDecomp): Allow us to clear a saved 
+	decomposition.  This is necessary for the merged dark/sph code.
+
+Wed Jan 17 11:49:40 1996  Mike Warren  <msw@sampson.145>
+
+	* libsw/memmove.c: Fix memmove alignment bug (johns).
+
+Mon Jan  8 12:21:25 1996  Mike Warren  <msw@sampson.145>
+
+	* apps/corr/corr.c (main): corrected (1+z) factor for comoving
+ 	velocities to sqrt(1+z).
+	
+Tue Jan  2 15:34:01 1996  Mike Warren  <msw@sampson.145>
+
+	* libtree/image.c (Image): Fixed typo in pixel boundary test 
+	(xp[1] > 0) which caused the y = 0 row of pixels to be black.
+
+Thu Nov 30 15:52:57 1995  Mike Warren  <msw@sampson.145>
+
+	* libsw/abm.c: (ABMFlush) Check if ndests is zero to avoid
+	doing qsort and Delivery test.  The GNU qsort uses xmalloc
+	to make itself a stack, so this is where the huge malloc/free
+	overhead was coming from.
+
+Wed Nov 29 12:50:02 1995  Mike Warren  <msw@sampson.145>
+
+	* libtree/walk.c,include/tree.h (WalkFlushFreq): New function 
+	to allow dynamic adjustment of FlushFreq.  Depending on which
+ 	type of MAC we use (DL or regular) the best number is quite
+ 	different.
+
+Mon Nov 27 19:48:54 1995  Mike Warren  <msw@sampson.145>
+
+	* libtree/walk.c: Implement FlushFreq counter to reduce
+	overhead from ABMFlush().  The WalkDefer timer should
+	give some indication of how close to optimal we are.
+
+Mon Nov  6 14:43:44 1995  Mike Warren  <msw@sampson.145>
+
+	* libsw/abm.c: #define NO_MSGS to reduce overhead.
+
+Fri Nov  3 13:45:32 1995  Mike Warren  <msw@sampson.145>
+
+	* nln/: New application for rcrit based MACs.
+
+	* Make-common/Make.paragon (OPTIMIZE): Change to -O2, with 
+	-O4 relegated to AGGRESSIVE_OPT which can be specified
+	for particular files in the application Makefile.
+
+Mon Oct 16 14:48:26 1995  Mike Warren  <msw@sampson.145>
+
+	* relerr/cofm_n.c: Update to johns t16.3 version.  Handling of
+	acc_last_min is altered, but the behavior is presumably the same.
+
+Thu Oct  5 14:17:36 1995  John Salmon  <johns@coho>
+
+	* lsv/lsv.c, libsw/lsv.c, bin/lsvstart: I finally learned how to
+ 	let the OS pick a port for you!  The code is a little shorter, a
+ 	little cleaner and a little more portable, but it probably wasn't
+ 	worth the effort.  It does work under IRIX now, though.
+
+Wed Oct  4 12:17:15 1995  John Salmon  <johns@coho>
+
+	* relerr/cofm_n.c:  Avoid sqrt(0) in CofmFromDaugh.  This makes
+	the fast sqrt on Mips R8000 much happier.
+
+Tue Oct  3 12:07:57 1995  John Salmon  <johns@haggis>
+
+	* mpmy_combine.c: Whenever StkBase is used and then a
+	pointer is incremented, we need to be careful to increment by
+	StkAlign(sizeof(ptr)).  This is only really necessary when the Stk
+	is inhomogeneous (e.g., mpmy_combine).  (msw note: I only changed
+	mpmy_combine.c, and the code worked on the R8000).
+
+Tue Oct  3 08:48:28 1995  John Salmon  <johns@ccsf.caltech.edu>
+
+	* include/stk.h: Added code to allow forcibly aligned entries on 
+	the stack.  pre-define STK_FORCE_ALIGNMENT to the preferred
+	alignment to activate this code.
+
+Mon Oct  2 12:41:33 1995  John Salmon  <johns@haggis>
+
+	* libmpmy/mpmy_seq.c:  #include <string.h> otherwise use of memcpy
+	is problematical on SGI.
+
+Wed Aug 23 15:30:56 1995  Mike Warren  <msw@sampson.145>
+
+	* main_nv.c: Rather than link the last output file to "input",
+	link to basename."restart". This allows multiple simulations
+	to progress without confusion over the restart file.  This change
+	requires changing all current .ctl files which use "input" as
+	the datafile[].
+
+Mon Aug  7 13:20:02 1995  Mike Warren  <msw@sampson.145>
+
+	* lsv.c (HAVE_SIGVEC): Add !_SVR4_SOURCE which is defined on
+	SGI systems.
+
+Fri Jun  9 15:51:20 1995  Mike Warren  <msw@sampson.145>
+
+	* mpmy_io.c (MPMY_Fwrite): Add support for MPMY_INDEPENDENT.
+	The parallel movie image renderer wants to do an SDFread 
+	on a bunch of files independently.
+
+	* libSDF/SDF-parse.y (finish_parse): slight change to make
+	SDF_ASYNC mode work.
+
+Fri Jun  2 12:15:33 1995  Mike Warren  <msw@sampson.145>
+
+	* grav_nv.c (IVECSZ): Increase from 32768 due to overflow on 
+	cdm_i0a run.
+
+Fri May 19 15:46:14 1995  Mike Warren  <msw@sampson.145>
+
+	* SDFwrite.c (SDFwrite_alist): Some changes to allow writing
+	a data file without the header.  This is controlled by whether
+	you call SDFwritehdr() first.
+
+Wed May 17 13:46:57 1995  Mike Warren  <msw@sampson.145>
+
+	* pqsort.c: Try johns pqsort.c again.  The delta is failing with
+	giant reallocs.
+
+Thu May 11 10:18:04 1995  Mike Warren  <msw@sampson.145>
+
+	* libtree/pqsort.c: add an assertion to pqsort about nobj > 0.
+	* relerr/main_nv.c: Set output_R0 to R0 if cosmology is true.
+	Before we did this only if do_periodic was true.  This is required
+	to make the May 3 change work correctly.
+
+Wed May  3 13:10:52 1995  Mike Warren  (msw@sampson)
+
+	* relerr/main_nv.c (main): Slight modification of image rmin and
+	rmax to make image size with vacuum boundaries consistent with
+	the periodic case.
+
+Tue May  2 15:00:12 1995  John Salmon  <johns@mullet.anu.edu.au>
+
+	* relerr/cofm_n.c: Fixed bug in the computation of acc_last_max.
+	When the daughter is a terminal, the daughter acceleration was
+	assigned directly into cmp->acc_last_max.  This was in error,
+	as it should first compare to make sure that the body accel is
+	actually less than the current cmp->acc_last_max.  Note also
+	that acc_last_max is mis-named.  It should be acc_last_min!
+
+Thu Mar 30 16:14:22 1995  Mike Warren  (msw@sampson)
+
+	* libmpmy/iozero.c (write0_multi): Optimize performance for 
+	small (less than 1 Mb) files.
+
+Wed Mar 15 09:15:02 1995  Mike Warren  (msw@sampson)
+
+	* relerr/main_nv.c (main): Remember to write Lambda_prime in the
+	output files.
+
+Sun Mar  5 15:41:49 1995  Mike Warren  (msw@sampson)
+
+	* libsw/abm.c: Update to johns Mar. 2 version.
+
+Fri Feb 24 10:14:56 1995  Mike Warren  (msw@sampson)
+
+	* Make-common/Make.delta (ARCH_SPECIFIC): -D__DELTA__ seems to have
+	been left out.
+
+Tue Feb 21 10:04:41 1995  Mike Warren  (msw@sampson)
+
+	* relerr/main_nv.c (WrapPeriodic): The Hubble flow calculation here
+	assumed Omega = 1.
+
+	* libtree/pqsort.c (pqsort): There was a spurious Calloc of
+	nsendarr at the beginning that was causing a memory leak.
+
+	* libmpmy/mpmy_io.c: Update to johns version of Jan. 28.
+
+	* libtree/pqsort.c: Update to johns version from Jan 9.
+
+Mon Feb 13 12:26:53 1995  Mike Warren  (msw@sampson)
+
+	* include/physics_generic.c (FixRsizeExact): Copy from nbody/tree16
+
+	* relerr/main_nv.c (IntegratePofT_out): Need to convert to physical
+	velocity if *tvel == *tpos.  This could bite you if you use the
+	.0000 dump rather than the initial conditions to restart a run.
+	(main): Use FixRsizeExact for do_periodic to eliminate mesh artifacts.
+	This should have propagated from the nbody/tree16 version, but didn't
+	until now.
+
+Wed Feb  8 10:43:23 1995  Mike Warren  (msw@sampson)
+
+	* relerr/main_nv.c (main): Add set_id control.
+	(main): add (1<<31)-gnobj to the set_id idents to make decomp happy.
+	(Znow): Add code to handle Omega != 1 
+
+Tue Feb  7 08:38:37 1995  Mike Warren  (msw@sampson)
+
+	* libmpmy/mpmy_nx.c (NCOMM): Increase to 800 to see if that helps
+	the cdm250f run proceed.
+
+Tue Jan 31 20:21:34 1995  Mike Warren  (msw@sampson)
+
+	* relerr/cofm_n.c: B2 == 0 happened in the cdm250f.384m run.
+	I put in a reasonable assignment instead of calling Error.
+
+Mon Jan 16 17:06:17 1995  Mike Warren  (msw@sampson)
+
+	* libsw/SDFread.c: If npart is large enough, using tree_le.hdr
+	to read .tree files will fail, since the conversion from npart
+	stored as a float will not have sufficient precision.  The 
+	workaround is to make a new hdr file with "float npart" renamed
+	to something, and specifying "int npart".
+
+Sat Jan 14 10:56:20 1995  Mike Warren  (msw@sampson)
+
+	* libsw/ring.c (Ring): The isend blocks for moderate to big sized 
+	messages, thus deadlock.  Use a temporary buffer.
+
+Mon Jan  9 16:45:29 1995  Mike Warren  (msw@sampson)
+
+	* relerr/main_nv.c (main): Missing velocity components is not
+	an error if setpvel is true.
+
+Tue Jan  3 10:04:30 1995  Mike Warren  (msw@sampson)
+
+	* libtree/decomp.c (DestDecomp): The initial if test which tries
+	to be fast was totally incorrect.
+
+Thu Dec 15 09:10:33 1994  Mike Warren  (msw@sampson)
+
+	* grav_nv.c (InheritSinkNlogN): Remove factor of 3 adjustment in
+	front of from->nterms.
+
+Tue Dec 13 16:34:41 1994  Mike Warren  (msw@sampson)
+
+	* Make-common/Make.sun4: CM5 vector unit stuff added.
+
+	* libmpmy/mpmy_cm5na.c (MPMY_Init): Add calls to allocate aux
+	space for vector units.
+
+	* libsw/asm-cm5/do_grav_fast.c: CM5 vector unit implementation of
+	do_grav. Use "ac" to compile.
+
+	* relerr/grav_nv.c: Change UNROLL and INTERACTF for CM5 vector 
+	units.
+
+Mon Dec 12 07:54:24 1994  Mike Warren  (msw@sampson)
+
+	* Make-common/Make.t3d (ARCH_SPECIFIC): Add -DUSE_SYSTEM_MALLOC.
+	All the problems with PvmSysErr are evidently because our malloc
+	can neither co-exist with nor replace the malloc that pvm calls.
+
+	* libsw/poll.c (PollWait): Clear incoming msgs before test.
+	This clears up the rport problems that mpmy_cm5na was having.
+
+	* libmpmy/iozero.c: Bcast sizeof(int) should be 1.
+
+Fri Dec  9 09:12:04 1994  Mike Warren  (msw@sampson)
+
+	* libmpmy/mpmy_craypvm.c (MPMY_Isend): Use pvm_psend.
+	(MPMY_Wait): Use pvm_precv.
+
+	* relerr/grav_nv.c: Add const to interact function args where
+	 appropriate.
+
+	* libsw/asm-i860/do_grav_fast.S: Remove check for self-interaction.
+
+	* relerr/grav_nv.c: Use Chebyshev rsqrt on t3d and _IBMR2
+	arch by default for fast NlgN code.
+
+	* libsw/poll.c: Change DllCreate to use new Dll interface.
+
+	* libtree/pqsort.c: Go back to my version that uses poll.c 
+	and batch.c. Whenever abm.c works for this stage, I'll use it.
+
+Thu Dec  8 12:28:34 1994  Mike Warren  (msw@sampson)
+
+	* libtree/pqsort.c (NFLUSH,BATCH_SIZE): Try to make the stress
+	on the message passing system a bit less.
+
+	* libmpmy/iozero.c (fseekrd0): Modifcations to support partial
+	reads, which the SP2 is fond of doing.
+
+	* libsw/mpmy_combine.c: will fail efence with optimization using
+	gcc-2.5.6 due to bottom loading.
+
+	* efence/: Sort of works.  You have to extract malloc.o from 
+	libsw.a to get the linking to work.
+
+Wed Dec  7 13:09:12 1994  Mike Warren  (msw@sampson)
+
+	* libmpmy/mpmy_cm5na.c: alternate PAROS which does not use
+	CMMD_send_async.
+
+	* libsw/msgdirinit.c (MsgdirInit): We can't open more than 64
+	msg files on the cm5 because of a limited number of file descriptors.
+
+	* libmpmy/mpmy_vertex.c: Various fixes.
+
+	* Make-common/Make.pwr2 (LOADLIBES): Latest MPIF release requires
+	yet another library. 
+
+	* include/fastflpt.h: define sqrtf_fast as sqrtf for ncube.
+
+Tue Dec  6 11:10:38 1994  Mike Warren  (msw@sampson)
+
+	* Make-common/Make.default (ARFLAGS): specify "r" by default.
+
+	* relerr/physics_n.h: reorder cell data to help memory access.
+
+	* libsw/SDFread.c (SDFread): read speed was 2x too large because
+	we were using stride instead of calculating the size of the
+	elements being read.
+
+	* Make-common/Make.default (LDFLAGS): Add DEBUG and PROFILE.
+
+Mon Dec  5 15:31:12 1994  Mike Warren  (msw@sampson)
+
+	* relerr/{grav_nv.c,main_nv.c}: Implement fast "Don't Laugh" type
+	N log N MAC.  This is is the thing to run if you want lots of
+	Mflops.  It also interfaces with the i860 assembly-coded force 
+	routine.
+
+Sat Dec  3 13:13:52 1994  John Salmon  <johns@mullet.anu.edu.au>
+
+	* libmpmy/iozero.c (close0): Don't Bcast(count=-1) if
+	read returns an error.  WARNING:  touching this file
+	doesn't reliably trigger a re-make!
+
+	*  libtree/pqsort.c:  The ABM termination code insists that
+	you don't call ABMIamDone until you're sure the nodes you've
+	sent stuff to have handled it.  This is automatic in request/reply
+	operation, but it needs special care in one-way request-only
+	operation.  Add two more types of handlers to pqsort to deal
+	with it.  
+
+Fri Dec  2 12:27:08 1994  Mike Warren  (msw@sampson)
+
+	* libsw/memfile.c (PrintMemfile): Add fflush.
+
+Thu Dec  1 09:35:07 1994  Mike Warren  (msw@sampson)
+
+	* libmpmy/mpmy_{nx,mpi,eui}.c: Remove MPMY_Shift_overlap.  It's in
+	mpmy_generic.
+
+	* libtree/,abm.c,mpmy_generic.c: merge with johns version, hoping
+	to avoid the PollUntilDone sync problem.
+
+	* libsw/poll.c (PollUntilDone): This is broken, and will never work
+	correctly unless blocking sends are used.  We use the tacit 
+	assumption that a message from proc a-->b will arrive before
+	a message from a-->c-->b.  This is the source of the mysterious
+	mpif failures on the SP2.  Moved to Obsolete.
+
+	* libtree/pqsort.c (pqsort): Add a consistency check.  This will
+	halt the code here if a message gets lost during pqsort, rather
+	than triggering the Ninteract != gnobj error later.
+	
+Wed Nov 30 10:23:10 1994  Mike Warren  (msw@sampson)
+
+	* Make-common/Make.pwr2 (LOADLIBES): New mpif has different -L.
+	(CC_SPECIFIC): Use -gxcoff to prevent "as" from failing.
+
+	* libSDF/SDFfuncs.c (SDFopen): Must check parseerr before
+	calling buildhash, or else you might dereference NULL.
+
+	* relerr/image.c: Obsolete, has been in libtree for a while.
+
+	* {image.c,iozero.c}: Remove defs of MPMY_send and
+	MPMY_recvn.
+
+	* include/mpmy.h: Protos for MPMY_send and MPMY_recvn
+
+	* libmpmy/mpmy_gather.c: Give global scope to the blocking
+	MPMY_send and MPMY_recvn that have appeared in various other 
+	places.
+
+Wed Nov 30 11:49:45 PST 1994 David Edelsohn (edelsohn@sampson)
+
+	* Make-common/Make.pwr: Use full path name for include.
+
+	* relerr/physics_n.h (OUTBODYDESC): Add whitespace.
+
+Tue Nov 29 09:41:48 1994  Mike Warren  (msw@sampson)
+
+	* relerr/main_nv.c (main): do_separatefiles is now read_nfiles
+	and write_nfiles.  These use the new MPMY_Nfileio technology.
+	An Nfile gets the header (MPMY_SINGLO part) in the p000 file.
+	A regular file can be had by concatenation of the parts.
+	We can probably rip out the stuff out of SDFread that does the
+	same thing. One is currently limited to reading an Nfile on the 
+	same number of procs as it was written from.  This is not really 
+	so bad when you consider that on the SP2 you can't get at the files
+	on the local /tmp disks	from anywhere else anyway.  
+
+	* libsw/{SDFwrite3.c,SDFwrite3a.c}: Obsolete.
+
+	* libmpmy/mpmy_nx.c: use mpmy_io.c instead of mpmy_pario.c
+
+	* libmpmy/iozero.c (fseekrd0): allbuf should be malloced only if
+	procnum == 0.  This was a serious memory leak.
+	(write0_multi): multi mode write occuring through proc 0.
+	(read0_multi): multi mode read occuring through proc 0.
+
+	* libmpmy/mpmy_{seq,eui,mpi,pvm,craypvm,sunmos,vertex}.c: include 
+	mpmy_io.c instead of mpmy_unixio.c
+
+	* libmpmy/mpmy_io.c: New IO model.  Should work correctly on
+	anything that uses a unix-like open, read, write, etc.  Writes
+	are serial from proc 0, so there should be no nfs problem. The 
+	special collective modes (which have not been implemented in
+	this model) may be somewhat faster on the paragon, and certainly
+	faster on the cm5.  Some of the libSDF stuff can be cleaned up
+	after this proves to be stable.
+
+Tue Nov 29 10:16:07 1994  John Salmon  <johns@mullet.anu.edu.au>
+
+	* relerr/grav_nv.c:  Fixed a bug in the BigMac calculation.  It
+	should be 6.0*mass*bmaxsrc*bmaxsink.  Not 2.0.
+
+Mon Nov 28 09:30:20 1994  Mike Warren  (msw@sampson)
+
+	* libmpmy/mpmy_craypvm.c: (MPMY_Init) Add OnAbnormal PrintMemfile.
+
+	* libmpmy/mpmy_lsv.c: (MPMY_Test) Add a Recvd Msg.
+
+	* libmpmy/mpmy_nx.c: Remove calls to Msg_flush().  This is bound to
+	cause terrible performance.  If it is really necessary, use
+	Msg_memfile which has no buffering.
+	(MPMY_Shift) Take out obsolete code.
+
+	* libmpmy/mpmy_mpi.c: Rename Malloc et al. before including mpi.h
+	to avoid namespace problems.
+	(mp_linked_euilib) Provide global variables to avoid mpcc if _AIX.
+	(CANT_USE_ALARM) Define if _AIX.
+	(MPMY_Test, MPMY_Wait) Add Recvd Msgs.
+
+Sun Nov 27 16:23:15 1994  Mike Warren  (msw@sampson)
+
+	(immediate action item from johns)
+	* libmpmy/mpmy_nx.c: (MPMY_Test) Move location of ChnFree to 
+	fix Chn leak.
+
+Tue Nov 22 08:57:35 1994  Mike Warren  (msw@sampson)
+
+	* libsw/mpmy_gather.c (MPMY_Bcast): Delete usused mask variable.
+
+	* Make-common/Make.t3d (OPTIMIZE:): Use -O2.  -O3 doesn't do
+	anything apart from making the executable huge from inlining.
+
+	* libtree/decomp.c (SetupDecomp): Bcast assumed a Key_t was
+	2 MPMY_INTs, which is not true on the t3d.
+
+	* relerr/main_nv.c (main): t3d cc runs out of memory compiling
+	this file if using -O3.
+
+	* libmpmy/mpmy_craypvm.c: (MPMY_Test) ChnDealloc should be ChnFree. 
+
+	(MPMY_Init) Add a singlAutoFlush.
+
+	(MPMY_Isend) Remove size restriction.  Cray has redone buffer
+	allocation scheme for pvm-3 version 1.1.  You still need to
+	setenv PVM_SM_POOL to a larger value.
+
+	(MPMY_Wait) implement.
+
+Sun Nov 20 12:17:10 1994  Mike Warren  (msw@sampson)
+	
+	* The SP2 at maui is hanging with 10k particles on 8 nodes
+	because mpc_bsendrecv is not returning on one of the nodes
+	shortly before the NGather in tree.c. This is true with both
+	the ip and us euilib, and with libeui1c.a and libeui1f.a
+
+	* libmpmy/mpmy_eui.c: (MPMY_Shift) Msgf used stat->count instead
+	of count.
+
+Fri Nov 18 14:20:38 1994  Mike Warren  (msw@sampson)
+
+	* relerr/cofm_n.c: There is a problem with the relerr calculation
+	of acc_last_max, since acc_last is not communicated for tbodies.
+	Further investigation is warranted.
+
+	* libSDF/SDFfuncs.c (SDFseekrdvecsarr): remove (void) cast 
+	from memcpy().
+
+	* Make-common/Make.pwr2: Take care of ARCH=pwr changes and have
+	Make.pwr simply include Make.pwr2.
+
+	* libsw/malloc.c: prevent malloc_debug() incest with insight.
+
+	* include/fastflpt.h: insight won't do asm.
+
+	* include/error.h: insight can't handle varargs macros either.
+
+	* include/gccextensions.h: Parasoft insight doesn't like 
+	__attribute__.
+
+Fri Nov 18 16:27:19 1994  David Edelsohn  <c1dje@sandcastle.watson.ibm.com>
+
+	* libsw/poll.c: Swap const and static in definition of `junk'.
+
+	* libmpmy/mpmy_eui.c (EUI_ACTIVE, EUI_ERROR): New macro values.
+	(MPMY_Test): Use them and test explicitly for value not <0.
+	(timers_readrtc.c): Include.
+	(CANT_USE_ALARM): Define.
+
+	* libmpmy/mpmy_mpi.c (MPMY_Init): Fix typo _MPMY_initialized_.
+
+	* libmpmy/timers_readrtc.c: New (updated for tree16) file.
+
+	* Make-common/Make.pwr: New file.
+
+Thu Nov 10 10:31:01 1994  Mike Warren  (msw@sampson)
+
+	* relerr/physics_n.c: gcc 2.6.0 doesn't work with as on sp2.
+	"/tmp/ccWVQCSM.s: line 3357: 1252-152 Internal error related to 
+	the source program domain."
+	        Depending upon where you acquired this product, contact
+	        your service representative or your approved supplier.
+ 
+
+	* relerr/main_nv.c: Enable sigio_setup for _AIX.  This might
+	help figure out why sp2 nodes are going off the air.  "kill -IO"
+	the process you want to know about, and it will print the 
+	message buffer. You can also use "jab" from the misc directory,
+	which doesn't require figuring the pid on the remote procs.
+	You need Msg_memfile=1 in the .ctl file.
+
+	* libsw/sigio_dump.c (sigio_setup): If this is running with
+	lsv or on the SP2, each node should listen for SIGIO, not
+	just proc 0 as is the case now.
+
+	* lsv/lsvstart: Change to TREEHOME from TREE15HOME.
+
+Wed Nov  9 10:15:25 1994  Mike Warren  (msw@sampson)
+
+	* libsw/lsv.c: Need to include sys/select.h for _AIX
+
+	* relerr/main_nv.c (PrintLoad): Figure out CPU efficiency by
+	dividing cputime by wall-clock time.  This can hopefully
+	be extended to provide better load balance on parallel machines
+	with shared nodes.
+
+	* Whew...Status report:  Sequential version is known to work
+	for ARCH:=sun4 sun4-acc IP22 cray pwr2 hp t3d.  sun4-pvm which
+	was previously broken, now works.  sun4-lsv works, as always.
+	t3d-craypvm has problems.  pwr2-eui seems to hang sometimes
+	at Maui.
+
+	* libmpmy/mpmy_pvm.c (MPMY_Wait): recv for wildcard src was
+	broken.  Also must get src procnum from intid.
+
+	* libtree/nlcomm.c: YMP has same compiler bomb as T3D.
+
+	* libmpmy/mpmy_pvm.c: include <pvm3.h> with <> or else make
+	depends will get very confused.  Also, back out change of
+	pvm_get_PE, which was motivated by confusion over using pvm
+	instead of craypvm on the t3d.
+
+	* libmpmy/mpmy_craypvm.c: include mpmy_abnormal.c
+
+	* Make-common/Make.hp: New file.
+
+	* include/fastflpt.h (sqrtf_fast): define for __hppa__
+
+	* include/protos.h: Don't use Sunos protos if _SUNACC is defined.
+
+Tue Nov  8 14:41:50 1994  Mike Warren  (msw@sampson)
+
+	* Make-common/Make.sun4: Update to use Make.default.
+
+	* Make-common/Make.: Is this a hack?  No need for an ARCH, just
+	"gmake CC=gcc"
+
+	* Make-common/Make.IP22: Update to use Make.default, and take out
+	profile flags that were in the old version.
+
+	* Make-common/Make.default: Another level of Makefile, which
+	takes the common stuff out of the ARCH specific Makefiles, 
+	and tries to handle debugging and profiling for all ARCHes.
+	This could maybe be combined with Make.generic, but it would
+	break the old Make.$(ARCH) files.
+
+	* relerr/grav_ring.c: CCInt and TranslateCnt should be extern,
+	since they are declared in grav_nv.c
+
+	* libsw/malloc.c: return 0 instead of -1 for malloc_used() if
+	USE_SYSTEM_MALLOC is defined.  We could maybe try to use the
+	ru_maxrss field from getrusage.
+
+Tue Nov  8 07:47:28 1994  Michael S Warren  (mswarren@fr1n05.mhpcc.edu)
+
+	* relerr/main_nv.c: Use EnableWCTimer for StepTotWC.
+
+	* libsw/poll.c (PollUntilDone): junk is a local variable.  When
+	we call DllWait() to wait for it to be sent, we leave its
+	scope.  Now we instead use a static global for the buffer.
+	This was also a problem in the NLDone isend.  Finding this 
+	bug is thanks to "setenv MP_EUIDEVELOP yes" which evidently 
+	checks send buffer consistency.
+
+	* Make-common/Make.pwr2:  Attempt to combine all CFLAGS and CC
+	variants of ARCH into a single Makefile.
+
+
+Mon Nov  7 12:33:05 1994  Mike Warren  (msw@sampson)
+
+	* Make-common/Make.generic (libobj): Use $swsrc from Makefiles
+	and get rid of Make.* in libsw
+
+	* Make-common/Make.generic (extraexcludes): Change obsolete to 
+	Obsolete and *.tgz to *gz.  Add NOT_PORTED.  "make dist" now
+	makes a minimal distribution.

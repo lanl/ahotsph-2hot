@@ -1,0 +1,29 @@
+defaultCC:=gcc-4.8.0
+
+CC_SPECIFIC:=-g -Wall -std=c99 -D_XOPEN_SOURCE=500
+ARCH_SPECIFIC:=-march=barcelona -msse4a -DSTK_FORCE_ALIGNMENT=4 -D_FILE_OFFSET_BITS=64 -DUSE_SYSTEM_MALLOC -DUSE_MPIIO -DUSE_HWCLOCK -DPROCS_PER_NODE=24 -DAMD6100
+OPTIMIZE=-Ofast
+AGGRESSIVE_OPT=-Ofast
+LDFLAGS=-g
+LEX:=flex
+YACC:=bison -y
+
+include $(treedir)/Make-common/Make.default
+
+swsrc:=
+asmdir:=asm-sse
+asmsrc=do_grav_sse64_noswiz.s do_grav_sse64_noswiz_eps.s do_grav_sse64_nr.s
+cppasmsrc=do_grav_sse16_ivec.S
+
+LOADLIBES=-lrt
+
+ifeq ($(PAROS),mpi)
+LOADLIBES:=-L$(MPI_ROOT)/lib -L$(MPI_ROOT)/lib64 -lmpi -lslurm
+PAROSCFLAGS:=-I$(MPI_ROOT)/include
+endif
+
+ifeq ($(PAROS),mvapich2)
+LOADLIBES:=-L/usr/projects/packages/hpctools/mustang/mvapich2/1.7-gcc/lib64 -lmpich -lmpl -lslurm
+PAROSCFLAGS:=-I/usr/projects/packages/hpctools/mustang/mvapich2/1.7-gcc/include
+endif
+

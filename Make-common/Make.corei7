@@ -1,0 +1,29 @@
+defaultCC:=gcc-4.6.1
+
+CC_SPECIFIC:=-g -Wall
+ARCH_SPECIFIC:=-D__iX86__=x86_64 -march=corei7 -msse4.2 -DLONG_NK1_KEY -DSTK_FORCE_ALIGNMENT=4 -D_FILE_OFFSET_BITS=64 -DUSE_SYSTEM_MALLOC -DUSE_MPIIO -DUSE_HWCLOCK -DPROCS_PER_NODE=8
+OPTIMIZE=-O2
+AGGRESSIVE_OPT=-Ofast
+LDFLAGS=-g
+LEX:=flex
+YACC:=bison -y
+
+include $(treedir)/Make-common/Make.default
+
+swsrc:=lsv.c swampi.c
+asmdir:=asm-sse
+asmsrc=do_grav_sse64_noswiz.s do_grav_sse64_noswiz_eps.s do_grav_sse64_nr.s
+cppasmsrc=do_grav_sse16_ivec.S
+
+LOADLIBES=-lclass -lrt
+
+ifeq ($(PAROS),openmpi)
+LOADLIBES:=$(MPI_LD_FLAGS)
+PAROSCFLAGS:=-I$(CPATH)
+endif
+
+ifeq ($(PAROS),mpi)
+LOADLIBES:=-L$(MPI_ROOT)/lib -L$(MPI_ROOT)/lib64 -lclass -lmpi -lslurm
+PAROSCFLAGS:=-I$(MPI_ROOT)/include
+endif
+

@@ -1,0 +1,1338 @@
+2012-12-06  Michael S. Warren  <mswarren@mu-fe4.lanl.gov>
+
+	* nln/do_grav_sse4.c (do_gravh_amd6100_sse4): qxxyz*xxy term was missing from do_gravh_amd6100_sse4
+
+2012-11-29  Michael S. Warren  <mswarren@mu-fe4.lanl.gov>
+
+	* Start using -std=c99 features.
+
+2012-11-09  Michael S. Warren  <mswarren@mu-fe4.lanl.gov>
+
+	* libsw/SDFread.c (SDFread64): Calculate size of objects read to
+	calculate I/O rate properly.
+
+2012-11-08  Michael S. Warren  <mswarren@mu-fe4.lanl.gov>
+
+	* nln/cofm.c (CellFromCofm): Add missing trace terms to
+	expressions for B4 and B6.  Increases accuracy by ~5%.
+
+2012-11-07  Michael S. Warren  <mswarren@mu-fe4.lanl.gov>
+
+	* nln/cofm.c (CofmFromDaugh): Flip sign of x,y,z for
+	mpole_add_mono and mpole_add_shift.  Before this fix, the odd
+	powers in the p=3 multipole had the wrong sign.  Results in an 8x
+	improvement in RMS accuracy at strict errtol.
+
+2012-10-25  Michael S. Warren  <mswarren@mu-fe4.lanl.gov>
+
+	* libtree/walk.c (reqhndlr): Flush replies immediately
+
+	* nln/output.c (output): ConvertV should use tvel, not tpos.
+	Before the fix, checkpoint/restart from high z would result in a
+	measurable decrease in delta_rho/rho (1.0% for a z=50 restart, see
+	lcdm_qd0/early_restart_test)
+
+2012-10-05  Michael S. Warren  <mswarren@mu-fe4.lanl.gov>
+
+	* apps/convert/gadgetptosdf2.c (main): Offset positions by half a
+	grid cell so unperturbed positions are centered in the tree cells.
+
+2012-10-04  Michael S. Warren  <mswarren@mu-fe4.lanl.gov>
+
+	* nlnsd/main.c (main): Update cosmo_s to cosmology, full support of Omega0_g and Omega0_fld
+	(set_vels): remove step0_corr
+	(main): use tvel instead of tpos in ConvertV
+
+2012-09-26  Michael S. Warren  <mswarren@mu-fe4.lanl.gov>
+
+	* nlns/cofm.c: Modify sigma_m table to increase accuracy around m=1e15 and below
+
+2012-09-16  Michael S. Warren  <mswarren@mu-fe4.lanl.gov>
+
+	* apps/pspec-mpi/pspec.c (MAXTFTABLE): Double size.  Max k was
+	increased in setup for class halofit to work to z=4
+
+2012-09-11  Michael S. Warren  <mswarren@mu-fe4.lanl.gov>
+
+	* nln/main.c (main): write aux light cone files to use in case of
+	restart from non-checkpoint.
+
+	* libmpmy/mpmy_mpiio.c (MPMY_Fopen): Do not set unique open if
+	MPMY_RDONLY
+
+	* libSDF/SDF-parse.y (SDF_Setiomode): Change from unused
+	SYNC/ASYNC to SINGL/MULTI to allow independent file processing on
+	multiple nodes.
+
+2012-08-05  Michael S. Warren  <mswarren@mu-fe3.lanl.gov>
+
+	* nlnd/mac.c (SetupGrav): Change eps scaling factors for U, F2, K1
+	and add F1 and Spline kernels
+
+	* nlnd/do_grav_sse4.c (do_gravs*_sse4): sign was wrong for U, F2
+	and K1 smoothing kernels.
+
+	* libmpmy/mpmy_mpiio.c (MPMY_Fread): Fix spurious error exit when
+	we read less than nitems (SDFhdrio reads with a buffer bigger than
+	the file).
+
+2012-07-23  Michael S. Warren  <mswarren@mu-fe4.lanl.gov>
+
+	* apps/pspec-mpi/pspec.c (main): add chain_factor
+
+	* apps/fft/class.c (class_cdm): Implement CIC sharpening to
+	replace alpha/beta sharpening parameters
+
+2012-06-11  Michael S. Warren  <mswarren@mu-fe1.lanl.gov>
+
+	* nlnx/tree.c (make_tree): Appears that Finish() was not called
+	for lastckey on the last processor, which had the effect of making
+	extra branches.
+
+2012-05-21  Michael S. Warren  <mswarren@mp-fe1.lanl.gov>
+
+	* libtree/walk.c (ABMPKTSIZE): Increase from 4096 to 16384
+
+2012-04-30  Michael S. Warren  <mswarren@mu-fe2.lanl.gov>
+
+	* nln/main.c (main): Simplify comov_eps logic.  eps is scaled by
+	a*(1+comov_eps_Zmin) and needs just one parameter (comov_eps
+	becomes a binary flag).
+
+2012-04-20  Michael S. Warren  <mswarren@cj-fe1.lanl.gov>
+
+	* nlnd/cofm.c (rtnewt): Don't make rtnewt failure fatal.  Probably
+	should not call it for 2 particle quadrupole expansions.
+
+2012-04-16  Michael S. Warren  <mswarren@cj-fe1.lanl.gov>
+
+	* apps/SDFcvt/SDFcvt.c: Use atoll for -n and -s args.
+
+2012-04-15  Michael S. Warren  <mswarren@cj-fe1.lanl.gov>
+
+	* nlnd/mac.c (RcritMAC): Fix Ncut logic.  Haven't used plain
+	RcritMAC since dynamic cell size changes.
+
+2012-04-14  Michael S. Warren  <mswarren@cj-fe1.lanl.gov>
+
+	* nlnd/main.c (main): this_eps_scaled used 2/3 exponent instead of
+	1/3.  Just affects logging.
+	(main): Fix stop logic to not take extra step at end.
+
+2012-03-21  Michael S. Warren  <mswarren@mu-fe3.lanl.gov>
+
+	* apps/fft/class.c (setup_class_cdm): Don't multiply pivot by h.
+
+	* apps/pspec-mpi/pspec.c (main): Don't multiply pivot_mpc by h.
+
+2012-03-21  Michael S. Warren  <mswarren@cj-fe1.lanl.gov>
+
+	* apps/etc/sigma.c (delta2): Don't multiply Pivot_Mpc by h.
+
+2012-03-19  Michael S. Warren  <mswarren@cj-fe1.lanl.gov>
+
+	* nlnd/main.c (CosmoSymplecticIntegrate): Symplectic integrator in
+	comoving co-ordinates a la Quinn et al.
+
+2012-03-09  Michael S. Warren  <mswarren@cj-fe1.lanl.gov>
+
+	* libsw/cosmo.c: Move dofZ functions to cosmo.c, and extend for
+	Omega_r and Omega_de
+
+2012-02-25  Michael S. Warren  <mswarren@mu-fe2.lanl.gov>
+
+	* nln/main.c (set_displacement): The Zel'dovich f factor was
+	incorrectly being used in the displacements (was correct for vels).
+
+2012-02-23  Michael S. Warren  <mswarren@cj-fe1.lanl.gov>
+
+	* libsw/dofZ.c (adot): 
+	* nln/main.c (CosmoPush): Add Omega_ur to background evolution.
+	Lack of it was changing the age of the Universe compared to CLASS
+	by 1 part in 10^4.
+
+2012-02-19  Michael S. Warren  <mswarren@mu-fe2.lanl.gov>
+
+	* nln/main.c (main): this_tol has been scaling with linear
+	dimension.  Add a factor to normalize it, so that errtol specifies
+	the absolute error tolerance at the edge of a 500 Mpc sphere.
+
+2012-02-17  Michael S. Warren  <mswarren@mu-fe1.lanl.gov>
+
+	* nln/main.c (main): Use growth fac instead of a to scale Ztol.
+
+	* libsw/dofZ.c (growthfac_from_Z): Move into libsw
+
+2012-02-16  Michael S. Warren  <mswarren@mu-fe1.lanl.gov>
+
+	* libtree/pqsort.c (pqsort): Use new rsort.
+
+	* libsw/rsort.c (rsort): Implement radix sort.
+
+2012-02-03  Michael S. Warren  <mswarren@mp-fe2.lanl.gov>
+
+	* libSDF/SDFfuncs.c (SDFseekrdvecsarr): buf_sz was overflowing,
+	changed it to int64_t
+
+2012-02-02  Michael S. Warren  <mswarren@mp-fe2.lanl.gov>
+
+	* apps/fft/GNUmakefile (EXTRACFLAGS): Update to fftw-3.3
+	(regression checked in lcdm_ph/lowres512)
+
+2012-01-26  Michael S. Warren  <mswarren@mp-fe2.lanl.gov>
+
+	* libsw/mpmy_gather.c (MPMY_Alltoallv): Fix an error that occured if
+	Nproc % PROCS_PER_NODE was not zero.
+
+2012-01-26  Michael S. Warren  <mswarren@cj-fe2.lanl.gov>
+
+	* nln-edge/main.c (main): Make this_tol stricter if setdisplacement is true.
+
+2012-01-25  Michael S. Warren  <mswarren@cj-fe2.lanl.gov>
+
+	* apps/fft/prftw.c (fourP): Fixed bug where result of
+	direct_untranspose() was not being assigned to buf.  Worked
+	previously as long as Malloc() in direct_untranspose gave same
+	pointer as direct_transpose().
+
+2012-01-25  Michael S. Warren  <mswarren@mp-fe2.lanl.gov>
+
+	* Make-common/Make.amd6100 (ARCH_SPECIFIC): Deprecate ARCH=nk2, and don't use LONG_NK1_KEY to use 128-bite keys as default.
+	(ARCH_SPECIFIC): replace __iX86__ with __x86_64__ everywhere.
+
+2012-01-23  Michael S. Warren  <mswarren@cj-fe2.lanl.gov>
+
+	* libmpmy/mpmy_mpiio.c (MPMY_Fwrite): Fix MAXIOSIZE code with loop
+	over MPI_File_write_at() to support writes of more than 2GB.
+
+	* libtree/tree.c: Use allgatherv to collect branches
+
+2012-01-21  Michael S. Warren  <mswarren@cj-fe2.lanl.gov>
+
+	* libsw/SDFwrite.c (SDFwrite_alist64): make nobj an int64_t
+	(initial conditions code can now do more than 2G points per proc)
+
+	* apps/fft/init.c (main): make nobj an int64_t
+
+2012-01-18  Michael S. Warren  <mswarren@mu-fe2.lanl.gov>
+
+	* libmpmy/mpmy_abnormal.c (MPMY_SystemAbort): reset SIGABRT
+	handler to see if it cures infinite MPMY_SystemAbort().
+
+2012-01-17  Michael S. Warren  <mswarren@mp-fe2.lanl.gov>
+
+	* nln-edge/main.c: Convert CosmoPush internals to double precision.
+	(CosmoPush): Make nstep 2x larger.
+
+2012-01-11  Michael S. Warren  <mswarren@mp-fe2.lanl.gov>
+
+	* nln/mac.c: Mess with layout and sizes of Ivec/Qvec/Hvec to improve caching.
+	(INTERACTH): Use do_gravh_sse4_amd6100 if appropriate.
+
+2012-01-08  Michael S. Warren  <mswarren@cj-fe2.lanl.gov>
+
+	* nln/do_grav_sse4.c (do_gravq_sse4): Fix typo in prefetch that
+	was causing odd slowness in a few per 1000 processors.
+
+	* libmpmy/mpmy_mpiio.c: remove buggy MAXIOSIZE code.
+
+2012-01-07  Michael S. Warren  <mswarren@cj-fe2.lanl.gov>
+
+	* nln/physics.h: Change daughters to int64_t.
+
+2012-01-06  Michael S. Warren  <mswarren@cj-fe2.lanl.gov>
+
+	* libsw/mpmy_gather.c (MPMY_Alltoallv): Implement hierarchical
+	alltoallv to conserve buffer resources.
+
+	* libtree/pqsort.c: Use Alltoall for comm.
+
+	* libtree/decomp.c (SetupDecomp): Fix weight accumulation so it is
+	not affected by roundoff error.
+
+2011-12-17  Michael S. Warren  <mswarren@cj-fe2.lanl.gov>
+
+	* libmpmy/mpmy_mpi.c: set procs per node using ifdef.  Should get this from
+	environment variable.
+
+	* libmpmy/mpmy_generic.c: add procs_per_node.
+
+	* libsw/poll.c: add procs_per_node support.
+
+	* libsw/batch.c: add procs_per_node support.
+
+	* libtree/pqsort_msw.c: Switch to pqsort_msw code.
+
+2011-09-20  Michael S. Warren  <mswarren@cj-fe2.lanl.gov>
+
+	* libmpmy/mpmy_mpi.c: allocate commchn immediately, or else it can fragment heap later.
+
+	* libtree/decomp.c (SetupDecomp): Increase probe density to 1000 per proc to improve sort balance.
+	statically allocate decomptab to avoid heap fragmentation.
+
+2011-09-20  Michael S. Warren  <mswarren@mp-fe2.lanl.gov>
+
+	* libmpmy/mpmy_mpi.c (NCOMM): Increase to prevent memory fragmentation.
+
+2011-09-19  Michael S. Warren  <mswarren@cj-fe2.lanl.gov>
+
+	* libtree/walk.c: Add support for src offsets to enable more
+	efficient periodic boundary conditions.
+
+2011-09-12  Michael S. Warren  <mswarren@cj-fe2.lanl.gov>
+
+	* libtree/walk.c: Use CellSz() in tree struct to determine size of cell/quadcell/hexacell
+	objects.
+
+2011-09-10  Michael S. Warren  <mswarren@cj-fe2.lanl.gov>
+
+	* libtree/tree.c: Make CellFromCofm call ChnAlloc and return
+	pointer to allocated memory in order to support multiple cell
+	sizes.
+
+2011-08-26  Michael S. Warren  <mswarren@cj-fe2.lanl.gov>
+
+	* Make-common/Make.generic (all): support .S assembly files in Make.generic
+
+2011-08-23  Michael S. Warren  <mswarren@cj-fe2.lanl.gov>
+
+	* libsw/asm-sse/do_grav_sse64_nr.s (do_grav_sse_nr): Add Newton
+	iteration after rsqrtps approximation to give 22 accurate bits of
+	mantissa vs 11.  Appears to slow down do_grav by a factor of 1.4.
+	Increased accuracy may be detectable in setpos and early timesteps
+	where accuracy tolerance is strict.
+
+2011-08-08  Michael S. Warren  <mswarren@cj-fe2.lanl.gov>
+
+	* nlne/main.c (main): backport scaling epsilon by mass to enable
+	hierarchical mass resolution simulations
+
+2011-07-29  Michael S. Warren  <mswarren@cja018.localdomain>
+
+	* libSDF/SDFfuncs.c (SDFseekrdvecsarr): add USE_ALLOCA code to reduce heap fragmentation
+
+2011-03-31  Michael S. Warren  <mswarren@cj-fe2.lanl.gov>
+
+	* nln-devel/physics_generic.c (OutIdentKey): Change definition of
+	OutIdentKey to keep 64 bits.
+
+2011-03-29  Michael S. Warren  <mswarren@cj-fe1.lanl.gov>
+
+	* libSDF/SDFfuncs.c (SDFseekrdvecsv): va_arg for start used int
+	instead of int64_t
+
+2011-03-26  Michael S. Warren  <mswarren@cj-fe1.lanl.gov>
+
+	* nln-devel/cofm.c (CellFromCofm): increase precision of B4.
+	finite check was failing in lcdm_nb sim.
+
+2011-03-24  Michael S. Warren  <mswarren@cj-fe2.lanl.gov>
+
+	* nln-devel/jacobi.c (free_matrix): Fix memory leak.
+
+2007-08-17  Michael S. Warren  <mswarren@cy-4.lanl.gov>
+
+	* libmpmy/mpmy_mpi.c: enable MPMY_OnAbnormal handlers
+
+	* libmpmy/mpmy_abnormal.c: add SIGIOT to trapped signals
+
+2007-08-16  Michael S. Warren  <mswarren@cy-c2.lanl.gov>
+
+	* libsw/SDFread.c (SDFread): emit read speed in Mb/sec instead of kb/s
+
+2007-05-26  Michael S. Warren  <mswarren@pfe1.lanl.gov>
+
+	* libSDF/SDFfuncs.c (SDFrdvecsarr): fix bad Malloc size for starts
+	(int64_t vs int)
+
+2007-01-03  Michael S. Warren  <mswarren@cy-2.lanl.gov>
+
+	* Make-common/Make.x86_64 (ARCH_SPECIFIC): use STK_FORCE_ALIGNMENT of 4 instead of 8.
+
+2006-10-23  Michael S. Warren  <mswarren@pink.lanl.gov>
+
+	* nln-devel/main.c (main): Make sure not to do a ConvertVPofT()
+	before set_displacement(), since we are using vel[2] as temporary
+	storage for cmass
+
+2006-07-19  Michael S. Warren  <mswarren@cy-4.lanl.gov>
+
+	* libmpmy/mpmy_io.c (MPMY_Fwrite): change int args to size_t
+
+2006-07-19  Michael S. Warren  <mswarren@cy-2.lanl.gov>
+
+	* include/stk.h: change StkSz to return size_t
+
+	* libsw/stk.c: make StkGrow capable of growing larger than 2^31 bytes
+
+2006-07-14  Michael S. Warren  <mswarren@cy-c3.lanl.gov>
+
+	* nln/main.c: Same fix as below.
+
+	* nln-devel/main.c: Fix incorrect decrement in FixGlobalForce (last particle was ignored)
+
+2006-07-03  Michael S. Warren  <mswarren@cy-c3.lanl.gov>
+
+	* libsw/Malloc.c (WARNSIZEINITIAL): increase to 1Gb for opterons
+	(4Gb/proc)
+
+	* libsw/singlio.c: make singl_auto_flush = 1 default, since coyote seems to not line buffer stdio
+
+	* apps/fft/init.c (main): Use Stk to grow btab instead of
+	malloc'ing a too-big block for coarsened arrays.
+
+2006-06-28  Michael S. Warren  <mswarren@cy-5.lanl.gov>
+
+	* nln-devel/mac.c (InheritSinkNlogN): phi self-interaction fix
+
+2006-06-26  Michael S. Warren  <mswarren@cy-4.lanl.gov>
+
+	* apps/fft/init.c (shrink): Don't use average in order to reduce
+	filtering effect in k-space
+
+2006-06-25  Michael S. Warren  <mswarren@cy-c3.lanl.gov>
+
+	* nln-devel/mac.c (DLRcritMAC): Add pseudo-particle interactions
+
+	* nln-devel/physics.h: Changes for quadrupoles
+
+	* nln-devel/cofm.c (CellFromCofm): Implement quadrupole rcrits.
+	(PPfromQ): create three pseudo-particles from quadrupole moment
+
+2006-06-15  Michael S. Warren  <mswarren@cy-c2.lanl.gov>
+
+	* libmpmy/mpmy_mpiio.c: No mpio.h
+
+2005-12-02  Michael S. Warren  <mswarren@pfe1.lanl.gov>
+
+	* include/physics_generic.[ch]: Make shifts by CHUBITS act on long long in case CHUBITS is greater than 32
+
+2005-12-02  Michael S. Warren  <mswarren@pink.lanl.gov>
+
+	* libsw/SDFread.c (SDFread): Used gnobj instead of *gnobjp for
+	reporting read speed
+
+2005-12-01  Michael S. Warren  <mswarren@pfe1.lanl.gov>
+
+	* libsw/SDFreadf.c (SDFreadf): read speed assumed bytes read were
+	nnames*sizeof(float).  Changed to stride (which still may not be
+	correct in some cases).
+
+2004-11-30  Michael S. Warren  <mswarren@pink.lanl.gov>
+
+	* sph+nln/main.c (main): backport Ztol from nln
+
+	* sph+nln/sphinit.c (InitRead): add baryon_frac
+
+2004-07-02  Michael S. Warren  <mswarren@pink.lanl.gov>
+
+	* libsw/files.c (ForceOutput): workaround for ram filesystem
+
+2004-06-30  Michael S. Warren  <mswarren@pink.lanl.gov>
+
+	* apps/fft/prftw.c (prftw): half_nn2/nproc goes to zero if Nmesh == nproc
+
+2004-04-22    <msw@ss3>
+
+	* apps/pspec/pspec.c (main): add chain_factor for doing reduced fields
+
+2004-04-21    <msw@ss3>
+
+	* nln/cofm.c: if B2 is zero, set to a small value
+
+2004-03-24    <msw@ss3>
+
+	* libsw/swampi.c (MPI_Sendrecv): recvtag had bad decl of
+	MPI_Datatype (should be int)
+
+2004-03-23    <msw@ss3>
+
+	* include/swampi.h (MPI_Comm_free): add SWAMPI_Comm_free
+	(MPI_Issend): define MPI_Issend as SWAMPI_Isend
+
+2004-03-10    <msw@ss3>
+
+	* apps/fft/cmbfast4.c (setup_cmbfast4_cdm): add alpha_ns
+
+2004-03-05    <msw@ss3>
+
+	* apps/fft/cmbfast4.c (cmbfast4_cdm): Add support for Tilt_n
+
+2004-02-02    <msw@ss3>
+
+	* apps/fft/init.c (main): Fix broken handling of inner boundary
+	when using data_level and boundary_level.
+
+2004-01-31    <msw@ss1>
+
+	* nlne/main.c (set_displacement): Pull the un-perturbed mass in
+	vel[0], so we can have multiple masses in the ICs.
+
+2004-01-29    <msw@ss3>
+
+	* nlne/physics.h: add support for per-particle epsilon
+
+	* apps/etc/sigma.c: add nyquist_window to evaluate effects of
+	missing power at small scales
+
+2004-01-27    <msw@ss3>
+
+	* apps/fft/init.c (main): add some long longs to enable larger
+	than 1024^3 ffts on ia32
+
+	* apps/dmm/gdmm.c (main): Add mass cut capability.
+
+2004-01-15    <msw@ss3>
+
+	* libsw/SDFwrite.c (SDFunsetwroteheader): Need to be able to unset
+	wrote_header if we are writing more than one file at a time.
+
+2004-01-14    <msw@ss3>
+
+	* apps/hmassr/hmass_fof.c (main): add extra arg to set outname
+
+2004-01-11    <msw@ss3>
+
+	* nln/main.c (main): add 4 image slices when images are turned on.
+
+2004-01-07    <msw@ss3>
+
+	* apps/fft/cmbfast4.c (setup_cmbfast4_cdm): add FixAmpl flag to
+	contrain amplitudes (only phases are random)
+
+2004-01-03    <msw@ss3>
+
+	* nln/main.c (main): add Ztol
+
+2003-12-11    <msw@ss3>
+
+	* apps/corr/corr.c (OUTBODYDESC): Change histograms to use double
+	precision.
+
+2003-12-02    <msw@ss3>
+
+	* libsw/swampi.c (MAX_NPOST): Increase to 1000 since sph+nln fails.
+
+2003-11-14    <msw@ss1>
+
+	* nln/mac.c (RcritFac): Change RcritFac to 2.0
+	(DLmacv): put in DLmacv from relerr_bench, since it is much faster
+	for some unknown reason
+	(InheritSinkNlogN): Forgot to divide Ivec index by UNROLL!  Doing
+	4x as many flops as necessary
+
+2003-11-06    <msw@ss3>
+
+	* apps/fft/powlaw4.c (powlaw4): Update powlaw to cmbfast4
+	normalization convention
+
+2003-10-15    <msw@ss3>
+
+	* apps/fft/prftw.c (fftw1): implement parallel fftw for
+	non-power-of-two support
+
+	* apps/fft/prft.c: include string.h for memcpy prototype
+	delete maxmem and maxheap functions
+
+2003-09-09    <msw@ss3>
+
+	* apps/fft/prft.c (prft): Fix problem with k==0 and k=half_nn2
+	modes.
+
+2003-09-04    <msw@ss3>
+
+	* apps/fft/cmbfast.c (setup_cmbfast_cdm): Loop to normalize tf
+	didn't do last element.
+
+2003-08-12    <msw@ss1>
+
+	* libtree/decomp.c (SetupDecomp): do weight arithmetic in double
+	precision.
+
+2003-07-22    <msw@ss1>
+
+	* apps/fft/init.c (main): remove if (data[i] != 0.0) test
+
+2003-06-13    <msw@ss1>
+
+	* libmpmy/iozero.c (flen): fstat was having trouble.  Use return
+	from lseek to end instead.
+
+2003-06-03    <msw@ss1>
+
+	* nln/mac.c (IVECSZ): increase IVECSZ for low tol tests
+
+2003-05-30    <msw@ss1>
+
+	* nln/main.c (main): call WrapPeriodic before first step, since converted 
+	pmhdf files may not be wrapped
+
+2003-04-09    <msw@ss1>
+
+	* libtree/image.c: Change shift on GetKeyFromPixel to enable
+	larger images
+
+2003-04-07    <msw@ss1>
+
+	* libmpmy/mpmy_io.c (fseekrd_nfile): Fix error that occurs when
+	node needs all data on its own disk.
+
+2003-04-04    <msw@ss1>
+
+	* include/SDFread.h: move SDFreadf to SDFread.h
+
+2003-04-03    <msw@ss1>
+
+	* apps/fft/init.c (main): Add Nfileio support
+
+	* include/key.h (NK): Use NK 2 for LONG_LONG_KEYS
+
+2003-03-26    <msw@ss1>
+
+	* libmpmy/mpmy_io.c (fseekrd_nfile): Change some vars to off_t.
+	Was failing due to 32-bit vars.
+
+2003-02-12    <msw@ss1>
+
+	* nln/mac.c: remove Msgs, Msg_test was using significant resources
+
+	* libsw/swampi.c (spin_io): change npoll from 30 to 100
+
+	* libtree/walk.c: Change ABMPollMaybe from 20 to 60
+
+2003-02-01    <msw@ss1>
+
+	* include/key.h: make __ICC__ use inline
+
+2003-01-30    <msw@ss1>
+
+	* nln/mac.c (RcritFac): set to 8.0 to improve correlated error behavior
+
+2003-01-28    <msw@ss1>
+
+	* libSDF/SDFfuncs.c (DEFAULT_MAX_BUFSZ): increase to 16 Meg
+
+2003-01-22    <msw@ss1>
+
+	* include/tree.h (HASH_BITS): Make HASH_BITS 19
+
+2002-12-10    <msw@ss1>
+
+	* libsw/ring.c: malloc needed proto from stdlib.h
+
+	* libSDF/SDFfuncs.c (SDFseekrdvecsarr): fileoffset needs to be off_t
+
+	* libmpmy/iozero.c: Ditto.
+
+	* libmpmy/mpmy_io.c: Use off_t in appropriate places.
+
+	* Make-common/Make.p4 (ARCH_SPECIFIC): Use -D_FILE_OFFSET_BITS=64 to
+	enable large file support.
+
+2002-11-26  Michael S. Warren  <mswarren@qsc4>
+
+	* libmpmy/iozero.c (fseekrd0): len must be a long
+
+	* libsw/SDFread.c (SDFread): prevent integer overflow in read speed 
+	calc
+
+	* libsw/abm.c: enable msgs
+
+	* libsw/Malloc.c: Change warn size to 512Mb
+
+	* libmpmy/iozero.c: Replace unsigned ints with unsigned longs to
+	allow I/O to be larger than 2GB
+
+2002-01-07  Michael Warren  <msw@s00505.nersc.gov>
+
+	* Make-common/Make.pwr3 (FC_SPECIFIC): specify -qtune and -qarch
+	(CC_SPECIFIC): add -qmaxmem=65536
+
+Sun Nov 30 18:23:04 1997  John Salmon  <johns@noisy.cacr.caltech.edu>
+
+	* STATUS: 
+	Integrated all of t16.5 except the 'Make' technologies and decomp.c.
+
+	Everything compiles, links and minimally runs (test10k.ctl) on
+	sun4 (sampson) PAROS=seq, swampi, lsv
+	sun5 (lux)     PAROS=seq, swampi
+	i686 (noisy)   PAROS=seq, swampi, lsv
+	i686 (naegling) PAROS=swampi (11 processors)
+
+	No other combinations were tested.  Nothing is known to be broken.
+
+	* relerr/main_nv.c: I've been burned once too many times by
+	the strncmp(name, "test", 4) test to decide whether to create
+	a random data set.  Now changed to test whether the datafile string
+	is non-empty in the .ctl file, and if not, it falls back to
+	the RNG.  This required changes to the relerr/test*.ctl files.  Also
+	changed relerr/main_*.c
+
+	* libsw/swampi.c: Use select instead of sleep when waiting for
+ 	connections.
+
+	Change the type of ptr and buf to char* so pointer-arithmetic
+	is legal on non-GNU compilers.
+
+	A few #ifndefs around non-portable socket manipulations.
+	
+	Protect the hwclock stuff with #ifdefs.
+
+	Read bogomips from /proc to get clock speed.  This isn't
+	necessarily right either, but it's better than using 200.e6.
+	
+Fri Nov 28 13:18:01 1997  John Salmon  <johns@noisy.cacr.caltech.edu>
+
+	* mpmy_gather.c: Lots of additional Msgs and debugging.  It was
+	all in pursuit of a hardware bug, but this code is HEAVILY
+	instrumented now!
+
+	* memfile.c: copied from t16.5 - lots of code for paragon...probably
+	not useful except for historical purposes.  #ifdef'ed out most of
+	the time.
+
+Fri Nov  4 00:31:21 1994  John Salmon  (johns@mullet.anu.edu.au)
+
+	* libtree/walk.c: Yet another way to warn about no progress.
+
+Thu Nov  3 16:44:28 1994  John Salmon  (johns@mullet.anu.edu.au)
+
+	* libmpmy/mpmy_eui.c:  #include mpmy_abnormal.c
+
+	* mpmy_nx.c: DON'T flick().  It's a major performance hit on delta
+	(msec?).  It has never been necessary under nx, but now that 
+	MPMY_Flick is necessary for CM5, we can't call flick() inside it.
+
+	*  throughout: Incorporated msw changes from last couple of days:
+ >> Wed Nov  2 15:55:08 1994  Mike Warren  (msw@sampson)
+ >>
+ >>	* libtree/nlcomm.c: (NLPoll) T3D compiler bomb workaround.
+ >>
+ >>	* libmpmy/mpmy_generic.c: Use timers_posix.c #if _AIX, since 
+ >>	readrtc doesn't seem to work any more.
+ >>
+ >>	* include/karp.h (recip3o2f): #define a FLOAT_PUN type, which needs
+ >>	to be a 32 bit int type.
+ >>
+ >>	* libmpmy/mpmy_eui.c: Minor changes, including declaring some
+ >>	static variables that mpcc thinks we need.
+ >>
+ >>	* libmpmy/GNUmakefile: New eui CFLAGS. (USE PAROSCFLAGS in Make-common)
+ >>
+ >>	* Make-common/Make.sp2: We can avoid using the stupid mpcc shell
+ >>	script by using -e mp_main in the LD flags, and a complicated
+ >>	LOADLIBS.
+ >>
+ >>	* libmpmy/mpmy_pvm.c (pvm_get_PE): libpvm3 now provides this on
+ >>	the T3D.
+ >>
+ >>	* libSDF/SDF-parse.y (finish_parse): Check of cur_hdr->datafp 
+ >>	should use == not <=.
+ >>
+ >>Tue Nov  1 12:25:47 1994  Mike Warren  (msw@sampson)
+ >>
+ >>	* libsw/malloc.c: include stddef.h at top so size_t is defined
+ >>	in USE_SYSTEM_MALLOC block.  (DONE PREVIOUSLY IN 16.2)
+ >>
+ >>
+
+Wed Nov  2 04:00:26 1994  John Salmon  (johns@mullet.anu.edu.au)
+
+	* libSDF/SDFfuncs.c (SDFopen): Call MPMY_Init if the caller hasn't.
+
+	* libmpmy/mpmy_*.c: Set the _MPMY_initialized_ variable in
+	MPMY_Init.  Provide the function MPMY_Initialized(), which returns
+	its value.  The hope is to use it in libsw and libSDF to
+	automatically intialize MPMY if the caller didn't do so already.
+	We might also test it in MPMY routines and provide an informative
+	error message instead of crashing mysteriously.
+
+	* libmpmy/mpmy_generic.c:  Procnum defaults to 0, Nproc defaults to 1.
+	This means sequential code will run correctly without calling 
+	MPMY_Init.
+
+	* libmpmy:  moved some stuff to NOT_PORTED/.  (Not reflected
+	in shadow directories!)
+
+	* include/memfile.h: Created.  #include in main_nv.c
+
+Tue Nov  1 18:33:17 1994  John K. Salmon  (johns@octavia)
+
+	* mpmy_mpi.c:  Compiles, links and runs on CM5.  Not only that,
+	but it doesn't run out of rports.  I'm impressed.
+
+	* libmpmy:  More messing around with #defines and Timeout.  It
+	now links properly on the CM5 using mpi.
+
+	* Make-common/Make.sun4:  PAROS=mpi will use paths appropriate for
+	the CM5-MPI implementation at anu.  Is cm5 an ARCH?  Is mpi?  Should
+	it be PAROS=cm5-mpi instead?
+
+	* libmpmy/GNUmakefile:  use the Make-variable $(PAROSCFLAGS).  Use
+	it to add particular -D or -I constructions that are only needed
+	for PAROS-specific sources.
+
+Mon Oct 31 23:16:34 1994  John Salmon  (johns@mullet.anu.edu.au)
+
+	* Created tree16.shdw.  Using emacs shadowfile.el to maintain
+	identical copies on sampson, mso, mullet and octavia.  HIGHLY
+	EXPERIMENTAL.  CAUTION:  File Locking does not work remotely.
+
+Mon Oct 31 02:35:21 1994  John Salmon  (johns@macdougal)
+
+	* "Released" 16.2beta.
+
+	* Incorporated the following:
+ >>Tue Oct 25 09:50:14 1994  Mike Warren  (msw@sampson)
+ >>
+ >>	* relerr/physics_n.h (OUTBODYDESC) Don't save acc and phi info
+ >>	in order save on disk and tape space.
+ >>
+ >>	* relerr/main_nv.c (Integrate): Divide the integrate routines into
+ >>	two separate functions, one of which is for output.  This gets
+ >>	rid of the hack which does not allow saving files without acc
+ >>	and phi info.
+
+	* poll.c: for(i=0; i<1000; i++)
+	    Shout("I will not Isend data and then return from its scope\n");
+
+        This is related to the mantra below about waiting for Isends.
+
+	* nlcomm.c,poll.c: Don't call IBcast in poll.c.  The data
+	structures in poll.c are for internal use only.  poll.c:IBcast is
+	now static.  nlcomm.c has its own largely similar function called
+	"AllDone".  Abstracting this stuff for re-use is a great idea,
+	but poll.c is not yet ready for prime-time.
+
+	* relerr/main_nv.c (main): implement the CaughtTerm stuff
+	in main_nv.c.  Maybe it belongs in libmpmy too, but I'm not
+	sure.  It's only a few lines.
+
+	* mpmy_lsv.c, mpmy_cm5.c: special handling of MPMY_Timeout.
+
+	* libsw/timeout.[ch]:  deleted.  Now handled in libmpmy.
+
+	* mpmy_abnormal.[ch]: Added MPMY_TimeoutSet,
+	MPMY_TimeoutReset and MPMY_TimeoutCancel.
+
+Sun Oct 30 22:27:48 1994  John Salmon  (johns@mullet.anu.edu.au)
+
+	* decomp.h, tree.h, nlcomm.h, pqsort.h:  define the extern timers.
+
+	* Make.common:  use -perm -0111 instead of -perm -ogu+x in 'find'
+
+	* include/decomp.[ch]: Declare DecompTm and DecompWaitTm.
+
+	* lsv.c, timeout.c, sigio_dump.c:  declare the signal handlers
+	to take an int argument, even though they don't use it.  Now they
+	match the ANSI prototype for the second arg to 'signal'.
+
+	* libsw/gc.[ch]: Added hibit and lobit.  Deleted 'firstbit' because
+	it was ambiguous, and it returned a silly format.  It's easier
+	to do 1<<lobit(n) than ilog2(firstbit(n)).  
+	ilog2 is equivalent to hibit.
+
+	* poll.[ch]:  WaitTm -> PollWaitTm.  Change main_nv.c too.
+
+Sat Oct 29 02:25:04 1994  John Salmon  (johns@macdougal)
+
+	* lsv.c:  Use select() instead of FIONREAD.  This means we don't
+	have to try to guess which (if any) #include file defines FIONREAD.
+	The old code remains accessible through some combination of ifdefs.
+
+	* Incorporated msw's recent changes:
+
+	  * Make.paragon:  add lsv.c (?!)
+
+	  * fastflpt.h:  don't prototype sqrt on convex.
+
+	  * timers_posix.c:  Use gettimeofday if USE_GETTIMEOFDAY is defined.
+	  It's a bsd-ism.  How widely available?
+
+	  * include/lsv.h:  added extern qualifier to Smy_name.
+
+Thu Oct 27 21:51:47 1994  John Salmon  <johns@magician>
+
+	* mpmy_io.[ch]:  New function:  MPMY_Mkdir.  Used by MsgdirInit.
+
+	* mpmy_io.h: No longer support MPMY_Fiomode.  It wasn't even in
+	all of the io implementations.  If you need it, close the file and
+	start again.
+
+	* msgdirinit.c, main_nv.c: MsgdirInit now expects the caller to
+	have done all the appending of Procnum, removing of leading
+	slashes, etc.  It also doesn't attempt to create a coredir.
+	Since we only use that very occasionally, I figure we'll deal
+	with it when it next arises...
+
+	A change was necessary because mkdir on the AP1000 is completely
+	broken, so I needed a way to bypass that branch of MsgdirInit.
+	I.e., I need to write msg files in ".", regardless of the clutter.
+	The new way is a bit more flexible, and the code in main_nv.c that
+	wraps around it isn't much uglier (but it's no prettier either).
+
+Thu Oct 27 02:44:40 1994  John Salmon  (johns@mullet.anu.edu.au)
+
+	* Make-common/Make.generic: We now allow the 'src' variable in the
+	user's-makefile to contain the string PAROS, e.g., 
+
+	  src:=foo.c bar.c PAROS-dependent.c 
+
+	When compiled, this will turn into, e.g., :
+
+	  src:=foo.c bar.c nx-dependent.c
+
+	This is not activated when compiling libraries.
+	  
+	If the file doesn't exist you get an error.  It would be nice to
+	default to "generic", but I don't see how to do that with the
+	current technology.  THIS IS REALLY USEFUL.  We finally have a way
+	to add PAROS specific features that aren't abstracted into the
+	MPMY layer, or that violate the abstraction (e.g., enabling
+	PAROS-specific counters and timers).
+
+	* mpmy.h:  Added MPMY_Diagnostic(), which might (or might not)
+	produce some useful info.  Give it a 'printf-like' arg, e.g,
+	Msg_do or Shout.
+
+	* mpmy_cm5.c:  I lied on Oct 18 when I said it was 'not too hard'.
+	It's finally settling down.  The 'best' version uses a Dll of Dll's.
+	The outer one lists processors that were 'jammed' the last time
+	we checked.  The inner one is a list of messages that are waiting
+	to go to each such processor.  A more efficient data structure is
+	left to the reader...
+
+Wed Oct 26 01:52:17 1994  John Salmon  <johns@magician>
+
+	* Make-common/Make.sun[45]g : now just does 'include Make.sun\1'.
+
+	* Make-common/Make.sun5 : use LOADLIBES instead of PRELIBS for
+	the -lsocket libraries.
+
+Tue Oct 25 22:26:07 1994  John Salmon  (johns@macdougal)
+
+	* dll.[ch]: "Doubly Linked Lists".  Used in nlcomm.c and poll.c,
+	and they should be used in mpmy_cm5.c too.  Elsewhere?
+
+	* nlcomm.c: Some new hacks to make the cm5 work.  The cm5 very
+	quickly runs out of Isend 'rports', and so is very sensitive to
+	getting the 'waiting' and 'flicking' code exactly right.
+
+	* poll.c: for(i=0; i<10000; i++)
+	      printf("I will not Wait for Isends.\n");
+
+	  Use the dll.[ch] primitives to implement a queue of pending
+	  Isends.  Just like in the new nlcomm.c
+
+Thu Oct 20 23:35:05 1994  John Salmon  <johns@mdwarf>
+
+	* walk.c:  Added a slightly different mechanism for detecting
+	deadlock.
+
+	* msgdirinit.c: backed out of yesterday's changes.  Using mpmy
+	leads to some kind of deadlock in Bcast.  I think bcast is non-
+	reentrant, but we re-enter it via some twisted path through
+	msgs, mpmy_io, etc.  Left the defensive changes in error and
+	msgs.  They shouldn't do any harm :-).
+
+Wed Oct 19 17:42:27 1994  John Salmon  (johns@mullet.anu.edu.au)
+
+	* libsw/Msgs.c, error.c: try to prevent and/or minimize the damage
+	caused by recursion.  Now that the Msgs may be delivered by MPMY
+	functions, and those MPMY functions themselves might generate Msgs,
+	this is critical.
+
+	* libmpmy/mpmy_*io.[ch] (MPMY_Fopen): Added a new 'mode':  
+	MPMY_INDEPENDENT.  There was some ambiguity about the MPMY_UNIX
+	mode, which is now resolved as follows:  UNIX opens the same file
+	name, and perhaps conserves some precious resources (e.g., fd's).
+	INDEPENDENT opens totally and completely independent files.
+	MPMY_Fiomode now has some hard-to-define restrictions.  Better
+	to not use it at all and just close the file...
+
+	* libsw/msgdirinit.c (MsgdirInit): Don't use stdio.h.  Use
+	mpmy_io.h, MPMY_Vfprintf and MPMY_Flush instead.  Is this the
+	last of the stdio.h-isms?
+
+	* libmpmy/io_generic.c: Added functions MPMY_Fprintf, Vfprintf
+	and Fflush.  Added them, along with Fiomode to the .h file.
+	Implementations are in io_generic.c, #include'd in mpmy_*io.c.
+
+Tue Oct 18 23:42:07 1994  John Salmon  (johns@mullet.anu.edu.au)
+
+	* libmpmy/mpmy_cm5.c: Yet another major rewrite.  This time,
+	we try to do a full recovery and later retry when CMMD_send_async
+	fails.  It turns out to be not-too-hard.
+
+Mon Oct 17 17:04:00 1994  John Salmon  (johns@mullet.anu.edu.au)
+
+	* relerr.pbc/main_nv.c (main): Start and stop the FindForces
+	timer here.
+
+	* libtree/walk.c:  Don't refer to or modify FindForcesTm.  THIS is
+	why I see anomalous timings!
+
+Sun Oct 16 08:18:57 1994  John Salmon  (johns@sampson)
+
+	* relerr.pbc:  It compiles and links for paragon-nx, paragon-sunmos,
+	delta.  All code is up-to-date with tree16(msw).
+
+	* libmpmy/timers_*.c: Newly created timers are cleared and ready to
+	use.  Maybe this will stop the  anomalous timings (WC is sometimes less
+	than CPU).
+
+	* libsw/timeout.[ch]:  Put SIGTERM stuff here too.  It belongs 
+	in libmpmy, but I'm too lazy.
+
+	* libmpmy/mpmy_sunmos.c:  define signal() and alarm() so we can link.
+	They better not get used.
+
+Sat Oct 15 06:37:30 1994  John Salmon  (johns@sampson)
+
+	* mpmy_nx.c: Don't Free the comm_s just before you try
+	to read values out of it!!!  I will not free pointers prematurely.
+	I will not free pointers prematurely.  I will not...
+
+	* These Changes were merged from sampson's tree16 dir on this date.
+	They continue through the line 
+
+%%%%%%%%%%%%%-----
+	* As far as I know this means we are back in synch.  I picked up
+	the obvious changes to the .h files, etc. that aren't mentioned in
+	the notes here.  If changes were made that weren't mentioned, 
+	THEY ARE LOST!
+
+Wed Oct  5 09:17:36 1994  Mike Warren  (msw@sampson)
+
+	* libtree/image.c: Moved from relerr into lib.
+
+Mon Oct  3 15:46:10 1994  Mike Warren  (msw@sampson)
+
+	* libsw/Make.paragon (asmsrc): Add clear_tregs.s  The __mth_i_qidiv()
+	in Paragon OSF/1 Rel. 1.0.4 Server 1.2 R1.2.3 is coded poorly and
+	uniform_rand() will take 100x longer due FPE handling if there is
+	junk in the T register.  To add insult to injury, the OS continually
+	puts junk in the T reg, so you need to call clear_tregs() inside 
+	the loop.
+
+Fri Sep 30 09:54:27 1994  Mike Warren  (msw@sampson)
+
+	* libsw/error.c (Error): Add physical node number to error output
+	for intel machines.  This might help isolate bad nodes.
+
+	* libmpmy/mpmy_generic.c: Modify the delay mechanism for out-of-buffer
+	response.  (NOT INCORPORATED.  OBSOLETED BY NEWER CODE - johns)
+
+	* libsw/timeout.c: Provide a mechanism to terminate failed jobs.
+	Call TimeOutInit(t) to start an alarm that goes off and kills
+	the node after t seconds, unless TimeOutReset(t) is called in
+	the interim.  This will hopefully prevent a failed job from
+	sitting on the paragon under NQS for 5 hours doing nothing.
+
+Fri Sep 30 09:54:27 1994  Mike Warren  (msw@sampson)
+
+	* libsw/error.c (Error): Add physical node number to error output
+	for intel machines.  This might help isolate bad nodes.
+
+	* libmpmy/mpmy_generic.c: Modify the delay mechanism for out-of-buffer
+	response.
+
+	* libsw/timeout.c: Provide a mechanism to terminate failed jobs.
+	Call TimeOutInit(t) to start an alarm that goes off and kills
+	the node after t seconds, unless TimeOutReset(t) is called in
+	the interim.  This will hopefully prevent a failed job from
+	sitting on the paragon under NQS for 5 hours doing nothing.
+
+Thu Sep 29 12:43:42 1994  Mike Warren  (msw@sampson)
+
+	* libsw/malloc.c (extend_mem): Add sizeof(aheader_t) to _chunk_tbl
+	increment.  I think this is what is causing the too-long chunk
+	Warnings.  Also change ALIGN to 8, since I'm worried about the 
+	comment that sizeof(header_t) must be a multiple of ALIGN.
+	
+	* libsw/poll.c (PollSetup): Use a static inbuf to avoid malloc.
+
+	* libsw/batch.c (SetupBatch): Allocate all memory beforehand.
+	As it was, the instk in pqsort was growing, but batch would keep
+	allocating a new buffer at the end casuing the heap to be full
+	of holes due to the instk reallocs.
+
+Wed Sep 28 12:27:52 1994  Mike Warren  (msw@sampson)
+
+	* libtree/pqsort.c (pqsort): Using a different buffering scheme
+	in the loop reduces maximum memory usage by a factor of three.
+
+	* relerr/main_nv.c (main): Add some memory reporting stuff.
+
+	* libsw/malloc.c (malloc_used): now returns the amount of heap 
+	which is in allocated blocks.  A new function named malloc_heapsz()
+	returns the amount of heap malloc has obtained from the OS (which
+	is what malloc_used used to do).
+
+	* relerr/main_nv.c (main): If ctl file does not have a \cr on the
+	last line, SDF_Hdrgetc will fail because some nodes (but not all)
+	will call read which would return EOF, but doesn't becuase the
+	file is synchronous.  I haven't fixed this.
+
+%%%%%%%-------
+
+Fri Oct 14 02:09:04 1994  John Salmon  (johns@sampson)
+
+	* paragon files:  sunmos is now a PAROS.  It shares all other
+	object files with the regular paragon setup.  Changes were made
+	to mpmy_pario.c, abnormal.c and sunmos.c.  The ugliest hack is the way
+	we preempt libsw/malloc.c and libsw/sigio_dump.c by defining all
+	their extern symbols in libmpmy/mpmy_sunmos.c.
+
+Thu Oct 13 00:51:24 1994  John Salmon  (johns@mullet.anu.edu.au)
+
+	* lsvstart:  propagate the same signal through to the children,
+	i.e., if we hit ^C, we send SIGINT to the children, etc.
+
+	* libsw/lsv.c (bsend): Bail out after five failed recvfrom calls.
+
+Wed Oct 12 13:14:41 1994  John Salmon  (johns@mullet.anu.edu.au)
+
+	* include/malloc.h:  #undef before #define malloc, etc.
+
+	* libmpmy/mpmy_*.c:  MPMY_Init now calls MPMY_setup_absigs(),
+	and sometimes also puts a few handlers on the stack.
+
+	* libmpmy/mpmy_abnormal.c:  created.  This is where signal
+	handling lives now.  This is where it belongs.  Consider, for
+	example, the CM5, which uses ARCH=sun4 but needs to handle
+	signals very differently from the generic sun4-seq.  See
+	mpmy_abnormal.h for "documentation".
+
+	* libsw/do_sigs.c:  deleted.
+
+	* libsw/msgdirinit.c:  Don't call do_sigs.  Set MPMY_abchdir.
+
+	* libmpmy/mpmy_*.c: MPMY_Procnum() and MPMY_Nproc are now
+	macros.  There are two extern ints (_MPMY_nproc_, _MPMY_procnum_)
+	in mpmy_generic.c.
+
+	* include/mpmy.h, libmpmy/mpmy_generic.c:  MPMY_Source, MPMY_Tag,
+	MPMY_Count are all macros now.  Also defined MPMY_SOURCE, MPMY_TAG
+	and MPMY_COUNT in analogy with the new (final) MPI draft.
+
+Tue Oct 11 19:05:42 1994  John Salmon  (johns@mullet.anu.edu.au)
+
+	* libsw/error.c, libmpmy/mpmy_generic.c:  Added MPMY_Abort().
+	Call it from Error.  This is the first step in moving do_sigs
+	functionality back into mpmy, where it belongs(?).  This step
+	is self-contained and shouldn't break anything.  
+
+Thu Oct  6 16:06:24 1994  John Salmon  (johns@mullet.anu.edu.au)
+
+	* libSDF/SDF-parse.y (finish_parse): datafp == NULL instead of 
+	datafp <= 0 for error detection.  I think this one may have
+	slipped through the cracks in the 15->16 conversion.
+
+Wed Oct  5 12:17:11 1994  John Salmon  (johns@mullet.anu.edu.au)
+
+	* include/poll.h: #include "timers.h", #ifndef _PollDOTh, etc.
+
+	* tst/SDFtst/GNUmakefile (treedir): TREE15HOME -> TREEHOME
+
+	* SDFcvt/GNUmakefile (treedir): Use TREEHOME instead of TREE15HOME.
+
+Tue Oct  4 12:46:33 1994  John Salmon  (johns@mullet.anu.edu.au)
+
+	* libsw/poll.[ch], relerr/main_nv.c: Define WaitTm in poll.c.
+	Declare it in poll.h.  #include poll.h in main_nv.c instead of
+	declaring WaitTm.
+
+	* libmpmy/mpmy_cm5.c: Use SeriousWarning instead of Error,
+	and return MPMY_FAILURE when CMMD_send_noblock fails.  Also,
+	implement MPMY_Flick as a call to CMMD_poll().
+
+	*  lsv/lsv.c:  Eliminated a few warnings by #include <unistd.h>
+	and adding a prototype for cuserid.  Is cuserid() a BSD-ism?
+
+	*  libsw/lsv.c: Apparently the sin_family field of a sockaddr_in
+	is supposed to be in host byteorder and NOT network byteorder.
+	That's how all the FreeBSD code does it, and that's what it takes
+	to make lsv work under linux...
+
+Tue Sep 27 12:32:30 1994  John Salmon  (johns@minuet)
+
+	*  relerr.pbc:  changed SDFwrite2 to SDFwrite.  Deleted prototype
+	for SDFwrite3.  If SDFwrite3 is resurrected, it can go back.  I
+	think the preferred way to experiment with "plug-compatible" library
+	alternatives is to keep them as explicit .o files in "app" directory
+	until satisfied that they work, and then just replace the library
+	version.
+
+Mon Sep 26 19:00:25 1994  John Salmon  (johns@mullet.anu.edu.au)
+
+	* libsw/gc.c, ring.c, tree.c:  gc.c returns gray codes again.
+	It's just too confusing otherwise.  If you don't want gray codes,
+	don't call Gcup/down.  We don't call Gcup/down anymore from tree.c,
+	ring.c anymore.	I think I got this right.  (The second time)
+
+	* relerr.pbc: Copied completely from sampson:tree16/relerr.  This
+	is the 'periodic boundary condition' version.  All the changes
+	described below for 'relerr' apply to this dir.  Only some of
+	them have been incorporated into relerr.
+
+	* libsw/pqsort.c:  One of the warnings indicated values possibly
+	used before set.  I fixed it by moving the initializations ahead
+	of the if(nproc==1) goto...  Maybe it didn't matter.
+
+	* Merged "Australian" changes from ChangeLog.15.oz into
+	tree16 (this version).  Did I miss anything???????
+
+Thu Sep 22 10:29:23 1994  Mike Warren  (msw@sampson)
+
+	* relerr/main_nv.c (WrapPeriodic): Remember to correct hubble
+	flow when wrapping positions.
+
+Mon Sep 19 17:23:10 1994  Mike Warren  (msw@sampson)
+
+	* relerr/grav_nv.c (SINK_BIAS): Adjusts sink vs. source split
+	preference.  This parameter is subject to experimentation, but
+	box artifacts appear in the periodic BC test cases if it is less
+	than 2.0
+
+Fri Sep  9 11:22:37 1994  Mike Warren  (msw@sampson)
+
+	* libSDF/SDF-parse.y (finish_parse): Check if Fopen of Dataname fails.
+
+Thu Sep  8 09:44:11 1994  Mike Warren  (msw@sampson)
+
+	* relerr/main_nv.c (main): Don't read or save nterms.  With
+	the frac mac, the first step would be imbalanced anyway.
+	(main): Clear acc, phi and nterms here, rather than in InheritSink.
+	This is necessary to accumulate values during multiple calls to
+	walk for the periodic bc code.
+
+	* libtree/walk.c (WalkInit,WalkNT,WalkTerminate) Same as Walk, but 
+	doesn't terminate the polling machinery until WalkTerminate.  By
+	eliminating the synchronization one can do a series of imbalanced
+	traversals (for instance to do periodic boundary conditions)
+	without the load imbalance penalty.
+
+	* relerr/grav_nv.c (SetGravOffset): Shift the sinks by the
+	amount specified.
+	
+	* relerr/main_nv.c (Periodic): Enable use of periodic BC.
+
+	* libsw/randoms.c (cube_rand): For generating cubes to test the
+	periodic boundary code.
+
+Wed Sep  7 13:14:45 1994  Mike Warren  (msw@sampson)
+
+	* libSDF/SDF.h: Make the SDF.h in include/ a symbolic link to this.
+
+	* libSDF/SDF-parse.y (finish_parse): Unfortunately, we need to
+	be able to set the SDF datafp in either a synchronous or 
+	async mode, depending on whether we are reading a huge file all
+	at once, or reading small pieces independently. A new function 
+	called SDF_setiomode() now exists.  The default behavior is
+	unchanged.
+
+	* libmpmy/mpmy_unixio.c (MPMY_Ftell,MPMY_Flen): Should only do 
+	synchronous mode Bcast if iomode is MPMY_SINGL.
+
+	* libmpmy/mpmy_{unixio,paragonio,cm5io}.c (MPMY_Fopen): Make 
+	return value 0 if open returns -1.  We were confusing all of the
+	code that assumes fopen returns NULL on failure.
+
+	* libSDF/SDFfuncs.c: Add an MPMY_IOZERO flag to the open in SDFissdf.
+
+Fri Sep  2 09:35:33 1994  Mike Warren  (msw@sampson)
+
+	* libsw/Malloc.c: Warn if large malloc is attempted.  This might
+	help explain abnormal behavior on a virtual memory machine like
+	the paragon.
+
+	* relerr/main_nv.c (HeapCnt) SunOS evidently has a symbol in
+	the name space called HeapCnt, so we name it HeapCnt_.
+
+	* libmpmy/mpmy_generic.c: decrease MAXCOMM to 250, and sleep
+	for a second if it looks like space is short.
+
+	* libmpmy/mpmy_nx.c: Use _isend and _irecv[x] instead of 
+	plain versions.
+
+	* libsw/malloc.c (malloc_used): New function which tells how
+	much heap space has been obtained from the OS.
+
+	* libsw/do_sigs.c: Add a PrintMemfile() to sw_handler().
+
+Wed Aug 31 08:58:50 1994  Mike Warren  (msw@sampson)
+
+	* libmpmy/mpmy_generic.h (MAXCOMM): Increase to 500, and make it
+	an error to run out of space.  The irecvx() in mpmy_nx requires the
+	comms table to stay put, so this is a temporary fix until it
+	can be done right.
+
+	* libmpmy/mpmy_{paragon,unix,cm5}io.c: Fix bad Bcast args.
+
+Tue Aug 30 14:21:48 1994  Mike Warren  (msw@sampson)
+
+	* libtree/walk.c: Improved version which call the user MAC a
+	lot less (from tree15.oz).
+
+	* libsw/singlio.c,counters.c: Copy from tree15.oz
+
+	* relerr/main_nv.c (main): Modify #includes and change WCTimer calls.
+
+	* include/timers.h,libsw/timers.c: Copy from tree15.oz
+
+	* libmpmy: Copy from tree15.oz
+
+Mon Aug 15 11:44:09 1994  John Salmon  (johns@minuet)
+
+	* libtree/nlcomm.c: Change uSleep to MPMY_Flick.
+
+	* include/getparam.h (Getfparam): Use MPMY_Bcast instead of x_concat.
+
+	* libsw/collective.[ch]:  History.
+
+Mon Aug 29 10:27:08 1994  Mike Warren  (msw@sampson)
+
+	* libsw/do_sigs.c: Call exit(1) if SIGABRT and __INTEL_SSD__.
+
+	* libtree/walk.c: (Walkbody) Call Error if it looks like we
+	are in a never-ending loop waiting for data.
+
+Wed Aug 17 14:28:28 1994  Mike Warren  (msw@sampson)
+
+	* include/physics_generic.c (OutIdentKey): Add a bit to the idents,
+	so that they are valid keys that won't interfere with the higher
+	level keys generated in decomp.c
+
+Tue Aug 16 17:03:43 1994  Mike Warren  (msw@sampson)
+
+	* libtree/tree.c (SetupTree): Assign tp->hash_mask.  It would make
+	sense to make this Nparticles dependent at some stage.
+
+	* include/tree.h (Find,NewCell): Make HASH_MASK a part of the tree_t
+	structure.  Lesson: Don't use macro values in inlined functions.
+
+	* libSDF/ This is libSDF2 from tree15.
+
+	* libtree/nlcomm.c: Changes to NLDone to make it work for
+	arbitrary machine sizes.
+
+	* libsw/decomp_uniform.c: Some decomp functions that go along
+	with pqsort.  These work great if your data is spread out,
+	like a random distribution of particles.  However, it bombs
+	completely if things are highly non-uniform, like a bunch
+	of galaxies.  Stay tuned for a new improved decomp.c that works
+	for anything.
+
+	* libsw/gc.c: The topology is changed from the tree15 version.
+
+	* libtree/pqsort.c: Complete rewrite. Works with any sized machine.
+
+	* libsw/batch.c: Buffer lots of small sends into bigger sends.
+
+	* libsw/poll.c: A generic implementation of waiting for a lot
+	of asynchronous messages and finishing up nicely, without leaving
+	a mess.
+
+	* Begin tree16.  Smaller, Faster, Better.
+
