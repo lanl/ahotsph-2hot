@@ -44,14 +44,14 @@ class_params(cosmology *c, char *class_ini)
     class_fail(parser_read_file(class_ini,&fc,errmsg),
 	       errmsg,errmsg);
 
+    p->ba.background_verbose = -1; /* shut off commentary */
+
     class_fail(input_init(&fc, &p->pr, &p->ba, &p->th, &p->pt, &p->bs, &p->tr, 
 			  &p->pm, &p->sp, &p->nl, &p->le, &p->op, errmsg), 
 	       errmsg, errmsg);
     
     class_fail(parser_free(&fc),errmsg,errmsg);
 
-    p->ba.background_verbose = 0;
-    
     class_fail(background_init(&p->pr, &p->ba),errmsg,errmsg);
 
     pvec = Malloc(p->ba.bg_size*sizeof(double));

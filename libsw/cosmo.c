@@ -3,6 +3,8 @@
 #include "Msgs.h"
 #include "qromo.h"
 #include "cosmo.h"
+#include "Malloc.h"
+#include "error.h"
 
 static struct cosmo_s C;
 
@@ -286,3 +288,176 @@ t_from_Z(double Omega0, double H0, double Z)
     return t;
 }
 #endif
+
+static double
+t_at_z(cosmology *c, double z)
+{
+    struct cosmo_s *p = c->private;
+    return t_from_Z(p, z);
+}
+
+static double
+t_at_a(cosmology *c, double a)
+{
+    struct cosmo_s *p = c->private;
+    return t_from_Z(p, 1.0/a-1.0);
+}
+
+static double
+z_at_t(cosmology *c, double t)
+{
+    struct cosmo_s *p = c->private;
+    return Znow(p, t);
+}
+
+static double
+a_at_t(cosmology *c, double t)
+{
+    struct cosmo_s *p = c->private;
+    return Anow(p, t);
+}
+
+static double
+H_at_z(cosmology *c, double z)
+{
+    struct cosmo_s *p = c->private;
+    return hubble_from_Z(p, z);
+}
+
+static double
+H_at_t(cosmology *c, double t)
+{
+    struct cosmo_s *p = c->private;
+    return Hnow(p, t);
+}
+
+static double
+conformal_distance_at_z(cosmology *c, double z)
+{
+    struct cosmo_s *p = c->private;
+    return comoving_distance_from_Z(p, z);
+}
+
+static double
+conformal_distance_at_t(cosmology *c, double t)
+{
+    struct cosmo_s *p = c->private;
+    double z = z_at_t(c, t);
+    return comoving_distance_from_Z(p, z);
+}
+
+static double
+growthfac_at_z(cosmology *c, double z)
+{
+    struct cosmo_s *p = c->private;
+    return growthfac_from_Z(p, z)/growthfac_from_Z(p, 0.0);
+}
+
+
+static double
+growthfac_at_t(cosmology *c, double t)
+{
+    struct cosmo_s *p = c->private;
+    double z = z_at_t(c, t);
+    return growthfac_from_Z(p, z)/growthfac_from_Z(p, 0.0);
+}
+
+static double
+velfac_at_z(cosmology *c, double z)
+{
+    struct cosmo_s *p = c->private;
+    return velfac_from_Z(p, z);
+}
+
+
+static double
+velfac_at_t(cosmology *c, double t)
+{
+    struct cosmo_s *p = c->private;
+    double z = z_at_t(c, t);
+    return velfac_from_Z(p, z);
+}
+
+static double
+kick_t0_t1(cosmology *c, double t0, double t1)
+{
+    struct cosmo_s *p = c->private;
+    return kick_delta(p, t0, t1);
+}
+
+static double
+drift_t0_t1(cosmology *c, double t0, double t1)
+{
+    struct cosmo_s *p = c->private;
+    return drift_delta(p, t0, t1);
+}
+
+static void
+cosmo1_free(cosmology *c)
+{
+    Free(c->private);
+    c->private = NULL;
+}
+
+void
+cosmo1_init(cosmology *c)
+{
+    struct cosmo_s *p = Calloc(1, sizeof(struct cosmo_s));
+
+    c->private = p;
+    p->t = c->t;
+    if (c->a <= 0.0) Error("cosmo1_init bad value for a, %g\n", c->a);
+    p->a = c->a;
+    if (c->H0 == 0.0 && c->h_100 == 0.0) Error("cosmo1_init H0 and h_100 both zero\n");
+    if (c->h_100 == 0.0)
+	c->h_100 = 10.0*c->H0*(one_kpc/one_Gyr);
+    if (c->h_100 > 1.0 || c->h_100 < 0.4) Error("cosmo1_init bad value for h_100, %g\n", c->h_100);
+    if (c->H0 == 0.0) 
+	c->H0 = c->h_100*0.1*(one_Gyr/one_kpc);
+    if (fabs(c->h_100*0.1*(one_Gyr/one_kpc)/c->H0-1.0) > 1e-6) Error("cosmo1_init H0 and h_100 inconsistent\n");
+    p->H0 = c->H0;
+    /* cosmo1 names Omega0 incorrectly */
+    p->Omega0 = c->Omega0_m;
+    p->Omega_m = c->Omega0_m;
+    if (c->Omega0_r != 0.0) Error("cosmo1_init called with nonzero Omega0_r\n");
+    p->Omega_r = 0.0;
+    if (c->Omega0_fld != 0.0) Error("cosmo1_init called with nonzero Omega0_fld\n");
+    p->Omega_de = 0.0;
+    if (c->w0_fld != 0.0) Error("cosmo1_init called with nonzero w0_fld\n");
+    p->w0 = 0.0;
+    if (c->wa_fld != 0.0) Error("cosmo1_init called with nonzero wa_fld\n");
+    p->wa = 0.0;
+    p->Lambda = c->Omega0_lambda;
+    if (c->Gnewt == 0.0)
+	p->Gnewt = c->Gnewt = GNEWT;
+    else
+	p->Gnewt = c->Gnewt;
+    p->Zel_f = 0.0;
+    if (fabs(1.0 - p->Omega_m - p->Lambda) > 1e-6) Error("cosmo1_init Omega0 is not 1.0\n");
+    if (p->t == 0.0) p->t = t_at_a(c, p->a);
+    else if (fabs(1.0-t_at_a(c, p->a)/p->t) > 1e-6) Error("cosmo1_init time and expansion inconsistent\n");
+
+    /* Function pointers */
+    c->background_at_z = NULL;
+    c->background_at_t = NULL;
+    c->background_at_tau = NULL;
+    c->t_at_z = t_at_z;
+    c->z_at_t = z_at_t;
+    c->a_at_t = a_at_t;
+    c->t_at_a = t_at_a;
+    c->H_at_z = H_at_z;
+    c->H_at_t = H_at_t;
+    c->conformal_distance_at_z = conformal_distance_at_z;
+    c->conformal_distance_at_t = conformal_distance_at_t;
+    c->angular_diameter_distance_at_z = NULL;
+    c->angular_diameter_distance_at_t = NULL;
+    c->luminosity_distance_at_z = NULL;
+    c->luminosity_distance_at_t = NULL;
+    c->growthfac_at_z = growthfac_at_z;
+    c->growthfac_at_t = growthfac_at_t;
+    c->velfac_at_z = velfac_at_z;
+    c->velfac_at_t = velfac_at_t;
+    c->kick_t0_t1 = kick_t0_t1;
+    c->drift_t0_t1 = drift_t0_t1;
+    c->free = cosmo1_free;
+}
