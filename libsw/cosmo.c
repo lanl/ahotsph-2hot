@@ -414,7 +414,8 @@ cosmo1_init(cosmology *c)
     if (c->h_100 > 1.0 || c->h_100 < 0.4) Error("cosmo1_init bad value for h_100, %g\n", c->h_100);
     if (c->H0 == 0.0) 
 	c->H0 = c->h_100*0.1*(one_Gyr/one_kpc);
-    if (fabs(c->h_100*0.1*(one_Gyr/one_kpc)/c->H0-1.0) > 1e-6) Error("cosmo1_init H0 and h_100 inconsistent\n");
+    /* definition of Mpc differs slightly from cosmo.h to class.h */
+    if (fabs(c->h_100*0.1*(one_Gyr/one_kpc)/c->H0-1.0) > 2e-6) Error("cosmo1_init H0 and h_100 inconsistent\n");
     p->H0 = c->H0;
     /* cosmo1 names Omega0 incorrectly */
     p->Omega0 = c->Omega0_m;
