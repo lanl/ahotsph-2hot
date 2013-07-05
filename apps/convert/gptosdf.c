@@ -154,22 +154,12 @@ main(int argc, char *argv[])
 
     if (nfiles != MPMY_Nproc()) Error("Nproc must equal nfiles\n");
 
-    memset(&cosmo, 0, sizeof(cosmo));
-    if (fexists("cosmology.tbl")) {
-	class_params(&cosmo, "class.ini");
-	tbl_init(&cosmo, "cosmology.tbl");
-    } else {
-	cosmo.Omega0 = header.Omega0+header.OmegaLambda;
-	cosmo.Omega0_m = header.Omega0;
-	cosmo.h_100 = header.HubbleParam;
-	cosmo.a = 1.0/(1.0+header.redshift);
-	cosmo.Omega0_lambda = header.OmegaLambda;
-	cosmo1_init(&cosmo);
-    }
+    SDF *sdfp;
+    int version_cosmo = 2;
     double z_initial, CICAlpha, CICAlpha_v;
-    if (fexists("params.ctl")) {
-	SDF *sdfp = SDFopen("params.ctl");
-	SDFgetdoubleOrDefault(sdfp, "Zinitial",  &z_initial, 0.0);
+    if ((sdfp = SDFopen(NULL, "params.ctl"))) {
+	SDFgetintOrDefault(sdfp, "version_cosmo",  &version_cosmo, 2);
+	SDFgetdoubleOrDefault(sdfp, "z_initial",  &z_initial, 0.0);
 	SDFgetdoubleOrDefault(sdfp, "CICAlpha",  &CICAlpha, 0.0);
 	SDFgetdoubleOrDefault(sdfp, "CICAlpha_v",  &CICAlpha_v, 0.0);
 	SDFclose(sdfp);
@@ -188,6 +178,19 @@ main(int argc, char *argv[])
     Fread(&fortran_blocksize, sizeof(int), 1, fp);
     Fread(&header, sizeof(gadget_header), 1, fp);
     Fread(&fortran_blocksize, sizeof(int), 1, fp);
+
+    memset(&cosmo, 0, sizeof(cosmo));
+    if (version_cosmo == 2) {
+	class_params(&cosmo, "class.ini");
+	tbl_init(&cosmo, "cosmology.tbl");
+    } else {
+	cosmo.Omega0 = header.Omega0+header.OmegaLambda;
+	cosmo.Omega0_m = header.Omega0;
+	cosmo.h_100 = header.HubbleParam;
+	cosmo.a = 1.0/(1.0+header.redshift);
+	cosmo.Omega0_lambda = header.OmegaLambda;
+	cosmo1_init(&cosmo);
+    }
 	
     for (i = 0; i < 6; i++) {
 	if (i != 1 && header.npart[i] != 0) 
@@ -347,7 +350,7 @@ main(int argc, char *argv[])
     MPMY_Combine(&total_mass, &total_mass, 1, MPMY_DOUBLE, MPMY_SUM);
 
     if (fabs(mtot-total_mass)/mtot > 1e-4) {
-	Error("total_mass is %lg, mtot is %lg\n", total_mass, mtot);
+	Error("total_mass is %lg, mtot from Omega0_m is %lg\n", total_mass, mtot);
     }
 
     pqsortsetup_order(&outputsort, btab, nobj,
@@ -364,6 +367,7 @@ main(int argc, char *argv[])
 	       nobj, btab, sizeof(body), OUTBODYDESC,
 	       "version", SDF_INT, 2,
 	       "version_2HOT", SDF_INT, 2,
+	       "version_cosmo", SDF_INT, version_cosmo,
 	       "units_2HOT", SDF_INT, 2,
 	       "npart", SDF_INT64, gnobj,
 	       "do_periodic", SDF_INT, 1,
