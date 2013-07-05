@@ -120,7 +120,7 @@ extern int StkAlign(const struct stk *s, unsigned int nbytes);
 #if (__STDC_VERSION__ >= 199901L) && !defined (STKdotC)
 #define INLINE inline
 #else
-#if (defined (__GNUC__) || defined(__ICC__)) && !defined (STKdotC)
+#if (defined (__GNUC_STDC_INLINE__) || defined(__ICC__)) && !defined (STKdotC)
 #define INLINE extern __inline__
 #else
 #define INLINE

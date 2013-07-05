@@ -1,5 +1,4 @@
 tarname:=tree19
-ARCH=amd6100
 
 # Make.$(ARCH) sets many of the variables that are then used in
 # Make.generic.  Leaving it out can cause problems, for example,

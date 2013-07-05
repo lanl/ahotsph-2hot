@@ -414,8 +414,10 @@ cosmo1_init(cosmology *c)
     if (c->h_100 > 1.0 || c->h_100 < 0.4) Error("cosmo1_init bad value for h_100, %g\n", c->h_100);
     if (c->H0 == 0.0) 
 	c->H0 = c->h_100*0.1*(one_Gyr/one_kpc);
-    /* definition of Mpc differs slightly from cosmo.h to class.h */
-    if (fabs(c->h_100*0.1*(one_Gyr/one_kpc)/c->H0-1.0) > 2e-6) Error("cosmo1_init H0 and h_100 inconsistent\n");
+    /* definition of Mpc and Gyr differs slightly from cosmo.h to class.h */
+    double ferr = fabs(c->h_100*0.1*(one_Gyr/one_kpc)/c->H0-1.0);
+    if (ferr > 1e-5) 
+	Error("cosmo1_init H0 and h_100 inconsistent (%g > 1e-6)\n", ferr);
     p->H0 = c->H0;
     /* cosmo1 names Omega0 incorrectly */
     p->Omega0 = c->Omega0_m;
@@ -436,7 +438,10 @@ cosmo1_init(cosmology *c)
     p->Zel_f = 0.0;
     if (fabs(1.0 - p->Omega_m - p->Lambda) > 1e-6) Error("cosmo1_init Omega0 is not 1.0\n");
     if (p->t == 0.0) p->t = t_at_a(c, p->a);
-    else if (fabs(1.0-t_at_a(c, p->a)/p->t) > 1e-6) Error("cosmo1_init time and expansion inconsistent\n");
+    else {
+	double terr = fabs(1.0-t_at_a(c, p->a)/p->t);
+	if (terr > 1e-6) Error("cosmo1_init time and expansion inconsistent (%g > 1e-6)\n", terr);
+    }
 
     /* Function pointers */
     c->background_at_z = NULL;
