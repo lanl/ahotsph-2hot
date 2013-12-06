@@ -1,6 +1,6 @@
 Welcome to the tree19 hexadecapole N-body integrator running on 1 procs
-Version 2HOT_nln-1.0.1
-Compiled Dec  6 2013 10:00:47
+Version 2HOT_nln-1.0.1-3-g0d81163
+Compiled Dec  6 2013 10:46:11
 Saving phi and acc
 Node 0 is mu-fe4.lanl.gov
 cfile "run_e4.ctl" opened
@@ -8,7 +8,7 @@ Putting all Msgs in memfile
 Setting timeout to 3600 seconds.
 Reading "./ic.sdf"
      SDFread       0.01       0.01       0.01
-read 32768 x 36 at 146 MB/s
+read 32768 x 36 at 145 MB/s
 double H0 = 0.0719989
 double Omega0 = 1
 double Omega0_m = 0.272187
@@ -98,7 +98,7 @@ FreeTree done 5 (89)
 
 Output to test_32k_e4_0.012 7 (89)
     SDFwrite       0.01       0.01       0.01
-write speed 128 MB/s
+write speed 130 MB/s
 Output to test_32k_e4_0.012 done 10 (89)
 edge flux 0 0 0 plus 0 0 0 minus 0 0 0
 
@@ -109,7 +109,7 @@ rms accel: 1587.26
       Timers        Min        Max       Mean
  Step (Wall)       2.51       2.51       2.51
   Step (CPU)       2.51       2.51       2.51
- Build Total       0.17       0.17       0.17
+ Build Total       0.18       0.18       0.18
       PQSort       0.10       0.10       0.10
       Decomp       0.00       0.00       0.00
   DecompComm       0.00       0.00       0.00
@@ -124,8 +124,8 @@ rms accel: 1587.26
    Quad Time       0.40       0.40       0.40
    Hexa Time       0.65       0.65       0.65
   HexaF Time       0.38       0.38       0.38
-   Grav Time       1.57       1.57       1.57
-    MAC Time       0.36       0.36       0.36
+   Grav Time       1.56       1.56       1.56
+    MAC Time       0.37       0.37       0.37
   Walk Defer       0.00       0.00       0.00
     WalkTerm       0.00       0.00       0.00
       WalkNT       2.26       2.26       2.26
@@ -142,9 +142,9 @@ rms accel: 1587.26
     Max smth            0            0               0           0.00
  Smth cycles            0            0               0           0.00
  Mono cycles           62           62              62          62.00
- Quad cycles          154          154             154         154.00
- Hexa cycles          507          507             507         507.00
-HexaF cycles          496          496             496         496.00
+ Quad cycles          155          155             155         155.00
+ Hexa cycles          506          506             506         506.00
+HexaF cycles          492          492             492         492.00
      KNterms       648932       648932          648932      648932.00
       Bodies        32768        32768           32768       32768.00
  Local Cells            0            0               0           0.00
