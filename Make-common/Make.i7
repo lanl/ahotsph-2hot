@@ -1,0 +1,28 @@
+defaultCC:=gcc
+
+CC_SPECIFIC:=-g -Wall -std=c99 -D_XOPEN_SOURCE=500
+ARCH_SPECIFIC:=-march=corei7-avx -DSTK_FORCE_ALIGNMENT=4 -D_FILE_OFFSET_BITS=64 -DUSE_SYSTEM_MALLOC -DUSE_MPIIO -DUSE_HWCLOCK -DPROCS_PER_NODE=16 -DARCH=i7
+OPTIMIZE=-O2
+AGGRESSIVE_OPT=-Ofast
+LDFLAGS=-g
+LEX:=flex
+YACC:=bison -y
+
+include $(treedir)/Make-common/Make.default
+
+swsrc:=
+asmdir:=asm-sse
+asmsrc=do_grav_sse64_noswiz.s do_grav_sse64_noswiz_eps.s do_grav_sse64_nr.s
+cppasmsrc=do_grav_sse16_ivec.S
+
+LOADLIBES=-lrt
+
+ifeq ($(PAROS),mpich)
+LOADLIBES:=-L/usr/lib64/mpich2/lib -lmpich -lopa -lmpl -lrt
+PAROSCFLAGS:=-I/usr/include/mpich2-x86_64
+endif
+
+ifeq ($(PAROS),mpi)
+LOADLIBES:=-L$(MPI_ROOT)/lib -L$(MPI_ROOT)/lib64 -lmpi -lslurm
+PAROSCFLAGS:=-I$(MPI_ROOT)/include
+endif
