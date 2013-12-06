@@ -5,7 +5,7 @@ treedir=..
 treedir_sed=\.\.
 appexcludes=
 libname=libsw
-EXTRACFLAGS=-I$(CLASS)/include
+EXTRACFLAGS=-I$(HOT_CLASS)/include
 
 # The "Salmon Warren Utility library"
 src:= \

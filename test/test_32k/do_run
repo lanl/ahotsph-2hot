@@ -1,3 +1,3 @@
 #!/bin/bash
-../../devel/nlna.$ARCH run_e3.ctl > `hostname`_run_e3.out
-mv test_32k_e3_0.012 `hostname`_test_32k_e3_0.012
+../../devel/nlna.$ARCH run_e4.ctl > `hostname`_run_e4.out
+mv test_32k_e4_0.012 `hostname`_test_32k_e4_0.012

@@ -1,14 +1,14 @@
 Welcome to the tree19 hexadecapole N-body integrator running on 1 procs
-Version nln19.0.54-7-g2c8cd88
-Compiled Dec  6 2013 09:56:48
+Version 2HOT_nln-1.0.1
+Compiled Dec  6 2013 10:00:47
 Saving phi and acc
 Node 0 is mu-fe4.lanl.gov
-cfile "run_e3.ctl" opened
+cfile "run_e4.ctl" opened
 Putting all Msgs in memfile
 Setting timeout to 3600 seconds.
 Reading "./ic.sdf"
      SDFread       0.01       0.01       0.01
-read 32768 x 36 at 147 MB/s
+read 32768 x 36 at 146 MB/s
 double H0 = 0.0719989
 double Omega0 = 1
 double Omega0_m = 0.272187
@@ -17,7 +17,7 @@ double redshift = 81.5789
 double Omega0_lambda = 0.727729
 double velfac = 0.982901
 Maxmem after data read is 3 (50)
-float errtol = 0.001;
+float errtol = 0.0001;
 float stol_max = 1;
 float ptol_boost = 0;
 float dt = 0.032;
@@ -53,7 +53,7 @@ int hcell_size = 40;
 int hash_bits = 21;
 int memory_tune_MB = 0;
 int identsort_output = 1;
-Checkpoint to test_32k_e3.nnnn, every 2000 steps or 3600 seconds
+Checkpoint to test_32k_e4.nnnn, every 2000 steps or 3600 seconds
 int timer_freq = 1;
 float sort_tol = 0.0010;
 int do_periodic = 1, nimage is 2;
@@ -89,26 +89,26 @@ Outputs at
 gnobj = 32768
 mtot = 351629.343750
 edge flux 0 0 0 plus 0 0 0 minus 0 0 0
-BuildTree 3 (50), tol=0.00165155
+BuildTree 3 (50), tol=0.000165155
 preliminary BuildTree
 BuildTree done 27 (89)
 FindForces
-FindForces done 29 (89)
+FindForces done 30 (89)
 FreeTree done 5 (89)
 
-Output to test_32k_e3_0.012 7 (89)
+Output to test_32k_e4_0.012 7 (89)
     SDFwrite       0.01       0.01       0.01
-write speed 129 MB/s
-Output to test_32k_e3_0.012 done 10 (89)
+write speed 128 MB/s
+Output to test_32k_e4_0.012 done 10 (89)
 edge flux 0 0 0 plus 0 0 0 minus 0 0 0
 
 tpos = 0.0229188, znow = 81.5789, iter = 0, size = 275.219, eps = 0.801304
-ke = 2.42478e+08, pe = 1.35822e+10, energy = 1.38247e+10
-CM accel: (0.0897478 0.389475 0.0122501): 0.399869
-rms accel: 1581.28
+ke = 2.42478e+08, pe = 1.33663e+10, energy = 1.36088e+10
+CM accel: (0.00259849 0.00451878 0.0563552): 0.0565958
+rms accel: 1587.26
       Timers        Min        Max       Mean
- Step (Wall)       1.27       1.27       1.27
-  Step (CPU)       1.27       1.27       1.27
+ Step (Wall)       2.51       2.51       2.51
+  Step (CPU)       2.51       2.51       2.51
  Build Total       0.17       0.17       0.17
       PQSort       0.10       0.10       0.10
       Decomp       0.00       0.00       0.00
@@ -118,34 +118,34 @@ rms accel: 1581.28
     MakeTree       0.09       0.09       0.09
  SharedCells       0.00       0.00       0.00
   SharedComm       0.00       0.00       0.00
-  Force Eval       1.02       1.02       1.02
+  Force Eval       2.26       2.26       2.26
    Smth Time       0.00       0.00       0.00
-   Mono Time       0.14       0.14       0.14
-   Quad Time       0.12       0.12       0.12
-   Hexa Time       0.38       0.38       0.38
-  HexaF Time       0.00       0.00       0.00
-   Grav Time       0.65       0.65       0.65
-    MAC Time       0.17       0.17       0.17
+   Mono Time       0.13       0.13       0.13
+   Quad Time       0.40       0.40       0.40
+   Hexa Time       0.65       0.65       0.65
+  HexaF Time       0.38       0.38       0.38
+   Grav Time       1.57       1.57       1.57
+    MAC Time       0.36       0.36       0.36
   Walk Defer       0.00       0.00       0.00
     WalkTerm       0.00       0.00       0.00
-      WalkNT       1.02       1.02       1.02
+      WalkNT       2.26       2.26       2.26
     Fix Cube       0.03       0.03       0.03
     Counters          Min          Max             Sum            Avg
    Body-smth            0            0               0           0.00
-   Body-mono     52948696     52948696        52948696    52948696.00
-   Body-quad     18180104     18180104        18180104    18180104.00
-   Body-hexa     17050646     17050646        17050646    17050646.00
-  Body-hexaF            0            0               0           0.00
+   Body-mono     46656200     46656200        46656200    46656200.00
+   Body-quad     59710048     59710048        59710048    59710048.00
+   Body-hexa     29366588     29366588        29366588    29366588.00
+  Body-hexaF     17649664     17649664        17649664    17649664.00
   Cube Empty            0            0               0           0.00
    Cube Anti            0            0               0           0.00
    Cube Corr            0            0               0           0.00
     Max smth            0            0               0           0.00
  Smth cycles            0            0               0           0.00
  Mono cycles           62           62              62          62.00
- Quad cycles          157          157             157         157.00
- Hexa cycles          508          508             508         508.00
-HexaF cycles            0            0               0           0.00
-     KNterms       260944       260944          260944      260944.00
+ Quad cycles          154          154             154         154.00
+ Hexa cycles          507          507             507         507.00
+HexaF cycles          496          496             496         496.00
+     KNterms       648932       648932          648932      648932.00
       Bodies        32768        32768           32768       32768.00
  Local Cells            0            0               0           0.00
   Local Quad            0            0               0           0.00
@@ -158,7 +158,7 @@ HexaF cycles            0            0               0           0.00
 Shared Cells        59136        59136           59136       59136.00
     Requests            0            0               0           0.00
     Deferred            0            0               0           0.00
- Memory (MB)           29           29              29          29.00
+ Memory (MB)           30           30              30          30.00
    Heap (MB)           89           89              89          89.00
-Avg nterms = 7963
+Avg nterms = 19804
 Bye!
