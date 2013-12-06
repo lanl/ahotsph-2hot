@@ -77,6 +77,7 @@ typedef struct cosmology {
 void class_init(cosmology *c, char *class_ini, char *class_pre, double zmax);
 void class_params(cosmology *c, char *class_ini);
 void tbl_init(cosmology *c, char *tbl);
+void cosmo1_init(cosmology *c);
 
 double Anow(struct cosmo_s *c, double time);
 double Znow(struct cosmo_s *c, double time);
