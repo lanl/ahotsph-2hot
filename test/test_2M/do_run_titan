@@ -1,0 +1,2 @@
+#!/bin/bash
+aprun -n 1 ~/scratch3/devel/nlna.$ARCH run_e3.ctl > `hostname`_run_e3.out

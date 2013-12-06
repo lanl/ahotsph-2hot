@@ -361,6 +361,7 @@ int MPMY_Flick(void){
     return MPMY_SUCCESS;
 }
 
+#ifndef XK6
 #include <slurm/slurm.h>
 
 #define HAVE_MPMY_JOBREMAINING
@@ -370,7 +371,7 @@ MPMY_JobRemaining(void)
     /* returns -1 for failure, or if not a slurm job */
     return slurm_get_rem_time(0);
 }
-
+#endif
 
 #ifdef USE_HWCLOCK
 #include "timers_hwclock.c"

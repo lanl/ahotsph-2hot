@@ -17,7 +17,11 @@ typedef struct {
 #ifdef AMD6100
 #define DEFAULT_MHZ 2300.0e6
 #else
+#ifdef XK6
+#define DEFAULT_MHZ 2200.0e6
+#else
 #define DEFAULT_MHZ 2668.0e6
+#endif
 #endif
 
 static __inline__ unsigned long long rdtsc(void)
