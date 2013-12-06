@@ -1,0 +1,2 @@
+#!/bin/bash
+../../devel/nlna.$ARCH run_e3.ctl > `hostname`_run_e3.out
