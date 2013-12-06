@@ -5,7 +5,7 @@ treedir=..
 treedir_sed=\.\.
 appexcludes=
 libname=libsw
-EXTRACFLAGS=-I/usr/projects/cosmo/mswarren/devel/class/include
+EXTRACFLAGS=-I$(CLASS)/include
 
 # The "Salmon Warren Utility library"
 src:= \

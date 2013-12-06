@@ -118,5 +118,4 @@ do_grav_sse_noswiz_eps:
         ret                                                     #377.1
 # mark_end;
 	.type	do_grav_sse,@function
-	.size	do_grav_sse,.-do_grav_sse
 # -- End  do_grav_sse
