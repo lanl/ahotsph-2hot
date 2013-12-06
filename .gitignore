@@ -1,0 +1,6 @@
+*~
+Objfiles
+*.amd6100
+*.amd6100-mpi
+version.proto
+version.c

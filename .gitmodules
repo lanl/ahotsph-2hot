@@ -1,0 +1,6 @@
+[submodule "nln"]
+	path = nln
+	url = ./nln
+[submodule "scripts"]
+	path = scripts
+	url = ./scripts
