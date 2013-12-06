@@ -180,11 +180,20 @@ SDFwrite_alist(const char *filename, int gnobj, int nobj,
 		break;
 	      case SDF_FLOAT:
 		dval = va_arg(alist, double);
-		sprintf(line, "float %s = %.8g;\n", name, dval); outstr(line);
+		if (dval == 0.0 || (dval*dval < 1e10 && dval*dval > 1e-10)) {
+		    sprintf(line, "float %s = %.8g;\n", name, dval);
+		} else {
+		    sprintf(line, "float %s = %.8e;\n", name, dval);
+		}
+		outstr(line);
 		break;
 	      case SDF_DOUBLE:
 		dval = va_arg(alist, double);
-		sprintf(line, "double %s = %.16g;\n", name, dval); 
+		if (dval == 0.0 || (dval*dval < 1e10 && dval*dval > 1e-10)) {
+		    sprintf(line, "double %s = %.16g;\n", name, dval); 
+		} else {
+		    sprintf(line, "double %s = %.16e;\n", name, dval); 
+		}
 		outstr(line);
 		break;
 	      case SDF_STRING:
@@ -326,11 +335,20 @@ SDFwrite_alist64(const char *filename, int mode, int64_t gnobj, int64_t nobj,
 		break;
 	      case SDF_FLOAT:
 		dval = va_arg(alist, double);
-		sprintf(line, "float %s = %.8g;\n", name, dval); outstr(line);
+		if (dval == 0.0 || (dval*dval < 1e10 && dval*dval > 1e-10)) {
+		    sprintf(line, "float %s = %.8g;\n", name, dval);
+		} else {
+		    sprintf(line, "float %s = %.8e;\n", name, dval);
+		}
+		outstr(line);
 		break;
 	      case SDF_DOUBLE:
 		dval = va_arg(alist, double);
-		sprintf(line, "double %s = %.16g;\n", name, dval); 
+		if (dval == 0.0 || (dval*dval < 1e10 && dval*dval > 1e-10)) {
+		    sprintf(line, "double %s = %.16g;\n", name, dval); 
+		} else {
+		    sprintf(line, "double %s = %.16e;\n", name, dval); 
+		}
 		outstr(line);
 		break;
 	      case SDF_STRING:

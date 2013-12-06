@@ -268,7 +268,8 @@ $(objdir)/cosmo$(objsuf):
 $(objdir)/cosmo$(objsuf):
 $(objdir)/cosmo$(objsuf):
 $(objdir)/cosmo$(objsuf): $(treedir)/include/Msgs.h $(treedir)/include/gccextensions.h
-$(objdir)/cosmo$(objsuf): $(treedir)/include/qromo.h $(treedir)/include/cosmo.h
+$(objdir)/cosmo$(objsuf): $(treedir)/include/qromo.h $(treedir)/include/cosmo.h $(treedir)/include/Malloc.h
+$(objdir)/cosmo$(objsuf): $(treedir)/include/error.h
 $(objdir)/mpmy_combine$(objsuf):
 $(objdir)/mpmy_combine$(objsuf):
 $(objdir)/mpmy_combine$(objsuf):
@@ -478,6 +479,7 @@ $(objdir)/hwclock$(objsuf):
 $(objdir)/hwclock$(objsuf):
 $(objdir)/hwclock$(objsuf): $(treedir)/include/error.h
 $(objdir)/hwclock$(objsuf): $(treedir)/include/gccextensions.h $(treedir)/include/hwclock.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/class.h
 $(objdir)/class_params$(objsuf):
 $(objdir)/class_params$(objsuf):
 $(objdir)/class_params$(objsuf):
@@ -500,31 +502,35 @@ $(objdir)/class_params$(objsuf):
 $(objdir)/class_params$(objsuf):
 $(objdir)/class_params$(objsuf):
 $(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
-$(objdir)/class_params$(objsuf):
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/quadrature.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/common.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/svnversion.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/growTable.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/arrays.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/dei_rkck.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/parser.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/input.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/background.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/thermodynamics.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/perturbations.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/evolver_ndf15.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/sparse.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/evolver_rkck.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/bessel.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/transfer.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/primordial.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/spectra.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/nonlinear.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/trg.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/lensing.h
+$(objdir)/class_params$(objsuf): $(treedir)/apps/class_v1.7.0/include/output.h
 $(objdir)/class_params$(objsuf): $(treedir)/include/cosmo.h $(treedir)/include/Malloc.h
 $(objdir)/class_params$(objsuf): $(treedir)/include/error.h $(treedir)/include/gccextensions.h
+$(objdir)/cosmo_tbl$(objsuf):
+$(objdir)/cosmo_tbl$(objsuf):
+$(objdir)/cosmo_tbl$(objsuf):
+$(objdir)/cosmo_tbl$(objsuf):
+$(objdir)/cosmo_tbl$(objsuf):
 $(objdir)/cosmo_tbl$(objsuf):
 $(objdir)/cosmo_tbl$(objsuf):
 $(objdir)/cosmo_tbl$(objsuf):
