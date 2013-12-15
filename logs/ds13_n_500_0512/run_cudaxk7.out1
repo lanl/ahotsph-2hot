@@ -1,0 +1,414 @@
+Welcome to the tree19 hexadecapole N-body integrator running on 16 procs
+Version 2HOT_nln-1.0.3-titan-1-g7be1958
+Compiled Dec 14 2013 20:53:36
+Compiler 4.8.1 20130531 (Cray Inc.)
+Arch cudaxk7
+Saving phi and acc
+Node 0 is nid03815
+cfile "run.ctl" opened
+Putting all Msgs in memfile
+Compute 3.5 CUDA device: [Tesla K20X]
+Setting timeout to 3600 seconds.
+Reading "./ds13_n_500_0512.sdf"
+     SDFread       8.90       8.90       8.90
+read 134217728 x 36 at 543 MB/s
+double H0 = 0.0685674
+double Omega0 = 1
+double Omega0_m = 0.31834
+double Omega0_r = 0
+double redshift = 80.2421
+double Omega0_lambda = 0.68166
+double velfac = 1
+Maxmem after data read is 454 (50119)
+float errtol = 2e-05;
+float stol_max = 0;
+float ptol_boost = 0;
+float dt = 0.032;
+double tpos = 0.0235328;
+double tvel = 0.0235328;
+int force_smoothing_type = 5;
+float epsilon_mscale = 30;
+int start_iter = 0;
+int nsteps = 100000;
+int nproc = 16;
+int do_Bmax = 0;
+int do_BH = 0;
+int do_Arel = 1;
+int do_DL = 1;
+float CWfac = 0.02;
+float DLfac = 4.00;
+float DLmax = 1e+09;
+float frac_tol = 1e-07;
+float frac_tol0 = 0.1;
+int quad_ncut = 3;
+int hexa_ncut = 7;
+int geometric_center = 1;
+int subtract_background = 1;
+int mxn_hblock = 16777216;
+int mxn_min_sink = 64;
+int mxn_min_qsrc = 512;
+int mxn_min_hsrc = 512;
+int mxn_do_pQ = 1;
+int mxn_do_pH = 1;
+int body_size = 56;
+int outbody_size = 52;
+int cell_size = 40;
+int quadcell_size = 80;
+int hexacell_size = 160;
+int cofm_size = 592;
+int tbody_size = 16;
+int hcell_size = 40;
+int hash_bits = 21;
+int memory_tune_MB = 0;
+int identsort_output = 1;
+Checkpoint to ds13_n_500_0512.nnnn, every 2000 steps or 3600 seconds
+int timer_freq = 1;
+float sort_tol = 0.0010;
+int do_periodic = 1, nimage is 2;
+int fix_cube_ewald_le = 1;
+int cosmology = 1;
+int light_cone = 0;
+int Ztol = 1;
+float comov_epsilon = 30.000000;
+float comov_epsilon_Zmin = 0.000000;
+float dt_hiz_tol = 0.040000;
+int setpvel = 0;
+int setdisplacement = 0;
+float noise = 0.000000;
+float R[0] = 372892.218750;
+float R[1] = 372892.218750;
+float R[2] = 372892.218750;
+Outputs at
+  a      t
+0.020  0.049
+0.050  0.193
+0.100  0.545
+0.200  1.537
+0.250  2.142
+0.300  2.805
+0.333  3.274
+0.400  4.266
+0.500  5.849
+0.600  7.493
+0.667  8.596
+0.700  9.145
+0.800 10.767
+0.900 12.332
+0.950 13.089
+1.000 13.828
+gnobj = 134217728
+mtot = 1647349504.000000
+edge flux 0 0 0 plus 0 0 0 minus 0 0 0
+BuildTree 454 (50119), tol=3.26844e-05
+preliminary BuildTree
+BuildTree done 1054 (50965)
+FindForces
+FindForces done 1281 (51284)
+FreeTree done 1193 (51284)
+edge flux 0 0 0 plus 0 0 0 minus 0 0 0
+
+tpos = 0.0235328, znow = 80.2421, iter = 0, size = 4589.89, eps = 0.851789
+ke = 5.40303e+12, pe = -8.35811e+15, energy = -8.3527e+15
+CM accel: (0.192509 -0.27513 0.149811): 0.367695
+rms accel: 3426.24
+      Timers        Min        Max       Mean
+ Step (Wall)     509.45     509.45     509.45
+  Step (CPU)     509.46     509.46     509.46
+ Build Total     100.41     100.42     100.41
+      PQSort      66.18      67.21      66.86
+      Decomp      15.68      16.01      15.87
+  DecompComm      15.97      16.34      16.16
+  DecompWait       0.01       0.51       0.21
+        Sort      33.81      34.98      34.56
+    MakeTree      32.18      32.47      32.34
+ SharedCells       0.24       0.93       0.44
+  SharedComm       0.14       0.89       0.37
+  Force Eval     396.27     398.04     397.62
+   Smth Time       0.23       0.35       0.29
+   Mono Time      14.35      14.85      14.65
+   Quad Time      39.51      57.19      47.17
+  QuadF Time      16.26      36.02      27.43
+   Hexa Time     144.79     155.56     150.56
+  HexaF Time       0.35       0.51       0.43
+   Grav Time     236.45     247.31     241.69
+    MAC Time      49.70      51.91      50.83
+   CUDA Wait       0.00       0.00       0.00
+  Walk Defer       5.81       7.82       6.61
+    WalkTerm       3.15      17.62      10.68
+      WalkNT     361.43     376.36     368.02
+    Fix Cube       9.14       9.27       9.16
+    Counters          Min          Max             Sum            Avg
+   Body-smth            0            0               0           0.00
+   Body-mono   5892121752   6123993726     96232540193  6014533762.06
+   Body-quad   4433192672   6558380658     85797149881  5362321867.56
+  Body-quadF   7757652480  10112674488    145240406200  9077525387.50
+   Body-hexa   5281874681   5702989057     88364433256  5522777078.50
+  Body-hexaF   4495060992   4597754880     72976477184  4561029824.00
+         MAC    724720999    763399991     11923733197   745233324.81
+      BB MAC    177900096    185811189      2906869612   181679350.75
+  Cube Empty            0            0               0           0.00
+   Cube Anti            0            0               0           0.00
+   Cube Corr     14840508     17708840       262875035    16429689.69
+    Max smth            0            0               0           0.00
+ Smth cycles            0            0               0           0.00
+ Mono cycles           53           54             850          53.12
+ Quad cycles          191          196            3093         193.31
+QuadF cycles           46           79            1045          65.31
+ Hexa cycles          596          603            9590         599.38
+HexaF cycles            1            2              26           1.62
+     KNterms    137394743    141920534      2241413394   140088337.12
+      Bodies      8377222      8392069       134217728     8388608.00
+ Local Cells            0            5               5           0.31
+  Local Quad            0            1               1           0.06
+  Local Hexa      1197561      1199705        19187295     1199205.94
+       Cells            0            5              10           0.62
+  Quad Cells            0            1               2           0.12
+  Hexa Cells      1577505      1586977        25314926     1582182.88
+     TBodies      1094088      1116050        17688896     1105556.00
+      Hcells     11051369     11093105       177221562    11076347.62
+Shared Cells        29808        91404          941904       58869.00
+    Requests       184277       187749         2976831      186051.94
+    Deferred       388075       397474         6275249      392203.06
+ Memory (MB)         1264         1281           20269        1266.81
+   Heap (MB)        51163        51284          819578       51223.62
+Avg nterms = 16700
+BuildTree 1193 (51284), tol=3.22295e-05
+BuildTree done 1197 (51284)
+FindForces
+FindForces done 1303 (51393)
+FreeTree done 1205 (51393)
+edge flux 0 0 0 plus 0 0 0 minus 0 0 0
+
+tpos = 0.0240328, znow = 79.1113, iter = 1, size = 4654.68, eps = 0.863812
+ke = 5.47814e+12, pe = -8.23975e+15, energy = -8.23427e+15
+CM accel: (0.143857 -0.309566 0.0927212): 0.353727
+rms accel: 3378.58
+      Timers        Min        Max       Mean
+ Step (Wall)     432.45     432.46     432.45
+  Step (CPU)     432.46     432.47     432.46
+ Build Total      43.81      43.81      43.81
+      PQSort      26.27      27.70      27.24
+      Decomp       7.56       7.61       7.59
+  DecompComm       2.07       2.11       2.08
+  DecompWait       0.00       0.03       0.02
+        Sort      16.58      18.00      17.54
+    MakeTree      15.46      16.08      15.67
+ SharedCells       0.02       1.00       0.69
+  SharedComm       0.00       0.98       0.67
+  Force Eval     376.18     377.51     377.07
+   Smth Time       0.23       0.35       0.29
+   Mono Time      14.52      14.75      14.63
+   Quad Time      39.25      56.42      47.00
+  QuadF Time      17.29      38.63      28.00
+   Hexa Time     147.36     153.82     150.42
+  HexaF Time       0.34       0.51       0.42
+   Grav Time     239.20     245.11     241.91
+    MAC Time      50.37      51.43      51.03
+   CUDA Wait       0.00       0.00       0.00
+  Walk Defer       6.11       7.93       6.99
+    WalkTerm       2.73       9.95       5.69
+      WalkNT     365.17     372.17     369.33
+    Fix Cube       9.11       9.43       9.23
+    Counters          Min          Max             Sum            Avg
+   Body-smth            0            0               0           0.00
+   Body-mono   5990070457   6046537208     96131229236  6008201827.25
+   Body-quad   4396287794   6466699418     85490728746  5343170546.62
+  Body-quadF   7883137024  10324161024    145794196616  9112137288.50
+   Body-hexa   5382050555   5632359964     88307591690  5519224480.62
+  Body-hexaF   4441953792   4598383616     72898760192  4556172512.00
+         MAC    743517232    763818924     12084801596   755300099.75
+      BB MAC    184092360    196184448      3042286844   190142927.75
+  Cube Empty            0            0               0           0.00
+   Cube Anti            0            0               0           0.00
+   Cube Corr     15175287     17543205       263630312    16476894.50
+    Max smth            0            0               0           0.00
+ Smth cycles            0            0               0           0.00
+ Mono cycles           53           54             850          53.12
+ Quad cycles          191          196            3091         193.19
+QuadF cycles           48           82            1064          66.50
+ Hexa cycles          596          602            9584         599.00
+HexaF cycles            1            2              25           1.56
+     KNterms    139898415    140251753      2240843164   140052697.75
+      Bodies      8285951      8547863       134217728     8388608.00
+ Local Cells            0            9               9           0.56
+  Local Quad            0            2               2           0.12
+  Local Hexa      1184537      1221937        19187294     1199205.88
+       Cells            0            9              17           1.06
+  Quad Cells            0            2               4           0.25
+  Hexa Cells      1565295      1643361        25637572     1602348.25
+     TBodies      1111637      1215700        18620144     1163759.00
+      Hcells     10968402     11367497       178475465    11154716.56
+Shared Cells        18576        39708          471600       29475.00
+    Requests       186440       205327         3133601      195850.06
+    Deferred       393625       432880         6611455      413215.94
+ Memory (MB)         1267         1303           20486        1280.38
+   Heap (MB)        51258        51393          821398       51337.38
+Avg nterms = 16696
+BuildTree 1205 (51393), tol=3.17901e-05
+BuildTree done 1205 (51393)
+FindForces
+FindForces done 1304 (51441)
+FreeTree done 1205 (51441)
+edge flux 0 0 0 plus 0 0 0 minus 0 0 0
+
+tpos = 0.0245328, znow = 78.0191, iter = 2, size = 4719.01, eps = 0.875752
+ke = 5.55274e+12, pe = -8.12618e+15, energy = -8.12062e+15
+CM accel: (0.233451 -0.389576 0.160278): 0.48162
+rms accel: 3332.54
+      Timers        Min        Max       Mean
+ Step (Wall)     434.61     434.62     434.61
+  Step (CPU)     434.62     434.63     434.62
+ Build Total      43.35      43.35      43.35
+      PQSort      26.13      27.28      26.85
+      Decomp       7.46       7.72       7.55
+  DecompComm       1.80       1.80       1.80
+  DecompWait       0.00       0.21       0.12
+        Sort      16.60      17.76      17.32
+    MakeTree      15.45      16.05      15.67
+ SharedCells       0.02       0.75       0.54
+  SharedComm       0.00       0.74       0.52
+  Force Eval     379.52     380.14     379.90
+   Smth Time       0.23       0.35       0.29
+   Mono Time      14.49      14.67      14.57
+   Quad Time      38.18      52.56      44.67
+  QuadF Time      23.06      41.81      32.45
+   Hexa Time     146.63     153.24     150.02
+  HexaF Time       0.38       0.53       0.45
+   Grav Time     241.08     246.51     243.60
+    MAC Time      50.54      51.58      51.10
+   CUDA Wait       0.00       0.00       0.00
+  Walk Defer       6.88       8.69       7.87
+    WalkTerm       2.86       8.66       5.66
+      WalkNT     369.01     375.10     372.13
+    Fix Cube       9.11       9.42       9.23
+    Counters          Min          Max             Sum            Avg
+   Body-smth            0            0               0           0.00
+   Body-mono   5983972590   6034188125     96038886113  6002430382.06
+   Body-quad   4277279572   6025068046     81096978559  5068561159.94
+  Body-quadF   8382420992  10472804352    150869212464  9429325779.00
+   Body-hexa   5370625393   5619720067     88253644575  5515852785.94
+  Body-hexaF   4413411328   4571124224     72382174208  4523885888.00
+         MAC    742342236    764131041     12091323070   755707691.88
+      BB MAC    183841808    195984200      3039930796   189995674.75
+  Cube Empty            0            0               0           0.00
+   Cube Anti            0            0               0           0.00
+   Cube Corr     15202547     17570522       264383400    16523962.50
+    Max smth            0            0               0           0.00
+ Smth cycles            0            0               0           0.00
+ Mono cycles           53           53             848          53.00
+ Quad cycles          191          196            3095         193.44
+QuadF cycles           60           87            1197          74.81
+ Hexa cycles          596          600            9566         597.88
+HexaF cycles            1            2              30           1.88
+     KNterms    139600335    139956169      2237659821   139853738.81
+      Bodies      8282091      8539188       134217728     8388608.00
+ Local Cells            0           24              24           1.50
+  Local Quad            0            2               2           0.12
+  Local Hexa      1183951      1220697        19187294     1199205.88
+       Cells            0           24              44           2.75
+  Quad Cells            0            2               4           0.25
+  Hexa Cells      1563943      1645449        25641676     1602604.75
+     TBodies      1111821      1217056        18634334     1164645.88
+      Hcells     10957881     11382889       178493786    11155861.62
+Shared Cells        21780        48744          470628       29414.25
+    Requests       186461       205543         3135855      195990.94
+    Deferred       393779       433275         6619060      413691.25
+ Memory (MB)         1269         1304           20498        1281.12
+   Heap (MB)        51294        51441          822016       51376.00
+Avg nterms = 16672
+BuildTree 1205 (51441), tol=3.13653e-05
+BuildTree done 1206 (51441)
+FindForces
+FindForces done 1304 (51482)
+FreeTree done 1206 (51482)
+edge flux 0 0 0 plus 0 0 0 minus 0 0 0
+
+tpos = 0.0250328, znow = 76.9634, iter = 3, size = 4782.92, eps = 0.887611
+ke = 5.62685e+12, pe = -8.01674e+15, energy = -8.01112e+15
+CM accel: (0.210232 -0.403243 0.139515): 0.475675
+rms accel: 3288.02
+      Timers        Min        Max       Mean
+ Step (Wall)     434.54     434.55     434.55
+  Step (CPU)     434.55     434.56     434.55
+ Build Total      43.46      43.47      43.46
+      PQSort      26.11      27.38      26.79
+      Decomp       7.45       7.72       7.55
+  DecompComm       1.76       1.76       1.76
+  DecompWait       0.00       0.21       0.12
+        Sort      16.62      17.89      17.30
+    MakeTree      15.47      16.06      15.67
+ SharedCells       0.02       1.03       0.76
+  SharedComm       0.00       1.01       0.74
+  Force Eval     378.81     379.99     379.52
+   Smth Time       0.23       0.35       0.29
+   Mono Time      14.45      14.67      14.55
+   Quad Time      38.28      52.69      44.73
+  QuadF Time      23.04      41.73      32.53
+   Hexa Time     146.62     153.35     149.94
+  HexaF Time       0.38       0.52       0.45
+   Grav Time     241.25     246.85     243.63
+    MAC Time      50.59      51.72      51.12
+   CUDA Wait       0.00       0.00       0.00
+  Walk Defer       7.16       8.75       7.91
+    WalkTerm       2.91       8.16       5.24
+      WalkNT     369.69     375.04     372.18
+    Fix Cube       9.09       9.36       9.22
+    Counters          Min          Max             Sum            Avg
+   Body-smth            0            0               0           0.00
+   Body-mono   5973003540   6035553477     95954550598  5997159412.38
+   Body-quad   4289149124   6033607463     81200513155  5075032072.19
+  Body-quadF   8373042688  10486192128    151011665600  9438229100.00
+   Body-hexa   5371529029   5623064667     88201031708  5512564481.75
+  Body-hexaF   4411457536   4561241088     72298125312  4518632832.00
+         MAC    743378922    764788495     12087959264   755497454.00
+      BB MAC    183280632    195600888      3028328289   189270518.06
+  Cube Empty            0            0               0           0.00
+   Cube Anti            0            0               0           0.00
+   Cube Corr     15250577     17645839       265133517    16570844.81
+    Max smth            0            0               0           0.00
+ Smth cycles            0            0               0           0.00
+ Mono cycles           52           53             846          52.88
+ Quad cycles          192          196            3096         193.50
+QuadF cycles           60           87            1197          74.81
+ Hexa cycles          596          600            9568         598.00
+HexaF cycles            1            2              29           1.81
+     KNterms    139641013    140037333      2237083491   139817718.19
+      Bodies      8286719      8544673       134217728     8388608.00
+ Local Cells            0           38              38           2.38
+  Local Quad            0            6               6           0.38
+  Local Hexa      1184633      1221465        19187050     1199190.62
+       Cells            0           38              68           4.25
+  Quad Cells            0            6              12           0.75
+  Hexa Cells      1565107      1644721        25626092     1601630.75
+     TBodies      1112271      1217108        18589651     1161853.19
+      Hcells     10967431     11376729       178433551    11152096.94
+Shared Cells        15336        46224          463032       28939.50
+    Requests       186526       205562         3128408      195525.50
+    Deferred       394379       433512         6606241      412890.06
+ Memory (MB)         1269         1304           20499        1281.19
+   Heap (MB)        51316        51482          822562       51410.12
+Avg nterms = 16668
+BuildTree 1206 (51482), tol=3.05569e-05
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+aprun: Apid 4130591: Caught signal Terminated, sending to application
+_pmiu_daemon(SIGCHLD): [NID 03815] [c8-1c1s3n3] [Sat Dec 14 23:52:16 2013] PE RANK 1 exit signal Terminated

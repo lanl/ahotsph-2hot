@@ -1,0 +1,26 @@
+#!/bin/bash
+#PBS -A AST028
+#PBS -l walltime=1:00:00
+#PBS -l nodes=1
+#PBS -l feature=gpudefault
+#PBS -j oe
+
+cd $PBS_O_WORKDIR
+
+ARCH=xk7c
+BIN=/ccs/home/msw/proj/bin
+TOP=/ccs/home/msw
+n=$PBS_NUM_NODES
+np=$((PBS_NUM_NODES * PBS_NUM_PPN))
+Nic=8
+Nps=64
+TAG=ds13_n_500_0512
+ICTAG=ds13_n_500_0512
+HOTEXEC=devel/nlna-cuda
+ICPROG=2LPTic64_cic
+ICBASEDIR=.
+ICCONVERT=gptosdf.${ARCHFFT}-mpi
+
+rsync -abqR ${TOP}/2HOT/./${HOTEXEC}.${ARCH}-mpi $BIN
+
+${MPIRUN} -n $np ${BIN}/${HOTEXEC}.${ARCH}-mpi run_xk7c.ctl >> run_xk7c.out 2>&1
