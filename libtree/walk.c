@@ -519,9 +519,8 @@ copyContents(void *to, void *vp, int sz){
 	key = KeyOrInt(key0, n);
 	pp = Find(Srctp, key);
 	assert(pp);
-	type = pp->type | DATAHERE;
-	if( GetSource(pp->type) == -1 )
-	    type |= NONLOCAL|PutSource(MPMY_Procnum());
+	type = (pp->type & ~KIDSHERE & ~REQUESTED) | DATAHERE | NONLOCAL;
+	if (GetSource(pp->type) == -1) type |= PutSource(MPMY_Procnum());
 	*(int *)p = type;
 	p += sizeof(type);
 	if( Sub_Flags(pp) ){
