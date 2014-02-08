@@ -555,7 +555,7 @@ CofmPost(tree_t *tp, hcell *hp, hcell *daughters[])
 static void
 DoSharedCells(tree_t *tp)
 {
-    void *allbranches;
+    void *allbranches = NULL;
     hcellptr root;
     int nbytes;
     hcell_type type;
@@ -575,67 +575,97 @@ DoSharedCells(tree_t *tp)
     if (MPMY_Nproc() != 1 << doc)
       doc++;			/* for non power-of-two sizes */
     for (chan = 0; chan < doc; chan++) {
-	StkInitEz(&brstk);
-	Traverse(tp, root, FindBranches, NULL);
-	
-	nbytes = StkSz(&brstk);
-	Msgf(("Found %d bytes of branches for channel %d\n", nbytes, chan));
-
+	int last = (chan == doc-1 && (MPMY_Nproc() != 1 << doc));
 	sendproc = procnum ^ (1 << chan);
 	Msgf(("branches sendproc is %d\n", sendproc));
-	if (sendproc >= MPMY_Nproc()) continue;
+
+	if (sendproc < MPMY_Nproc()) {
+	    StkInitEz(&brstk);
+	    Traverse(tp, root, FindBranches, NULL);
 	
-	StartTimer(&SharedCellsWaitTm);
-	MPMY_Shift(sendproc, &lo, sizeof(Key_t),
-		   &lobound, sizeof(Key_t), &stat);
-	ret = MPMY_Count(&stat);
-	if (ret != sizeof(Key_t))
-	    Error("Shift failed, expected %ld got %d\n", sizeof(Key_t), ret);
-	if (KeyLT(lo, lobound)) lobound = lo;
-	StopTimer(&SharedCellsWaitTm);
-
-	StartTimer(&SharedCellsCommTm);
-	MPMY_Shift(sendproc, &hi, sizeof(Key_t),
-		   &hibound, sizeof(Key_t), &stat);
-	ret = MPMY_Count(&stat);
-	if (ret != sizeof(Key_t))
-	    Error("Shift failed, expected %ld got %d\n", sizeof(Key_t), ret);
-	if (KeyGT(hi, hibound)) hibound = hi;
-	Msgf(("bounds after channel %d: %s ", chan, PrintKey(lobound)));
-	Msgf(("%s\n", PrintKey(hibound)));
-
-	MPMY_Shift(sendproc, &recvbytes, sizeof(int),
-		   &nbytes, sizeof(int), &stat);
-	ret = MPMY_Count(&stat);
-	if (ret != sizeof(int))
-	    Error("Shift failed, expected %ld got %d\n", sizeof(int), ret);
-	Msgf(("Receiving %d bytes of branches from channel %d\n", recvbytes, chan));
-	allbranches = Malloc(recvbytes);
-	MPMY_Shift(sendproc, allbranches, recvbytes,
-		   StkBase(&brstk), StkSz(&brstk), &stat);
-	ret = MPMY_Count(&stat);
-	if (ret != recvbytes)
-	    Error("Shift failed, expected %d got %d\n", recvbytes, ret);
-	StopTimer(&SharedCellsCommTm);
-	StkTerminate(&brstk);
-
-	/* Enter them in the tree, adding empties as necessary. */
-	AddCounter(&SharedCnt, recvbytes);
-	StkInitWithData(&brstk, recvbytes, Realloc_f, allbranches, _STK_DEFAULT_ALIGNMENT);
-	while(StkSz(&brstk)){
-	    type = StkPopType(&brstk, hcell_type);
-	    key = StkPopType(&brstk, Key_t);
-	    sz = Sub_Flags_Type(type) ? tp->cofmdata_sz : tp->tbody_sz;
-	    from = StkPop(&brstk, sz);
-	    if( GetSource(type) == procnum )
-		continue;
-	    to = Sub_Flags_Type(type) ? ChnAlloc(&tp->cofmchn) : ChnAlloc(&tp->tbodychn);
-	    memcpy(to, from, sz);
-	    LoadSharedNode(tp, key, type, to);
+	    nbytes = StkSz(&brstk);
+	    Msgf(("Found %d bytes of branches for channel %d\n", nbytes, chan));
+	
+	    StartTimer(&SharedCellsWaitTm);
+	    MPMY_Shift(sendproc, &lo, sizeof(Key_t),
+		       &lobound, sizeof(Key_t), &stat);
+	    ret = MPMY_Count(&stat);
+	    if (ret != sizeof(Key_t))
+		Error("Shift failed, expected %ld got %d\n", sizeof(Key_t), ret);
+	    if (KeyLT(lo, lobound)) lobound = lo;
+	    StopTimer(&SharedCellsWaitTm);
+	    
+	    StartTimer(&SharedCellsCommTm);
+	    MPMY_Shift(sendproc, &hi, sizeof(Key_t),
+		       &hibound, sizeof(Key_t), &stat);
+	    ret = MPMY_Count(&stat);
+	    if (ret != sizeof(Key_t))
+		Error("Shift failed, expected %ld got %d\n", sizeof(Key_t), ret);
+	    if (KeyGT(hi, hibound)) hibound = hi;
+	    Msgf(("bounds after channel %d: %s ", chan, PrintKey(lobound)));
+	    Msgf(("%s\n", PrintKey(hibound)));
+	    
+	    MPMY_Shift(sendproc, &recvbytes, sizeof(int),
+		       &nbytes, sizeof(int), &stat);
+	    ret = MPMY_Count(&stat);
+	    if (ret != sizeof(int))
+		Error("Shift failed, expected %ld got %d\n", sizeof(int), ret);
+	    Msgf(("Receiving %d bytes of branches from channel %d\n", recvbytes, chan));
+	    allbranches = Malloc(recvbytes);
+	    MPMY_Shift(sendproc, allbranches, recvbytes,
+		       StkBase(&brstk), StkSz(&brstk), &stat);
+	    ret = MPMY_Count(&stat);
+	    if (ret != recvbytes)
+		Error("Shift failed, expected %d got %d\n", recvbytes, ret);
+	    StopTimer(&SharedCellsCommTm);
+	    StkTerminate(&brstk);
 	}
-	StkTerminate(&brstk);	/* Frees allbranches */
-	Traverse(tp, root, CofmPre, CofmPost);
+
+	if (last) {
+	    StartTimer(&SharedCellsCommTm);
+	    if (MPMY_Procnum() == 0) {
+		Msgf(("Sending %d bytes to procs with no last partner\n", recvbytes));
+		MPMY_Bcast(&hibound, sizeof(Key_t), MPMY_CHAR, 0);
+		MPMY_Bcast(&recvbytes, 1, MPMY_INT, 0);
+		MPMY_Bcast(allbranches, recvbytes, MPMY_CHAR, 0);
+	    } else {
+		Key_t hibound0;
+		int recvbytes0;
+		void *allbranches0;
+		MPMY_Bcast(&hibound0, sizeof(Key_t), MPMY_CHAR, 0);
+		MPMY_Bcast(&recvbytes0, 1, MPMY_INT, 0);
+		allbranches0 = Malloc(recvbytes0);
+		MPMY_Bcast(allbranches0, recvbytes0, MPMY_CHAR, 0);
+		if (sendproc >= MPMY_Nproc()) {
+		    Msgf(("Recv %d bytes from proc 0 for last\n", recvbytes0));
+		    hibound = hibound0;
+		    recvbytes = recvbytes0;
+		    allbranches = allbranches0;
+		} else Free(allbranches0);
+	    }
+	    StopTimer(&SharedCellsCommTm);
+	}
+
+	if (sendproc < MPMY_Nproc() || last) {
+	    /* Enter them in the tree, adding empties as necessary. */
+	    AddCounter(&SharedCnt, recvbytes);
+	    StkInitWithData(&brstk, recvbytes, Realloc_f, allbranches, _STK_DEFAULT_ALIGNMENT);
+	    while(StkSz(&brstk)){
+		type = StkPopType(&brstk, hcell_type);
+		key = StkPopType(&brstk, Key_t);
+		sz = Sub_Flags_Type(type) ? tp->cofmdata_sz : tp->tbody_sz;
+		from = StkPop(&brstk, sz);
+		if( GetSource(type) == procnum )
+		    continue;
+		to = Sub_Flags_Type(type) ? ChnAlloc(&tp->cofmchn) : ChnAlloc(&tp->tbodychn);
+		memcpy(to, from, sz);
+		LoadSharedNode(tp, key, type, to);
+	    }
+	    StkTerminate(&brstk);	/* Frees allbranches */
+	    Traverse(tp, root, CofmPre, CofmPost);
+	}
     }
+    if (!root->ptr) Error("root->ptr is NULL\n");
 
     if (Sub_Flags(root)) {
 	void *cp = tp->CellFromCofm(root->ptr);
