@@ -62,6 +62,7 @@ ERROR: Assertion (Find(tp, key) == NULL) failed: file "tree.c", line 58
 Timer_t MakeTreeTm;
 Timer_t SharedCellsTm;
 Timer_t SharedCellsCommTm;
+Timer_t SharedCellsWaitTm;
 Counter_t SharedCnt;
 
 /* Local functions */
@@ -69,6 +70,7 @@ static void make_tree (tree_t *tp);
 static void DoSharedCells(tree_t *tp);
 
 /* Local variables */
+static Key_t hibound, lobound;
 
 static hcellptr
 NewCell(tree_t *tp, Key_t key)
@@ -183,22 +185,24 @@ FreeTree(tree_t *tp)
     ChnTerminate(&tp->hcellchn);
 }
 
-static void LoadNode(tree_t *tp, Key_t key, hcell_type type, void *ptr){
-/* load a new node in the tree and fill in empty parent cells */
-/* until we hit something that's already in the tree. */
+static void
+LoadSharedNode(tree_t *tp, Key_t key, hcell_type type, void *ptr)
+{
+    /* load a new node in the tree and fill in empty parent cells */
+    /* until we hit something that's already in the tree. */
     int ndim = tp->ndim;
     int nsub1 = (1<<ndim)-1;
     int lobits;
     hcell *hp, *parent;
 
-    Msgf(("Loading: %s\n", PrintKey(key)));
     hp = Enter(tp, key, ptr, type);
-    Msgf((" entered %s\n", hcellPrint(hp)));
+    Msgf(("LoadSharedNode: %s\n", hcellPrint(hp)));
     lobits = KeyAndInt(key, nsub1);
     key = KeyRshift(key, ndim);
-    while ( (parent = Find(tp, key)) == NULL ){
+    while ((parent = Find(tp, key)) == NULL) {
 	parent = Enter(tp, key, NULL, 0);
 	Set_Sub_Flag(parent, 1<<lobits);
+	parent->type |= SHARED;
 	Msgf(("Loaded parent: %s\n", hcellPrint(parent)));
 	lobits = KeyAndInt(key, nsub1);
 	key = KeyRshift(key, ndim);
@@ -206,7 +210,8 @@ static void LoadNode(tree_t *tp, Key_t key, hcell_type type, void *ptr){
     Set_Sub_Flag(parent, 1<<lobits);
 }
 
-void Finish(tree_t *tp, Key_t k){
+void Finish(tree_t *tp, Key_t k)
+{
     hcell *daughters[MAXNSUB];
     hcell *hp;
     int nsub = 1<<(tp->ndim);
@@ -228,8 +233,8 @@ void Finish(tree_t *tp, Key_t k){
     }
     hp->ptr = ChnAlloc(&tp->cofmchn);
     tp->CofmFromDaugh(hp, daughters);
-    for(i=0; i<nsub; i++){
-	if( daughters[i] && Sub_Flags(daughters[i]) ){
+    for (i = 0; i < nsub; i++) {
+	if (daughters[i] && Sub_Flags(daughters[i])) {
 	    void *cp = tp->CellFromCofm(daughters[i]->ptr);
 	    ChnFree(&tp->cofmchn, daughters[i]->ptr);
 	    daughters[i]->ptr = cp;
@@ -307,11 +312,12 @@ make_tree(tree_t *tp)
     int body_sz;
     Key_t (*getkey)(const void *);
     Key_t hikey, lokey;
-    Key_t hibound, lobound;
     Key_t hiboundcell, loboundcell;
     Key_t ckey;
     int sub, sub_last;
     int loopagain;
+    int iam0 = 0;
+    int iamlast = 0;
 
     nobj = tp->bodies->nobj;
     bp = tp->bodies->data;
@@ -326,13 +332,21 @@ make_tree(tree_t *tp)
 	  
     exch_bounds(ndim, hikey, lokey, &hibound, &lobound);
 #if GRAYDECOMP
-    if( Gcdown(MPMY_Procnum(), MPMY_Nproc()) != -1 ){
+    if (Gcdown(MPMY_Procnum(), MPMY_Nproc()) != -1) {
 #else
-    if( MPMY_Procnum() != 0 ){
+    if (MPMY_Procnum() != 0) {
 #endif
 	lastbkey = lobound;
-    }else{
+    } else {
+	iam0 = 1;
 	lastbkey = KeyInt(0);
+    }
+#if GRAYDECOMP
+    if (Gcup(MPMY_Procnum(), MPMY_Nproc()) == -1) {
+#else
+    if (MPMY_Procnum() == MPMY_Nproc()-1) {
+#endif
+	iamlast = 1;
     }
     assert(KeyLE(lobound,lokey));
     assert(KeyGE(hibound,hikey));
@@ -351,18 +365,11 @@ make_tree(tree_t *tp)
     StartTimer(&MakeTreeTm);
     /* This loop goes one step too far to load a pseudo-body at the */
     /* position of the hibound.  I find this unaesthetic...  */
-    for(i=0; i<=nobj; bp = (char *)bp + body_sz, i++){
-	if( i<nobj ){
+    for (i = 0; i <= nobj; bp = (char *)bp + body_sz, i++) {
+	if (i < nobj) {
 	    bkey = getkey(bp);
 	    Msgf(("Computed key=%s\n", PrintKey(bkey)));
-#if GRAYDECOMP
-	}else if( Gcup(MPMY_Procnum(), MPMY_Nproc()) == -1 ){
-#else
-	}else if( MPMY_Procnum() == MPMY_Nproc()-1 ){
-#endif
-	    /* Don't do the last pseudo-body if we're the last processor. */
-	    break;
-	}else{
+	} else {
 	    bp = NULL;
 	    bkey = hibound;
 	}
@@ -372,19 +379,26 @@ make_tree(tree_t *tp)
 	/* are done, because this body is outside them. */
 	ckey = KeyRshift(bkey, rshiftbits);
 	loopagain = 0;
-	while( KeyNEQ(ckey, lastckey) ){
+	while (KeyNEQ(ckey, lastckey) || (iamlast && i == nobj)) {
 	    loboundcell = KeyRshift(lobound, rshiftbits);
 	    hiboundcell = KeyRshift(hibound, rshiftbits);
-	    if(loopagain && 
-	       KeyGT(lastckey, loboundcell) && 
-	       KeyLT(lastckey, hiboundcell) ){
+	    Msgf(("FinishCheck: %10s ", PrintKey(ckey)));
+	    Msgf(("%10s ", PrintKey(lastckey)));
+	    Msgf(("%10s ", PrintKey(loboundcell)));
+	    Msgf(("%10s\n", PrintKey(hiboundcell)));
+	    if (loopagain && 
+		(iam0 || KeyGT(lastckey, loboundcell)) && 
+		(iamlast || KeyLT(lastckey, hiboundcell))) {
 		Finish(tp, lastckey);
 	    }
+	    if (iamlast && KeyEQ(lastckey, KeyInt(1))) break;
 	    loopagain = 1;
 	    rshiftbits += ndim;
 	    ckey = KeyRshift(bkey, rshiftbits);
 	    lastckey = KeyRshift(lastbkey, rshiftbits);
 	}
+
+	if (iamlast && i == nobj) break;
 
 	/* Now push enough extra cells to separate the new body */
 	/* from lastbody. */
@@ -432,7 +446,7 @@ make_tree(tree_t *tp)
 	    parent = Enter(tp, ckey, NULL, 0);
 	}
 
-	if( oldptr ){
+	if (oldptr) {
 	    sub_last = KeyAndInt(lastckey, nsub1);
 	    Set_Sub_Flag(parent, (1<<sub_last));
 	    parent->ptr = NULL;
@@ -441,7 +455,7 @@ make_tree(tree_t *tp)
 	    Msgf(("New Parent: %s\n", hcellPrint(parent)));
 	}
 
-	if( bp ){
+	if (bp) {
 	    /* Always, except for last pseudo-body */
 	    sub = KeyAndInt(ckey, nsub1);
 	    Set_Sub_Flag(parent, 1<<sub);
@@ -451,7 +465,7 @@ make_tree(tree_t *tp)
 	}
 	lastbkey = bkey;
 	lastckey = ckey;
-	if( rshiftbits < rshift_lwm )
+	if (rshiftbits < rshift_lwm)
 	    rshift_lwm = rshiftbits;
     }
     
@@ -464,131 +478,171 @@ make_tree(tree_t *tp)
 
 static Stk brstk;
 
-static int FindBranches(tree_t *tp, hcell *hp){
+static int
+FindBranches(tree_t *tp, hcell *hp)
+{
     int sz;
+    int proc;
 
-    if( hp->ptr ){
+    if (hp->ptr) {
 	sz = Sub_Flags(hp) ? tp->cofmdata_sz : tp->tbody_sz;
 	memcpy(StkPush(&brstk, sz), hp->ptr, sz);
 	StkPushType(&brstk, hp->key, Key_t);
+	proc = GetSource(hp->type);
+	if (proc == -1) proc = MPMY_Procnum();
 	StkPushType(&brstk, 
-		    DATAHERE|NONLOCAL|PutSource(MPMY_Procnum())|hp->type, 
+		    DATAHERE|NONLOCAL|PutSource2(proc,hp->type), 
 		    hcell_type);
 	Msgf(("Found a branch at %s, StkSz now %ld\n", hcellPrint(hp), StkSz(&brstk)));
 	return 0;
-    }else{
+    } else {
 	Msgf(("Continue past %s\n", hcellPrint(hp)));
 	return 1;
     }
 }
 
-static int CofmPre(tree_t *tp,hcell *hp){
-    if( hp->ptr == NULL ){
-	hp->ptr = ChnAlloc(&tp->cofmchn);
+static void
+KeyBoundary(tree_t *tp, Key_t cell, Key_t *minp, Key_t *maxp)
+{
+    /* Find the minimum and maximum possible body-keys that can */
+    /* inhabit cell */
+    Key_t min, max, stop;
+    
+    stop = KeyLshift(KeyInt(1),  tp->ndim * ((KEYBITS-1)/tp->ndim));
+    max = min = cell;
+    while (KeyLT(min, stop)) {
+	max = KeyLshift(max, tp->ndim);
+	min = KeyLshift(min, tp->ndim);
+	max = KeyOrInt(max, (1<<tp->ndim) - 1);
+    }
+    *minp = min;
+    *maxp = max;
+}
+
+static int
+CofmPre(tree_t *tp,hcell *hp)
+{
+    if (hp->ptr == NULL) {
 	return 1;
-    }else{
+    } else {
 	return 0;
     }
 }
 
-static void CofmPost(tree_t *tp, hcell *hp, hcell *daughters[]){
+static void
+CofmPost(tree_t *tp, hcell *hp, hcell *daughters[])
+{
     int i;
     int nsub = 1<<(tp->ndim);
-
-    Msgf(("CMPo: %s\n", hcellPrint(hp)));
-    tp->CofmFromDaugh(hp, daughters);
-    hp->type |= SHARED;
-    for(i=0; i<nsub; i++){
-	if( daughters[i] && Sub_Flags(daughters[i]) ){
-	    void *cp = tp->CellFromCofm(daughters[i]->ptr);
-	    ChnFree(&tp->cofmchn, daughters[i]->ptr);
-	    daughters[i]->ptr = cp;
+    Key_t mink, maxk;
+    
+    KeyBoundary(tp, hp->key, &mink, &maxk);
+    if (KeyGE(mink, lobound) && KeyLE(maxk, hibound)) {
+	if (hp->ptr == NULL) hp->ptr = ChnAlloc(&tp->cofmchn);
+	hp->type |= SHARED;
+	Msgf(("CoFDaugh: %s\n", hcellPrint(hp)));
+	tp->CofmFromDaugh(hp, daughters);
+	for (i = 0; i < nsub; i++) {
+	    if (daughters[i] && Sub_Flags(daughters[i])) {
+		void *cp = tp->CellFromCofm(daughters[i]->ptr);
+		ChnFree(&tp->cofmchn, daughters[i]->ptr);
+		daughters[i]->ptr = cp;
+	    }
 	}
     }
 }
 
-static void DoSharedCells(tree_t *tp){
+static void
+DoSharedCells(tree_t *tp)
+{
     void *allbranches;
     hcellptr root;
-    int nbytes, nconcat;
+    int nbytes;
     hcell_type type;
     Key_t key;
     int sz;
     void *from, *to;
     int procnum = MPMY_Procnum();
-    int i;
-    int *rcounts, *roffsets;
+    int doc, chan, sendproc, recvbytes, ret;
+    Key_t lo, hi;
+    MPMY_Status stat;
 
     StartTimer(&SharedCellsTm);
     /* Find the 'branches' */
     root = Find(tp, KeyInt(1));
-    StkInitEz(&brstk);
-    Traverse(tp, root, FindBranches, NULL);
 
-    Msgf(("Found all branches\n"));
-    nbytes = StkSz(&brstk);
-    AddCounter(&SharedCnt, nbytes);
-    StartTimer(&SharedCellsCommTm);
-#if 1
-    /* xconcat them using allgatherv */
-    rcounts = Calloc(MPMY_Nproc(), sizeof(int));
-    roffsets = Calloc(MPMY_Nproc(), sizeof(int));
+    doc = ilog2(MPMY_Nproc());
+    if (MPMY_Nproc() != 1 << doc)
+      doc++;			/* for non power-of-two sizes */
+    for (chan = 0; chan < doc; chan++) {
+	StkInitEz(&brstk);
+	Traverse(tp, root, FindBranches, NULL);
+	
+	nbytes = StkSz(&brstk);
+	Msgf(("Found %d bytes of branches for channel %d\n", nbytes, chan));
 
-    Native_MPMY_Allgather(&nbytes, 1, MPMY_INT, rcounts);
-    nbytes = rcounts[0];
-    for (i = 1; i < MPMY_Nproc(); i++) {
-	roffsets[i] = roffsets[i-1] + rcounts[i-1];
-	nbytes += rcounts[i];
+	sendproc = procnum ^ (1 << chan);
+	Msgf(("branches sendproc is %d\n", sendproc));
+	if (sendproc >= MPMY_Nproc()) continue;
+	
+	StartTimer(&SharedCellsWaitTm);
+	MPMY_Shift(sendproc, &lo, sizeof(Key_t),
+		   &lobound, sizeof(Key_t), &stat);
+	ret = MPMY_Count(&stat);
+	if (ret != sizeof(Key_t))
+	    Error("Shift failed, expected %ld got %d\n", sizeof(Key_t), ret);
+	if (KeyLT(lo, lobound)) lobound = lo;
+	StopTimer(&SharedCellsWaitTm);
+
+	StartTimer(&SharedCellsCommTm);
+	MPMY_Shift(sendproc, &hi, sizeof(Key_t),
+		   &hibound, sizeof(Key_t), &stat);
+	ret = MPMY_Count(&stat);
+	if (ret != sizeof(Key_t))
+	    Error("Shift failed, expected %ld got %d\n", sizeof(Key_t), ret);
+	if (KeyGT(hi, hibound)) hibound = hi;
+	Msgf(("bounds after channel %d: %s ", chan, PrintKey(lobound)));
+	Msgf(("%s\n", PrintKey(hibound)));
+
+	MPMY_Shift(sendproc, &recvbytes, sizeof(int),
+		   &nbytes, sizeof(int), &stat);
+	ret = MPMY_Count(&stat);
+	if (ret != sizeof(int))
+	    Error("Shift failed, expected %ld got %d\n", sizeof(int), ret);
+	Msgf(("Receiving %d bytes of branches from channel %d\n", recvbytes, chan));
+	allbranches = Malloc(recvbytes);
+	MPMY_Shift(sendproc, allbranches, recvbytes,
+		   StkBase(&brstk), StkSz(&brstk), &stat);
+	ret = MPMY_Count(&stat);
+	if (ret != recvbytes)
+	    Error("Shift failed, expected %d got %d\n", recvbytes, ret);
+	StopTimer(&SharedCellsCommTm);
+	StkTerminate(&brstk);
+
+	/* Enter them in the tree, adding empties as necessary. */
+	AddCounter(&SharedCnt, recvbytes);
+	StkInitWithData(&brstk, recvbytes, Realloc_f, allbranches, _STK_DEFAULT_ALIGNMENT);
+	while(StkSz(&brstk)){
+	    type = StkPopType(&brstk, hcell_type);
+	    key = StkPopType(&brstk, Key_t);
+	    sz = Sub_Flags_Type(type) ? tp->cofmdata_sz : tp->tbody_sz;
+	    from = StkPop(&brstk, sz);
+	    if( GetSource(type) == procnum )
+		continue;
+	    to = Sub_Flags_Type(type) ? ChnAlloc(&tp->cofmchn) : ChnAlloc(&tp->tbodychn);
+	    memcpy(to, from, sz);
+	    LoadSharedNode(tp, key, type, to);
+	}
+	StkTerminate(&brstk);	/* Frees allbranches */
+	Traverse(tp, root, CofmPre, CofmPost);
     }
-    Msgf(("Allgatherv %d bytes for branches\n", nbytes));
-    allbranches = Malloc(nbytes);
-    Native_MPMY_Allgatherv(StkBase(&brstk), StkSz(&brstk), MPMY_CHAR, allbranches, 
-			   rcounts, roffsets);
-    Free(roffsets);
-    Free(rcounts);
-#else
-    /* xconcat them */
-    MPMY_Combine(&nbytes, &nbytes, 1, MPMY_INT, MPMY_SUM);
-    Msgf(("Combined for a total of %d bytes\n", nbytes));
-    nconcat = MPMY_NGather(StkBase(&brstk), StkSz(&brstk), MPMY_CHAR, 
-			   &allbranches, 0);
-    Msgf(("Gathered nconcat = %d\n", nconcat));
-    if (procnum) 
-      allbranches = Malloc(nbytes);
-    else 
-      VerifyX(nconcat==nbytes, Shout("nconcat=%d, nbytes=%d", nconcat, nbytes));
 
-    MPMY_Bcast(allbranches, nbytes, MPMY_CHAR, 0);
-    Msgf(("Bcasted %d bytes\n", nbytes));
-#endif
-    StopTimer(&SharedCellsCommTm);
-    StkTerminate(&brstk);
-
-    /* Enter them in the tree, adding empties as necessary. */
-    StkInitWithData(&brstk, nbytes, Realloc_f, allbranches, _STK_DEFAULT_ALIGNMENT);
-    while(StkSz(&brstk)){
-	type = StkPopType(&brstk, hcell_type);
-	key = StkPopType(&brstk, Key_t);
-	sz = Sub_Flags_Type(type) ? tp->cofmdata_sz : tp->tbody_sz;
-	from = StkPop(&brstk, sz);
-	if( GetSource(type) == procnum )
-	    continue;
-	to = Sub_Flags_Type(type) ? ChnAlloc(&tp->cofmchn) : ChnAlloc(&tp->tbodychn);
-	memcpy(to, from, sz);
-	Msgf(("Loading %s\n", PrintKey(key)));
-	LoadNode(tp, key, type, to);
-    }
-    StkTerminate(&brstk);	/* Frees allbranches */
-
-    /* traverse finding cofm in the trunk. */
-    Traverse(tp, root, CofmPre, CofmPost);
-    root->type |= SHARED;
-    if( Sub_Flags(root) ){
-	/* The tree has more than one body!? */
+    if (Sub_Flags(root)) {
 	void *cp = tp->CellFromCofm(root->ptr);
 	ChnFree(&tp->cofmchn, root->ptr);
 	root->ptr = cp;
     }
+    Msgf(("DoSharedCells done: %s\n", hcellPrint(root)));
     StopTimer(&SharedCellsTm);
 }
 
@@ -611,6 +665,8 @@ void Traverse(tree_t *tp, hcellptr pp,
 	     childnum++, sub_flags>>=1) {
 	    if (sub_flags & 1) {
 		daughters[childnum] = Findx(tp, KeyOrInt(key, childnum));
+		if (daughters[childnum] == NULL) 
+		    Error("Bad sub_flags for slot %d of %s\n", childnum, PrintKey(pp->key));
 	    } else {
 		daughters[childnum] = NULL;
 	    }
