@@ -61,6 +61,8 @@ int MPMY_Alltoall(void *sendbuf, int sendcount, MPMY_Datatype sendtype,
 		  void *recvbuf, int recvcount, MPMY_Datatype recvtype);
 int MPMY_Alltoallv(void *sendbuf, int *sendcounts, int *sendoffsets, MPMY_Datatype sendtype, 
 		   void *recvbuf, int *recvcounts, int *recvoffsets, MPMY_Datatype recvtype);
+int MPMY_Alltoallv_simple(void *sendbuf, int *sendcounts, int *sendoffsets, MPMY_Datatype sendtype, 
+			  void *recvbuf, int *recvcounts, int *recvoffsets, MPMY_Datatype recvtype);
 int Native_MPMY_Allgather(void *sendbuf, int sendcount, MPMY_Datatype type, void *recvbuf);
 int Native_MPMY_Allgatherv(void *sendbuf, int sendcount, MPMY_Datatype type, void *recvbuf,
 			   int *rcounts, int *roffsets);

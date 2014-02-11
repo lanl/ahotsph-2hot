@@ -31,7 +31,12 @@
 #include "rsort.h"
 
 Timer_t PQSortTm;
+Timer_t PQSortCommTm;
+Timer_t PQSortWaitTm;
+Timer_t PQSortAtoaTm;
+Timer_t PQSortAtoavTm;
 Timer_t SortTm;
+Counter_t PQSortSends, PQSortRecvs, PQSortMaxn;
 
 struct sortpair{
     int sortkey;
@@ -81,6 +86,7 @@ void *pqsort(sortresult_t *decompp,
     char *instart, *outstart, *outend;
     struct sortpair *sortarr, *sortp;
     int malloc_debug_reset = -1;
+    int nsends = 0, nrecvs = 0, maxn = 0;
 
     StartTimer(&PQSortTm);
     if( Msg_test(__FILE__) )
@@ -97,7 +103,6 @@ void *pqsort(sortresult_t *decompp,
     tmp = Malloc(size);
 
     SetupDecomp(decompp, weight, getkey);
-    StartTimer(&DecompCommTm);
     p = data;
     q = data + nobj*size;
 
@@ -131,9 +136,11 @@ void *pqsort(sortresult_t *decompp,
 	p += size;
     }
     assert(nsendarr[MPMY_Procnum()] == nkeep);
+    StartTimer(&PQSortWaitTm);
     Msgf(("Before Combine:\n"));
     MPMY_Combine(nsendarr, nsendarr, MPMY_Nproc(), MPMY_INT, MPMY_SUM);
     Msgf(("After combine:\n"));
+    StopTimer(&PQSortWaitTm);
 
     /* If we don't free the arrays we've alloced here, we need to make them static so
        they don't interfere with growing the btab. */
@@ -193,8 +200,14 @@ void *pqsort(sortresult_t *decompp,
     Free(sortarr);
     /* We're done with sorting for now. */
 
+    StartTimer(&PQSortCommTm);
     nrecvarr = Calloc(MPMY_Nproc(), sizeof(int));
+    StartTimer(&PQSortWaitTm);
+    MPMY_Sync();
+    StopTimer(&PQSortWaitTm);
+    StartTimer(&PQSortAtoaTm);
     Native_MPMY_Alltoall(nsendarr, 1, MPMY_INT, nrecvarr, 1, MPMY_INT);
+    StopTimer(&PQSortAtoaTm);
 
     outstart = aux;
     instart = data + nkeep*size;
@@ -205,6 +218,9 @@ void *pqsort(sortresult_t *decompp,
     
     assert(size % sizeof(int) == 0);
     for (i = 0; i < MPMY_Nproc(); i++) {
+	if (nsendarr[i]) nsends++;
+	if (nrecvarr[i]) nrecvs++;
+	if (nsendarr[i] > maxn) maxn = nsendarr[i]*size;
 	nsendarr[i] *= size/sizeof(int);
 	nrecvarr[i] *= size/sizeof(int);
 	if (i != 0) {
@@ -221,11 +237,28 @@ void *pqsort(sortresult_t *decompp,
 	}
 #endif
     }
+    AddCounter(&PQSortSends, nsends);
+    AddCounter(&PQSortRecvs, nrecvs);
+    AddCounter(&PQSortMaxn, maxn);
 
     Msgf(("Before Alltoallv:\n"));
+    StartTimer(&PQSortWaitTm);
+    MPMY_Sync();
+    StopTimer(&PQSortWaitTm);
+    StartTimer(&PQSortAtoavTm);
+#if 0
     MPMY_Alltoallv(outstart, nsendarr, sendoffsets, MPMY_INT, 
 		   instart, nrecvarr, recvoffsets, MPMY_INT);
+#else
+    MPMY_Alltoallv_simple(outstart, nsendarr, sendoffsets, MPMY_INT, 
+			  instart, nrecvarr, recvoffsets, MPMY_INT);
+#endif
+    StopTimer(&PQSortAtoavTm);
+    StartTimer(&PQSortWaitTm);
+    MPMY_Sync();
+    StopTimer(&PQSortWaitTm);
     Msgf(("After Alltoallv:\n"));
+    StopTimer(&PQSortCommTm);
 #ifdef EXPENSIVE_ASSERTIONS
     for (i = 0; i < MPMY_Nproc(); i++) {
 	if (nrecvarr[i]) {
@@ -246,7 +279,6 @@ void *pqsort(sortresult_t *decompp,
     if (incoming < nobj) {
 	data = Realloc(data, size*incoming);
     }
-    StopTimer(&DecompCommTm);
     Msgf(("calling FinishDecomp\n"));
     FinishDecomp();
 

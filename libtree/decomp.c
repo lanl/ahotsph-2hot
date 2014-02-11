@@ -127,11 +127,9 @@ SetupDecomp(sortresult_t *decompp,
 	}
 	keydata[i++].n = wt;
     }
-    StopTimer(&DecompTm);
     StartTimer(&DecompWaitTm);
     MPMY_Combine(&total_wgt, &total_wgt, 1, MPMY_DOUBLE, MPMY_SUM);
     StopTimer(&DecompWaitTm);
-    StartTimer(&DecompTm);
     wtfac = total_wgt/(MPMY_Nproc()*1013.0);
     Msgf(("total weight %lf, wtfac %lf\n", total_wgt, wtfac));
     total_wgt = 0.0;
@@ -159,10 +157,10 @@ SetupDecomp(sortresult_t *decompp,
     }
     Free(keydata);
     Msgf(("Sending %ld bytes\n", StkSz(&ostk)));
-    StopTimer(&DecompTm);
+    StartTimer(&DecompCommTm);
     nin = MPMY_NGather(StkBase(&ostk), StkSz(&ostk), MPMY_CHAR, 
 		       (void **)&key_n, 0);
-    StartTimer(&DecompTm);
+    StopTimer(&DecompCommTm);
     nin /= sizeof(Key_t);
     StkTerminate(&ostk);
 
@@ -192,10 +190,10 @@ SetupDecomp(sortresult_t *decompp,
 	Free(key_n);
     }
     Msgf(("Doing decomptab Bcast\n"));
-    StopTimer(&DecompTm);
-    StartTimer(&DecompWaitTm);
+    StartTimer(&DecompCommTm);
     MPMY_Bcast(decomptab, MPMY_Nproc()*sizeof(Key_t)/sizeof(int), MPMY_INT, 0);
-    StopTimer(&DecompWaitTm);
+    StopTimer(&DecompCommTm);
+    StopTimer(&DecompTm);
     Msgf(("SetupDecomp done\n"));
 }
 
