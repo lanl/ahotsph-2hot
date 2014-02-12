@@ -105,6 +105,8 @@ void MPMY_Diagnostic(int (*printflike)(const char *, ...));
 /* And a version suitable for passing to OnAbnormal */
 void PrintMPMYDiags(void);
 
+double MPMY_Wtime(void);
+
 /* These don't really have analogues in mpi.  MPI does have Sendrecv
    and Sendrecv_replace, but those are both more general (allowing
    different sources and destinations, allowing tags, allowing *_ANY)
