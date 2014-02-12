@@ -1,4 +1,4 @@
-defaultCC:=/opt/gcc/4.8.1/bin/gcc
+defaultCC:=/opt/gcc/4.8.2/bin/gcc
 override LD:=cc
 
 CUDA:=-DCUDA

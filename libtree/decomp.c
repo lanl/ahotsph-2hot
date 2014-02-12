@@ -19,11 +19,12 @@ Timer_t DecompTm;
 Timer_t DecompWaitTm;
 Timer_t DecompCommTm;
 
-#define MAXNPROC 40000
+#define MAXNPROC 262144
+#define TOPBIT (((KEYBITS-1)/3)*3)
 
 /* Don't dynamically allocate decomptab, since it can fragment the heap */
 /* This has probably broken Set/SaveDeccomp */
-static Key_t decomptab[40000];
+static Key_t decomptab[MAXNPROC];
 static int save_decomp;
 static Key_t (*getkey_s)(const void *);
 static float (*weight_s)(const void *);
@@ -83,6 +84,31 @@ ClearDecomp19(void *ptr)
     save_decomp = CLEAR;
 }
 
+static void
+SetupDecompStatic(sortresult_t *decompp, 
+		  Key_t (*getkey)(const void *))
+{
+    Key_t tmp;
+    unsigned int i;
+    
+    getkey_s = getkey;
+    
+    Msgf(("SetupDecomp: starting in mode %d\n", save_decomp));    
+    if (save_decomp == SET) {
+	Msgf(("SetupDecomp: save decomp is set, returning\n"));
+	return;
+    }
+    StartTimer(&DecompTm);
+    tmp = KeyLshift(KeyInt(1), TOPBIT);
+    for (i = 0; i < MPMY_Nproc()-1; i++) {
+	decomptab[i] = KeyOr(tmp, KeyLshift(KeyInt(i+1), TOPBIT-ilog2(MPMY_Nproc())));
+    }
+    decomptab[MPMY_Nproc()-1] = KeyOr(tmp, KeySub(tmp, KeyInt(1)));
+    assert(MPMY_Nproc() <= MAXNPROC);
+    StopTimer(&DecompTm);
+    Msgf(("SetupDecomp done\n"));
+}
+
 void
 SetupDecomp(sortresult_t *decompp, 
 	    float (*weight)(const void *), Key_t (*getkey)(const void *))
@@ -101,6 +127,11 @@ SetupDecomp(sortresult_t *decompp,
 	float n;
     } *keydata, *kn;
     unsigned int i;
+    
+    if (!weight) {
+	SetupDecompStatic(decompp, getkey);
+	return;
+    }
 
     getkey_s = getkey;
     weight_s = weight;
