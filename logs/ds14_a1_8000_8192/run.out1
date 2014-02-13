@@ -1,0 +1,2328 @@
+Welcome to the tree19 hexadecapole N-body integrator running on 131072 procs
+Version 2HOT_nln-1.0.3-titan-31-gda91ba1-dirty
+Compiled Feb 12 2014 23:48:44
+Compiler 4.8.2 20131016 (Cray Inc.)
+Arch cudaxk7
+Saving phi and acc
+Bodies cache their key
+Node 0 is nid18360
+cfile "run.ctl" opened
+Putting all Msgs in memfile
+Compute 3.5 CUDA device: [Tesla K20X]
+Setting timeout to 14400 seconds.
+Reading "./ds14_a1_8000_8192.sdf"
+     SDFread    1013.55    1015.95    1013.65
+read 549755813888 x 36 at 19525 MB/s
+double H0 = 0.0685662
+double Omega0 = 1
+double Omega0_m = 0.31826
+double Omega0_r = 8.05728e-05
+double redshift = 80.2421
+double Omega0_lambda = 0.68166
+double velfac = 0.98471
+Maxmem after data read is 773 (53908)
+float errtol = 2e-05;
+float stol_max = 0;
+float ptol_boost = 0;
+float dt = 0.032;
+double tpos = 0.0228841;
+double tvel = 0.0228841;
+int force_smoothing_type = 4;
+float epsilon_mscale = 30;
+int start_iter = 0;
+int nsteps = 100000;
+int nproc = 131072;
+int do_Bmax = 0;
+int do_BH = 0;
+int do_Arel = 1;
+int do_DL = 1;
+float CWfac = 0.02;
+float DLfac = 4.00;
+float DLmax = 1e+09;
+float frac_tol = 1e-07;
+float frac_tol0 = 0.1;
+int quad_ncut = 3;
+int hexa_ncut = 7;
+int geometric_center = 1;
+int subtract_background = 1;
+int mxn_hblock = 16777216;
+int mxn_min_qsink = 64;
+int mxn_min_hsink = 64;
+int mxn_min_qsrc = 64;
+int mxn_min_hsrc = 64;
+int mxn_do_pQ = 1;
+int mxn_do_pH = 1;
+int body_size = 72;
+int outbody_size = 52;
+int cell_size = 40;
+int quadcell_size = 80;
+int hexacell_size = 160;
+int cofm_size = 592;
+int tbody_size = 16;
+int hcell_size = 40;
+int hash_bits = 21;
+int memory_tune_MB = 0;
+int identsort_output = 1;
+Checkpoint to ds14_a1_8000_8192.nnnn, every 2000 steps or 15000 seconds
+int timer_freq = 10;
+float sort_tol = 0.0010;
+int do_periodic = 1, nimage is 2;
+int fix_cube_ewald_le = 1;
+int cosmology = 1;
+int light_cone = 1;
+int Ztol = 1;
+float comov_epsilon = 30.000000;
+float comov_epsilon_Zmin = 0.000000;
+float dt_hiz_tol = 0.040000;
+int setpvel = 0;
+int setdisplacement = 0;
+float noise = 0.000000;
+float R[0] = 5966279.000000;
+float R[1] = 5966279.000000;
+float R[2] = 5966279.000000;
+Outputs at
+  a      t
+0.020  0.048
+0.050  0.191
+0.100  0.543
+0.200  1.534
+0.250  2.139
+0.300  2.802
+0.333  3.271
+0.400  4.262
+0.500  5.846
+0.600  7.489
+0.667  8.592
+0.700  9.141
+0.800 10.763
+0.900 12.329
+0.950 13.086
+1.000 13.824
+gnobj = 549755813888
+mtot = 6745845923840.000000
+edge flux 0 0 0 plus 0 0 0 minus 0 0 0
+BuildTree 773 (53908), tol=3.34716e-05
+preliminary BuildTree
+BuildTree done 1010 (55874)
+----- Messages from procnum 65535 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 32767 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 81919 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+FindForces
+----- Messages from procnum 118783 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 53247 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 86015 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 69631 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 108543 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 98303 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 49151 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 36863 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 61439 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 94207 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 126975 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 16383 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 114687 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 51199 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 100351 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 83967 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 116735 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 31 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 1 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 92159 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 128511 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 104447 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 55295 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 122623 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 52223 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 126719 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 124927 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 54271 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 18724 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 18719 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 55807 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 112287 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 18727 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 123903 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 93599 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 24575 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 18725 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 93695 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 125695 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 90111 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 122879 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 91647 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 122367 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 111711 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 130815 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 130047 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 129535 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 130943 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 130847 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 130559 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 129983 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 130527 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 111839 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 130623 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 129951 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 129279 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 130303 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 110591 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 112639 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 74911 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 131007 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 111263 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 96255 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 106495 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 77823 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 0 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+Checkpoint Setup interval 12600 start 1392271377 next 1392283977 end -1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 93247 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 55551 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 55647 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 131047 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 56063 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 56167 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 57343 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 63487 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 130911 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 112383 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 92575 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 111359 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 93439 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 127487 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 37455 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 93503 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 130975 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 131023 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 130991 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 2 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 111327 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 130015 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 131031 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 110847 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 112343 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 93623 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 111871 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 112327 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 56175 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 55871 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 131039 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 130935 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 18751 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 56319 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 131063 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 130879 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+----- Messages from procnum 93495 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+rmin=(-73438.3, -73438.3, -73438.3) rmax=(73438.3, 73438.3, 73438.3)
+
+_pmiu_daemon(SIGCHLD): [NID 03017] [c6-0c2s4n3] [Thu Feb 13 01:09:06 2014] PE RANK 131007 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 08115] [c20-7c2s6n3] [Thu Feb 13 01:09:06 2014] PE RANK 104447 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 10968] [c21-4c1s3n0] [Thu Feb 13 01:09:06 2014] PE RANK 63487 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05146] [c12-5c0s2n2] [Thu Feb 13 01:09:06 2014] PE RANK 123903 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 01557] [c4-0c1s5n1] [Thu Feb 13 01:09:06 2014] PE RANK 128511 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 08345] [c20-3c0s3n3] [Thu Feb 13 01:09:06 2014] PE RANK 111327 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 09380] [c24-2c1s2n2] [Thu Feb 13 01:09:06 2014] PE RANK 83967 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 01549] [c4-0c0s6n1] [Thu Feb 13 01:09:06 2014] PE RANK 127487 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 03009] [c6-0c2s0n3] [Thu Feb 13 01:09:06 2014] PE RANK 129983 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 11108] [c21-6c1s2n2] [Thu Feb 13 01:09:06 2014] PE RANK 69631 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 18361] [c3-0c1s3n3] [Thu Feb 13 01:09:06 2014] PE RANK 31 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 10858] [c21-2c2s5n0] [Thu Feb 13 01:09:06 2014] PE RANK 56319 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 03077] [c8-0c0s2n1] [Thu Feb 13 01:09:06 2014] PE RANK 126719 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 09591] [c24-6c2s4n3] [Thu Feb 13 01:09:06 2014] PE RANK 93695 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 07097] [c18-3c0s3n1] [Thu Feb 13 01:09:06 2014] PE RANK 111263 exit signal Aborted
+[NID 03077] 2014-02-13 01:09:10 Apid 4470564: initiated application termination
+_pmiu_daemon(SIGCHLD): [NID 08015] [c20-6c0s7n1] [Thu Feb 13 01:09:06 2014] PE RANK 98303 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 12474] [c17-2c2s2n2] [Thu Feb 13 01:09:06 2014] PE RANK 55807 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 10952] [c21-4c0s4n0] [Thu Feb 13 01:09:06 2014] PE RANK 61439 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 01595] [c4-0c2s2n3] [Thu Feb 13 01:09:06 2014] PE RANK 130527 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 08416] [c20-1c1s0n2] [Thu Feb 13 01:09:06 2014] PE RANK 116735 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05154] [c12-5c1s1n2] [Thu Feb 13 01:09:06 2014] PE RANK 122879 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 15341] [c11-0c1s6n1] [Thu Feb 13 01:09:06 2014] PE RANK 32767 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 03019] [c6-0c2s5n3] [Thu Feb 13 01:09:06 2014] PE RANK 130975 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 08355] [c20-1c2s1n1] [Thu Feb 13 01:09:06 2014] PE RANK 114687 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 10504] [c23-4c2s4n2] [Thu Feb 13 01:09:06 2014] PE RANK 65535 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 07915] [c20-4c2s5n1] [Thu Feb 13 01:09:06 2014] PE RANK 92159 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 03113] [c8-0c2s4n1] [Thu Feb 13 01:09:06 2014] PE RANK 130815 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 08263] [c20-3c0s3n1] [Thu Feb 13 01:09:06 2014] PE RANK 111359 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 17880] [c3-5c1s3n2] [Thu Feb 13 01:09:06 2014] PE RANK 16383 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 09236] [c24-0c1s5n0] [Thu Feb 13 01:09:06 2014] PE RANK 77823 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 08671] [c22-5c1s0n3] [Thu Feb 13 01:09:06 2014] PE RANK 108543 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 10850] [c21-2c2s1n0] [Thu Feb 13 01:09:06 2014] PE RANK 55295 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 01569] [c4-0c2s0n1] [Thu Feb 13 01:09:06 2014] PE RANK 130047 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 13781] [c15-0c2s5n1] [Thu Feb 13 01:09:06 2014] PE RANK 36863 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 12809] [c17-5c0s4n1] [Thu Feb 13 01:09:06 2014] PE RANK 74911 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 10579] [c23-2c1s6n3] [Thu Feb 13 01:09:06 2014] PE RANK 57343 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 03033] [c6-0c2s3n1] [Thu Feb 13 01:09:06 2014] PE RANK 130623 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 12106] [c19-2c2s5n2] [Thu Feb 13 01:09:06 2014] PE RANK 56063 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 03039] [c6-0c2s0n1] [Thu Feb 13 01:09:06 2014] PE RANK 130015 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 03005] [c6-0c1s1n3] [Thu Feb 13 01:09:06 2014] PE RANK 129535 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 03016] [c6-0c2s4n2] [Thu Feb 13 01:09:06 2014] PE RANK 130991 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 03013] [c6-0c2s2n3] [Thu Feb 13 01:09:06 2014] PE RANK 130559 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 09801] [c24-3c0s4n1] [Thu Feb 13 01:09:06 2014] PE RANK 111711 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 09467] [c24-4c2s2n3] [Thu Feb 13 01:09:06 2014] PE RANK 91647 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 08977] [c22-4c2s7n1] [Thu Feb 13 01:09:06 2014] PE RANK 92575 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 08547] [c22-3c0s1n3] [Thu Feb 13 01:09:06 2014] PE RANK 110847 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 03011] [c6-0c2s1n3] [Thu Feb 13 01:09:06 2014] PE RANK 129951 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 08723] [c22-5c2s6n1] [Thu Feb 13 01:09:06 2014] PE RANK 106495 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 09320] [c24-2c2s4n0] [Thu Feb 13 01:09:06 2014] PE RANK 81919 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 10854] [c21-2c2s3n0] [Thu Feb 13 01:09:06 2014] PE RANK 55551 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 03127] [c8-0c2s4n3] [Thu Feb 13 01:09:06 2014] PE RANK 130847 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 08555] [c22-3c0s5n3] [Thu Feb 13 01:09:06 2014] PE RANK 111871 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 17659] [c5-1c2s2n3] [Thu Feb 13 01:09:06 2014] PE RANK 24575 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 09747] [c24-5c0s6n3] [Thu Feb 13 01:09:06 2014] PE RANK 110591 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 01477] [c2-0c2s2n3] [Thu Feb 13 01:09:06 2014] PE RANK 130303 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 02985] [c6-0c0s4n3] [Thu Feb 13 01:09:06 2014] PE RANK 126975 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 08498] [c22-1c0s6n0] [Thu Feb 13 01:09:06 2014] PE RANK 118783 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 07899] [c20-4c1s2n1] [Thu Feb 13 01:09:06 2014] PE RANK 90111 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 01605] [c4-0c1s2n3] [Thu Feb 13 01:09:06 2014] PE RANK 129279 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 09509] [c24-6c2s2n1] [Thu Feb 13 01:09:06 2014] PE RANK 93599 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 07999] [c20-6c1s0n1] [Thu Feb 13 01:09:06 2014] PE RANK 96255 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 07379] [c18-6c2s6n1] [Thu Feb 13 01:09:06 2014] PE RANK 94207 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 17903] [c3-5c0s7n3] [Thu Feb 13 01:09:06 2014] PE RANK 18719 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 04646] [c12-0c2s3n0] [Thu Feb 13 01:09:06 2014] PE RANK 122367 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 12100] [c19-2c2s2n2] [Thu Feb 13 01:09:06 2014] PE RANK 55647 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 10734] [c23-0c1s7n0] [Thu Feb 13 01:09:06 2014] PE RANK 51199 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 10794] [c21-0c2s5n0] [Thu Feb 13 01:09:06 2014] PE RANK 54271 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 06198] [c16-0c2s4n2] [Thu Feb 13 01:09:06 2014] PE RANK 122623 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 08271] [c20-3c0s7n1] [Thu Feb 13 01:09:06 2014] PE RANK 112383 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 12390] [c17-2c2s3n0] [Thu Feb 13 01:09:06 2014] PE RANK 55871 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 10750] [c23-0c0s0n0] [Thu Feb 13 01:09:06 2014] PE RANK 49151 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 10778] [c21-0c1s2n0] [Thu Feb 13 01:09:06 2014] PE RANK 52223 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 07089] [c18-3c0s7n1] [Thu Feb 13 01:09:06 2014] PE RANK 112287 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 07303] [c18-6c2s3n3] [Thu Feb 13 01:09:06 2014] PE RANK 93247 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 06865] [c16-1c0s7n3] [Thu Feb 13 01:09:06 2014] PE RANK 125695 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 09076] [c22-2c0s5n0] [Thu Feb 13 01:09:06 2014] PE RANK 86015 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 08923] [c22-6c2s2n1] [Thu Feb 13 01:09:06 2014] PE RANK 93439 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 08629] [c22-3c0s5n1] [Thu Feb 13 01:09:06 2014] PE RANK 111839 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 09875] [c24-3c0s6n3] [Thu Feb 13 01:09:06 2014] PE RANK 112639 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 05429] [c14-1c0s5n1] [Thu Feb 13 01:09:06 2014] PE RANK 124927 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 10786] [c21-0c2s1n0] [Thu Feb 13 01:09:06 2014] PE RANK 53247 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 03115] [c8-0c2s5n1] [Thu Feb 13 01:09:06 2014] PE RANK 130911 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 08079] [c20-7c0s7n1] [Thu Feb 13 01:09:06 2014] PE RANK 100351 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 08336] [c20-3c0s7n2] [Thu Feb 13 01:09:06 2014] PE RANK 112327 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 16706] [c7-2c2s1n2] [Thu Feb 13 01:09:06 2014] PE RANK 37455 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 03125] [c8-0c2s5n3] [Thu Feb 13 01:09:06 2014] PE RANK 130879 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 03029] [c6-0c2s5n1] [Thu Feb 13 01:09:06 2014] PE RANK 130943 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 03030] [c6-0c2s4n0] [Thu Feb 13 01:09:06 2014] PE RANK 131023 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 10857] [c21-2c2s4n1] [Thu Feb 13 01:09:06 2014] PE RANK 56167 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 08839] [c22-6c2s3n3] [Thu Feb 13 01:09:06 2014] PE RANK 93495 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 01576] [c4-0c2s4n0] [Thu Feb 13 01:09:06 2014] PE RANK 131047 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 17905] [c3-5c0s7n1] [Thu Feb 13 01:09:06 2014] PE RANK 18751 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 08337] [c20-3c0s7n3] [Thu Feb 13 01:09:06 2014] PE RANK 112343 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 09511] [c24-6c2s3n1] [Thu Feb 13 01:09:06 2014] PE RANK 93623 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 01577] [c4-0c2s4n1] [Thu Feb 13 01:09:06 2014] PE RANK 131063 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 18360] [c3-0c1s3n2] [Thu Feb 13 01:09:06 2014] PE RANK 1 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 17904] [c3-5c0s7n0] [Thu Feb 13 01:09:06 2014] PE RANK 18727 exit signal Aborted
+_pmiu_daemon(SIGCHLD): [NID 03031] [c6-0c2s4n1] [Thu Feb 13 01:09:06 2014] PE RANK 131031 exit signal Aborted
+[NID 12427] 2014-02-13 01:10:01 Apid 4470564 killed. Received node event ec_node_unavailable for nid 12149 

@@ -1,0 +1,217 @@
+Welcome to the tree19 hexadecapole N-body integrator running on 8192 procs
+Version 2HOT_nln-1.0.3-titan-31-gda91ba1-dirty
+Compiled Feb 12 2014 15:39:00
+Compiler 4.8.2 20131016 (Cray Inc.)
+Arch cudaxk7-p
+Saving phi and acc
+Bodies cache their key
+Node 0 is nid18173
+cfile "runp.ctl" opened
+Putting all Msgs in memfile
+Compute 3.5 CUDA device: [Tesla K20X]
+Setting timeout to 14400 seconds.
+Reading "ds13_n_4000_4096.sdf"
+     SDFread     133.78     133.93     133.81
+read 68719476736 x 36 at 18490 MB/s
+double H0 = 0.0685674
+double Omega0 = 1
+double Omega0_m = 0.31834
+double Omega0_r = 0
+double redshift = 80.2421
+double Omega0_lambda = 0.68166
+double velfac = 1
+Maxmem after data read is 618 (53413)
+float errtol = 2e-05;
+float stol_max = 0;
+float ptol_boost = 0;
+float dt = 0.032;
+double tpos = 0.0235328;
+double tvel = 0.0235328;
+int force_smoothing_type = 4;
+float epsilon_mscale = 30;
+int start_iter = 0;
+int nsteps = 3;
+int nproc = 8192;
+int do_Bmax = 0;
+int do_BH = 0;
+int do_Arel = 1;
+int do_DL = 1;
+float CWfac = 0.02;
+float DLfac = 4.00;
+float DLmax = 1e+09;
+float frac_tol = 1e-07;
+float frac_tol0 = 0.1;
+int quad_ncut = 3;
+int hexa_ncut = 7;
+int geometric_center = 1;
+int subtract_background = 1;
+int mxn_hblock = 16777216;
+int mxn_min_qsink = 384;
+int mxn_min_hsink = 64;
+int mxn_min_qsrc = 128;
+int mxn_min_hsrc = 128;
+int mxn_do_pQ = 1;
+int mxn_do_pH = 1;
+int body_size = 72;
+int outbody_size = 52;
+int cell_size = 40;
+int quadcell_size = 80;
+int hexacell_size = 160;
+int cofm_size = 592;
+int tbody_size = 16;
+int hcell_size = 40;
+int hash_bits = 21;
+int memory_tune_MB = 0;
+int identsort_output = 1;
+int static_decomp = 1;
+Checkpoint to ds13_n_4000_4096.nnnn, every 2000 steps or 15000 seconds
+int timer_freq = 1;
+float sort_tol = 0.0010;
+int do_periodic = 1, nimage is 2;
+int fix_cube_ewald_le = 1;
+int cosmology = 1;
+int light_cone = 0;
+int Ztol = 1;
+float comov_epsilon = 30.000000;
+float comov_epsilon_Zmin = 0.000000;
+float dt_hiz_tol = 0.040000;
+int setpvel = 0;
+int setdisplacement = 0;
+float noise = 0.000000;
+float R[0] = 2983137.750000;
+float R[1] = 2983137.750000;
+float R[2] = 2983137.750000;
+Outputs at
+  a      t
+0.020  0.049
+0.050  0.193
+0.100  0.545
+0.200  1.537
+0.250  2.142
+0.300  2.805
+0.333  3.274
+0.400  4.266
+0.500  5.849
+0.600  7.493
+0.667  8.596
+0.700  9.145
+0.800 10.767
+0.900 12.332
+0.950 13.089
+1.000 13.828
+gnobj = 68719476736
+mtot = 843442946048.000000
+edge flux 0 0 0 plus 0 0 0 minus 0 0 0
+BuildTree 618 (53413), tol=3.26844e-05
+BuildTree done 1195 (53882)
+FindForces
+FindForces done 1424 (54055)
+FreeTree done 691 (54055)
+edge flux 0 0 0 plus 0 0 0 minus 0 0 0
+
+tpos = 0.0235328, znow = 80.2421, iter = 0, size = 36719.1, eps = 0.851789
+ke = 3.0379e+15, pe = -5.3964e+18, energy = -5.39336e+18
+CM accel: (-0.176516 -0.183534 -0.204039): 0.326304
+rms accel: 3581.98
+      Timers        Min        Max       Mean
+ Step (Wall)     490.73     490.74     490.74
+  Step (CPU)     490.73     490.75     490.74
+ Build Total     122.69     122.70     122.69
+      PQSort     105.46     106.02     105.78
+  PQSortComm      90.54      92.39      91.57
+  PQSortWait       0.66      61.31      29.81
+    Alltoall       0.01       0.03       0.02
+   Alltoallv      30.74      90.51      62.07
+      Decomp       0.00       0.00       0.00
+  DecompComm       0.00       0.00       0.00
+  DecompWait       0.00       0.00       0.00
+        Sort       5.32       5.76       5.57
+    MakeTree      16.47      16.69      16.58
+ SharedCells       0.00       0.54       0.28
+  SharedComm       0.00       0.00       0.00
+  SharedWait       0.00       0.54       0.28
+  Force Eval     352.08     354.29     353.39
+   Smth Time       0.24       0.34       0.25
+   Mono Time      18.30      20.68      18.96
+   Quad Time      52.69      58.57      54.75
+  QuadF Time       4.14       7.22       5.64
+   Hexa Time      82.87      97.08      86.77
+  HexaF Time      16.60      25.48      21.26
+   Grav Time     177.90     203.82     188.82
+    MAC Time      48.36      58.15      51.42
+   CUDA Wait       3.32       4.31       3.95
+  Walk Defer       6.03      16.49       9.01
+    WalkTerm       2.06      43.28      26.92
+      WalkNT     306.31     346.48     322.28
+    Fix Cube       9.17       9.34       9.19
+    Counters          Min          Max             Sum            Avg
+PQSort Sends          255          257         2096902         255.97
+PQSort Recvs          255          257         2096902         255.97
+ PQSort Maxn      2359296      2359296     19327352832     2359296.00
+   Body-smth      8387901      8389315     68719476736     8388608.00
+   Body-mono   5835346176   6743043887  49839325595511  6083902050.23
+   Body-quad   6077303984   6781463971  51699596471028  6310985897.34
+  Body-quadF  10225811456  11894489088  90373067187272 11031868553.13
+ Body-quadFF    319279104    654884864   3954382404312   482712695.84
+   Body-hexa   2995847772   3549035556  25787823768458  3147927706.11
+  Body-hexaF   9187454976  10658485000  81372562737048  9933174162.24
+ Body-hexaFF    273386496    577665432   3464045899136   422857165.42
+         MAC    711826146    847600456   6193917830090   756093485.12
+      BB MAC    174124448    204922851   1505621982610   183791745.92
+  Cube Empty            0            0               0           0.00
+   Cube Anti            0            0               0           0.00
+   Cube Corr     14030419     23646517    141122128492    17226822.33
+    Max smth            1            1            8192           1.00
+ Smth cycles          639          904         5426195         662.38
+ Mono cycles           67           69          557401          68.04
+ Quad cycles          188          193         1559321         190.35
+QuadF cycles            7           13           88074          10.75
+ Hexa cycles          600          613         4963956         605.95
+HexaF cycles           37           57          381658          46.59
+     KNterms    167511970    188892893   1440500791043   175842381.72
+      Bodies      8387901      8389315     68719476736     8388608.00
+ Local Cells            0         1660           28296           3.45
+  Local Quad            0          396            5193           0.63
+  Local Hexa      1198013      1198409      9817361335     1198408.37
+       Cells            0         1920           33449           4.08
+  Quad Cells            0          516            6850           0.84
+  Hexa Cells      1579857      1584673     12954337566     1581340.03
+     TBodies      1087344      1186968      9079371260     1108321.69
+      Hcells     11056537     11160097     90753225861    11078274.64
+Shared Cells        19584        19584       160432128       19584.00
+    Requests       183690       196634      1527049083      186407.36
+    Deferred       391111       422970      3280436100      400443.86
+ Memory (MB)         1395         1424        11465494        1399.60
+   Heap (MB)        53949        54055       442110749       53968.60
+Avg nterms = 20962
+PROFILE: interrupts/evictions/bytes = 48550/30809/6141488
+BuildTree 691 (54055), tol=3.22295e-05
+BuildTree done 1271 (54055)
+FindForces
+----- Messages from procnum 2730 -----
+Messages turned on for name hostname
+Turning on Msgs for "hostname"
+Compute 3.5 CUDA device 0: [Tesla K20X]
+totalGlobalMem:          5.62 GB
+sharedMemPerBlock:       48.00 KB
+regsPerBlock:            65536
+warpSize:                32
+maxThreadsPerBlock:      1024
+totalConstMem:           64.00 KB
+clockRate                0.732 GHz
+memoryClockRate          2.600 GHz
+ECCEnabled               1
+computeMode              0
+multiProcessorCount      14
+concurrentKernels        1
+asyncEngineCount         2
+canMapHostMemory         1
+hostname nid04760
+rmin=(-36719.1, -36719.1, -36719.1) rmax=(36719.1, 36719.1, 36719.1)
+rmin=(-37237.4, -37237.4, -37237.4) rmax=(37237.4, 37237.4, 37237.4)
+
+_pmiu_daemon(SIGCHLD): [NID 04760] [c12-2c0s3n2] [Wed Feb 12 19:33:03 2014] PE RANK 2730 exit signal Aborted
+[NID 04760] 2014-02-12 19:33:04 Apid 4469108: initiated application termination
+Application 4469108 exit codes: 134
+Application 4469108 exit signals: Killed
+Application 4469108 resources: utime ~656s, stime ~717s, Rss ~1568148, inblocks ~1626303, outblocks ~1389631
