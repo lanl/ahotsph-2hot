@@ -1,0 +1,1201 @@
+Welcome to the tree19 hexadecapole N-body integrator running on 8192 procs
+Version 2HOT_nln-1.0.3-titan-29-gcaaf62b-dirty
+Compiled Feb 11 2014 19:43:48
+Compiler 4.8.2 20131016 (Cray Inc.)
+Arch cudaxk7
+Saving phi and acc
+Bodies cache their key
+Node 0 is nid06974
+cfile "run.ctl" opened
+Putting all Msgs in memfile
+Compute 3.5 CUDA device: [Tesla K20X]
+Setting timeout to 14400 seconds.
+Reading "ds13_n_4000_4096.sdf"
+     SDFread      87.90      88.15      87.92
+read 68719476736 x 36 at 28140 MB/s
+double H0 = 0.0685674
+double Omega0 = 1
+double Omega0_m = 0.31834
+double Omega0_r = 0
+double redshift = 80.2421
+double Omega0_lambda = 0.68166
+double velfac = 1
+Maxmem after data read is 618 (53409)
+float errtol = 2e-05;
+float stol_max = 0;
+float ptol_boost = 0;
+float dt = 0.032;
+double tpos = 0.0235328;
+double tvel = 0.0235328;
+int force_smoothing_type = 4;
+float epsilon_mscale = 30;
+int start_iter = 0;
+int nsteps = 100000;
+int nproc = 8192;
+int do_Bmax = 0;
+int do_BH = 0;
+int do_Arel = 1;
+int do_DL = 1;
+float CWfac = 0.02;
+float DLfac = 4.00;
+float DLmax = 1e+09;
+float frac_tol = 1e-07;
+float frac_tol0 = 0.1;
+int quad_ncut = 3;
+int hexa_ncut = 7;
+int geometric_center = 1;
+int subtract_background = 1;
+int mxn_hblock = 16777216;
+int mxn_min_qsink = 384;
+int mxn_min_hsink = 384;
+int mxn_min_qsrc = 128;
+int mxn_min_hsrc = 128;
+int mxn_do_pQ = 1;
+int mxn_do_pH = 1;
+int body_size = 72;
+int outbody_size = 52;
+int cell_size = 40;
+int quadcell_size = 80;
+int hexacell_size = 160;
+int cofm_size = 592;
+int tbody_size = 16;
+int hcell_size = 40;
+int hash_bits = 21;
+int memory_tune_MB = 0;
+int identsort_output = 1;
+int static_decomp = 1;
+Checkpoint to ds13_n_4000_4096.nnnn, every 2000 steps or 15000 seconds
+int timer_freq = 1;
+float sort_tol = 0.0010;
+int do_periodic = 1, nimage is 2;
+int fix_cube_ewald_le = 1;
+int cosmology = 1;
+int light_cone = 0;
+int Ztol = 1;
+float comov_epsilon = 30.000000;
+float comov_epsilon_Zmin = 0.000000;
+float dt_hiz_tol = 0.040000;
+int setpvel = 0;
+int setdisplacement = 0;
+float noise = 0.000000;
+float R[0] = 2983137.750000;
+float R[1] = 2983137.750000;
+float R[2] = 2983137.750000;
+Outputs at
+  a      t
+0.020  0.049
+0.050  0.193
+0.100  0.545
+0.200  1.537
+0.250  2.142
+0.300  2.805
+0.333  3.274
+0.400  4.266
+0.500  5.849
+0.600  7.493
+0.667  8.596
+0.700  9.145
+0.800 10.767
+0.900 12.332
+0.950 13.089
+1.000 13.828
+gnobj = 68719476736
+mtot = 843442946048.000000
+edge flux 0 0 0 plus 0 0 0 minus 0 0 0
+BuildTree 618 (53409), tol=3.26844e-05
+BuildTree done 1195 (53878)
+FindForces
+FindForces done 1423 (54053)
+FreeTree done 691 (54053)
+edge flux 0 0 0 plus 0 0 0 minus 0 0 0
+
+tpos = 0.0235328, znow = 80.2421, iter = 0, size = 36719.1, eps = 0.851789
+ke = 3.0379e+15, pe = -5.3964e+18, energy = -5.39336e+18
+CM accel: (-0.170137 -0.186217 -0.204051): 0.324438
+rms accel: 3584.86
+      Timers        Min        Max       Mean
+ Step (Wall)     527.01     527.02     527.02
+  Step (CPU)     527.01     527.03     527.02
+ Build Total     106.74     106.75     106.74
+      PQSort      89.59      90.16      89.90
+  PQSortComm      74.29      76.27      75.49
+  PQSortWait       1.22      40.72      19.25
+    Alltoall       0.01       0.02       0.02
+   Alltoallv      35.77      74.27      56.67
+      Decomp       0.00       0.00       0.00
+  DecompComm       0.00       0.00       0.00
+  DecompWait       0.00       0.00       0.00
+        Sort       5.32       5.79       5.59
+    MakeTree      16.38      16.60      16.48
+ SharedCells       0.00       0.56       0.31
+  SharedComm       0.00       0.00       0.00
+  SharedWait       0.00       0.56       0.31
+  Force Eval     404.25     406.51     405.74
+   Smth Time       0.24       0.33       0.27
+   Mono Time      18.30      20.81      19.15
+   Quad Time      52.20      58.04      54.33
+  QuadF Time       3.39      11.13       6.47
+   Hexa Time     108.76     134.69     118.46
+  HexaF Time       6.64      26.67      15.32
+   Grav Time     193.54     237.34     215.14
+    MAC Time      48.05      57.77      51.14
+   CUDA Wait       9.52      34.56      20.14
+  Walk Defer      12.77      47.98      28.82
+    WalkTerm       1.91      62.55      34.67
+      WalkNT     339.54     399.74     366.88
+    Fix Cube       9.14       9.35       9.17
+    Counters          Min          Max             Sum            Avg
+PQSort Sends          255          257         2096902         255.97
+PQSort Recvs          255          257         2096902         255.97
+ PQSort Maxn      2359296      2359296     19327352832     2359296.00
+   Body-smth      8387901      8389315     68719476736     8388608.00
+   Body-mono   5835346176   6743043887  49839325595511  6083902050.23
+   Body-quad   6077303984   6781463971  51699596471028  6310985897.34
+  Body-quadF  10225811456  11894489088  90373067187272 11031868553.13
+   Body-hexa   3983913731   4985162276  35577778730506  4342990567.69
+  Body-hexaF   8226930688   9234481176  71582607775000  8738111300.66
+         MAC    711826146    847600456   6193917830090   756093485.12
+      BB MAC    174124448    204922851   1505621982610   183791745.92
+  Cube Empty            0            0               0           0.00
+   Cube Anti            0            0               0           0.00
+   Cube Corr     14030419     23646517    141122128492    17226822.33
+    Max smth            1            1            8192           1.00
+ Smth cycles          638          862         5841025         713.02
+ Mono cycles           67           70          563597          68.80
+ Quad cycles          186          191         1547430         188.90
+QuadF cycles            6           21          101588          12.40
+ Hexa cycles          591          605         4911775         599.58
+HexaF cycles           16           68          311798          38.06
+     KNterms    167511970    188892893   1440500791043   175842381.72
+      Bodies      8387901      8389315     68719476736     8388608.00
+ Local Cells            0         1660           28296           3.45
+  Local Quad            0          396            5193           0.63
+  Local Hexa      1198013      1198409      9817361335     1198408.37
+       Cells            0         1920           33449           4.08
+  Quad Cells            0          516            6850           0.84
+  Hexa Cells      1579857      1584673     12954337566     1581340.03
+     TBodies      1087344      1186968      9079371260     1108321.69
+      Hcells     11056537     11160097     90753225861    11078274.64
+Shared Cells        19584        19584       160432128       19584.00
+    Requests       183690       196634      1527049083      186407.36
+    Deferred       389147       429159      3300836020      402934.08
+ Memory (MB)         1396         1423        11464237        1399.44
+   Heap (MB)        53945        54053       442078210       53964.63
+Avg nterms = 20962
+BuildTree 691 (54053), tol=3.22295e-05
+BuildTree done 1271 (54053)
+FindForces
+FindForces done 1423 (54088)
+FreeTree done 1342 (54088)
+edge flux 0 0 0 plus 0 0 0 minus 0 0 0
+
+tpos = 0.0240328, znow = 79.1113, iter = 1, size = 37237.4, eps = 0.863812
+ke = 3.07991e+15, pe = -5.29991e+18, energy = -5.29683e+18
+CM accel: (-0.00160861 -0.0138018 -0.0349173): 0.0375805
+rms accel: 3534.83
+      Timers        Min        Max       Mean
+ Step (Wall)     439.93     440.11     439.98
+  Step (CPU)     439.93     440.11     439.98
+ Build Total      22.74      22.74      22.74
+      PQSort       4.26       6.20       6.01
+  PQSortComm       0.06       0.06       0.06
+  PQSortWait       0.03       0.08       0.06
+    Alltoall       0.04       0.06       0.05
+   Alltoallv       0.00       0.00       0.00
+      Decomp       0.00       0.01       0.00
+  DecompComm       0.00       0.00       0.00
+  DecompWait       0.00       0.00       0.00
+        Sort       3.82       5.77       5.58
+    MakeTree      16.35      16.57      16.45
+ SharedCells       0.00       0.49       0.21
+  SharedComm       0.00       0.00       0.00
+  SharedWait       0.00       0.48       0.21
+  Force Eval     401.31     403.58     402.85
+   Smth Time       0.24       0.33       0.27
+   Mono Time      18.33      20.89      19.14
+   Quad Time      52.28      58.24      54.41
+  QuadF Time       4.03      11.66       7.05
+   Hexa Time     108.91     134.99     118.42
+  HexaF Time       6.27      26.88      17.64
+   Grav Time     194.98     240.54     218.08
+    MAC Time      47.74      57.65      50.93
+   CUDA Wait       9.26      33.80      23.04
+  Walk Defer      11.50      47.00      26.23
+    WalkTerm       1.76      60.75      33.95
+      WalkNT     340.27     398.88     367.10
+    Fix Cube       9.15       9.30       9.17
+    Counters          Min          Max             Sum            Avg
+PQSort Sends            0            1              28           0.00
+PQSort Recvs            0            1              28           0.00
+ PQSort Maxn            0         6048           17064           2.08
+   Body-smth      8387817      8389399     68719476736     8388608.00
+   Body-mono   5828416960   6739968765  49791652683102  6078082602.92
+   Body-quad   6085219168   6791034023  51771873919093  6319808828.01
+  Body-quadF  10259464192  11904286720  90524243695136 11050322716.69
+   Body-hexa   3979759588   4985424805  35559054111606  4340704847.61
+  Body-hexaF   8186626048   9216196608  71381903021192  8713611208.64
+         MAC    711896979    850016353   6196937253109   756462067.03
+      BB MAC    173807048    204814357   1503620650992   183547442.75
+  Cube Empty            0            0               0           0.00
+   Cube Anti            0            0               0           0.00
+   Cube Corr     14064837     23732496    141538255362    17277619.06
+    Max smth            1            1            8192           1.00
+ Smth cycles          621          862         5834610         712.23
+ Mono cycles           67           70          563814          68.82
+ Quad cycles          186          191         1547545         188.91
+QuadF cycles            7           22          110870          13.53
+ Hexa cycles          592          607         4912845         599.71
+HexaF cycles           15           68          360932          44.06
+     KNterms    167246901    188753577   1439148615652   175677321.25
+      Bodies      8387817      8389399     68719476736     8388608.00
+ Local Cells            0         1931           39979           4.88
+  Local Quad            0          482            7319           0.89
+  Local Hexa      1197927      1198409      9817359209     1198408.11
+       Cells            0         2264           47113           5.75
+  Quad Cells            0          636            9699           1.18
+  Hexa Cells      1579905      1584745     12954463485     1581355.41
+     TBodies      1087368      1187493      9081439897     1108574.21
+      Hcells     11056569     11160690     90755436930    11078544.55
+Shared Cells        19584        19584       160432128       19584.00
+    Requests       183694       196710      1527325856      186441.14
+    Deferred       389464       431131      3300975366      402951.09
+ Memory (MB)         1395         1423        11465339        1399.58
+   Heap (MB)        53945        54088       442154951       53973.99
+Avg nterms = 20942
+BuildTree 1342 (54088), tol=3.17901e-05
+BuildTree done 1326 (54088)
+FindForces
+FindForces done 1423 (54104)
+FreeTree done 1327 (54104)
+edge flux 0 -2 0 plus 0 0 0 minus 0 2 0
+
+tpos = 0.0245328, znow = 78.0191, iter = 2, size = 37752.1, eps = 0.875752
+ke = 3.12164e+15, pe = -5.23318e+18, energy = -5.23006e+18
+CM accel: (0.0397752 0.027276 0.011468): 0.0495738
+rms accel: 3486.67
+      Timers        Min        Max       Mean
+ Step (Wall)     443.59     443.64     443.61
+  Step (CPU)     443.59     443.65     443.61
+ Build Total      22.92      22.93      22.92
+      PQSort       4.51       6.46       6.26
+  PQSortComm       0.17       0.27       0.25
+  PQSortWait       0.19       0.28       0.26
+    Alltoall       0.08       0.16       0.09
+   Alltoallv       0.00       0.00       0.00
+      Decomp       0.00       0.00       0.00
+  DecompComm       0.00       0.00       0.00
+  DecompWait       0.00       0.00       0.00
+        Sort       3.84       5.79       5.58
+    MakeTree      16.00      16.55      16.42
+ SharedCells       0.00       0.72       0.20
+  SharedComm       0.00       0.00       0.00
+  SharedWait       0.00       0.72       0.20
+  Force Eval     404.83     407.06     406.31
+   Smth Time       0.24       0.34       0.27
+   Mono Time      18.38      20.84      19.13
+   Quad Time      52.45      58.34      54.48
+  QuadF Time       3.49      10.89       7.03
+   Hexa Time     108.64     135.00     118.36
+  HexaF Time       6.90      27.83      17.66
+   Grav Time     196.81     238.55     218.08
+    MAC Time      47.75      57.80      50.99
+   CUDA Wait      10.25      36.34      23.04
+  Walk Defer      10.70      46.09      26.20
+    WalkTerm       2.88      65.38      37.33
+      WalkNT     339.69     401.96     367.17
+    Fix Cube       9.15       9.31       9.17
+    Counters          Min          Max             Sum            Avg
+PQSort Sends            0            1              32           0.00
+PQSort Recvs            0            1              32           0.00
+ PQSort Maxn            0         6048           18864           2.30
+   Body-smth      8387733      8389483     68719476736     8388608.00
+   Body-mono   5822299528   6735660066  49748272686374  6072787193.16
+   Body-quad   6093278504   6801143920  51842702219991  6328454860.84
+  Body-quadF  10251239424  11873320960  90475269754880 11044344452.50
+   Body-hexa   3975952005   4985245565  35541464499883  4338557678.21
+  Body-hexaF   8224505856   9230843904  71441451098272  8720880261.02
+         MAC    711967483    853193857   6200525049016   756900030.40
+      BB MAC    173530496    204717045   1501794886482   183324571.10
+  Cube Empty            0            0               0           0.00
+   Cube Anti            0            0               0           0.00
+   Cube Corr     14099943     23814887    141954790195    17328465.60
+    Max smth            1            1            8192           1.00
+ Smth cycles          628          890         5834594         712.23
+ Mono cycles           67           72          563887          68.83
+ Quad cycles          186          192         1547451         188.90
+QuadF cycles            7           21          110659          13.51
+ Hexa cycles          591          607         4912885         599.72
+HexaF cycles           17           71          361004          44.07
+     KNterms    167573826    188894475   1439548424882   175726126.08
+      Bodies      8387733      8389483     68719476736     8388608.00
+ Local Cells            0         2235           56079           6.85
+  Local Quad            0          548           10291           1.26
+  Local Hexa      1197861      1198409      9817356237     1198407.74
+       Cells            0         2631           65872           8.04
+  Quad Cells            0          743           13596           1.66
+  Hexa Cells      1579921      1584769     12954601628     1581372.27
+     TBodies      1087344      1188150      9083668134     1108846.21
+      Hcells     11056577     11161437     90757825966    11078836.18
+Shared Cells        19584        19584       160432128       19584.00
+    Requests       183695       196803      1527624945      186477.65
+    Deferred       389562       428202      3301285559      402988.96
+ Memory (MB)         1395         1423        11469845        1400.13
+   Heap (MB)        53945        54104       442196654       53979.08
+Avg nterms = 20948
+BuildTree 1327 (54104), tol=3.13653e-05
+BuildTree done 1310 (54104)
+FindForces
+FindForces done 1423 (54116)
+FreeTree done 1343 (54116)
+edge flux -1 -8 0 plus 0 0 0 minus 1 8 0
+
+tpos = 0.0250328, znow = 76.9634, iter = 3, size = 38263.3, eps = 0.887611
+ke = 3.16309e+15, pe = -5.17781e+18, energy = -5.17465e+18
+CM accel: (-0.118993 -0.136779 -0.138193): 0.227959
+rms accel: 3440.07
+      Timers        Min        Max       Mean
+ Step (Wall)     442.20     442.26     442.22
+  Step (CPU)     442.20     442.26     442.22
+ Build Total      22.92      22.92      22.92
+      PQSort       4.50       6.41       6.24
+  PQSortComm       0.17       0.26       0.24
+  PQSortWait       0.16       0.26       0.24
+    Alltoall       0.09       0.17       0.09
+   Alltoallv       0.00       0.00       0.00
+      Decomp       0.00       0.00       0.00
+  DecompComm       0.00       0.00       0.00
+  DecompWait       0.00       0.00       0.00
+        Sort       3.84       5.76       5.59
+    MakeTree      16.01      16.56      16.42
+ SharedCells       0.00       0.74       0.21
+  SharedComm       0.00       0.00       0.00
+  SharedWait       0.00       0.74       0.21
+  Force Eval     403.39     405.68     404.87
+   Smth Time       0.24       0.34       0.27
+   Mono Time      18.29      20.74      19.12
+   Quad Time      52.46      58.23      54.55
+  QuadF Time       3.82      11.61       7.02
+   Hexa Time     108.80     134.61     118.31
+  HexaF Time       6.77      27.13      17.91
+   Grav Time     194.73     238.50     218.32
+    MAC Time      47.88      60.30      51.05
+   CUDA Wait       8.97      34.58      23.28
+  Walk Defer      10.52      46.24      26.08
+    WalkTerm       1.95      61.77      35.69
+      WalkNT     341.37     400.43     367.39
+    Fix Cube       9.15       9.32       9.17
+    Counters          Min          Max             Sum            Avg
+PQSort Sends            0            1              33           0.00
+PQSort Recvs            0            1              33           0.00
+ PQSort Maxn            0         5904           24048           2.94
+   Body-smth      8387651      8389565     68719476736     8388608.00
+   Body-mono   5816782736   6730753941  49708166062318  6067891365.03
+   Body-quad   6100627688   6810063164  51912268282406  6336946811.82
+  Body-quadF  10279911424  11869454336  90430438019856 11038871828.60
+   Body-hexa   3974161042   4985444536  35524620082081  4336501474.86
+  Body-hexaF   8237514752   9257189376  71494282581680  8727329416.71
+         MAC    712072547    856461798   6204720037927   757412114.00
+      BB MAC    173269704    204615021   1500124057499   183120612.49
+  Cube Empty            0            0               0           0.00
+   Cube Anti            0            0               0           0.00
+   Cube Corr     14135536     23895451    142370766542    17379243.96
+    Max smth            1            1            8192           1.00
+ Smth cycles          623          888         5835113         712.29
+ Mono cycles           67           72          563900          68.84
+ Quad cycles          186          192         1547307         188.88
+QuadF cycles            7           23          110601          13.50
+ Hexa cycles          591          606         4912816         599.71
+HexaF cycles           17           69          365781          44.65
+     KNterms    167569989    188896096   1439906404859   175769824.81
+      Bodies      8387651      8389565     68719476736     8388608.00
+ Local Cells            0         2603           77330           9.44
+  Local Quad            0          612           14256           1.74
+  Local Hexa      1197797      1198409      9817352272     1198407.26
+       Cells            0         3043           90521          11.05
+  Quad Cells            0          842           18718           2.28
+  Hexa Cells      1579937      1584841     12954737930     1581388.91
+     TBodies      1087400      1188747      9086011894     1109132.31
+      Hcells     11056649     11162145     90760335799    11079142.55
+Shared Cells        19584        19584       160432128       19584.00
+    Requests       183704       196892      1527939192      186516.01
+    Deferred       389674       433339      3301584047      403025.40
+ Memory (MB)         1395         1423        11475285        1400.79
+   Heap (MB)        53945        54116       442227486       53982.85
+Avg nterms = 20953
+BuildTree 1343 (54116), tol=3.05569e-05
+BuildTree done 1343 (54116)
+FindForces
+FindForces done 1423 (54129)
+FreeTree done 1335 (54129)
+edge flux -3 -14 0 plus 0 0 0 minus 3 14 0
+
+tpos = 0.0260328, znow = 74.9538, iter = 4, size = 39275.7, eps = 0.911095
+ke = 3.24519e+15, pe = -5.03873e+18, energy = -5.03548e+18
+CM accel: (-0.0720038 -0.0874751 -0.0985706): 0.150175
+rms accel: 3351.35
+      Timers        Min        Max       Mean
+ Step (Wall)     444.46     444.51     444.48
+  Step (CPU)     444.46     444.51     444.48
+ Build Total      22.87      22.88      22.87
+      PQSort       4.48       6.36       6.17
+  PQSortComm       0.10       0.19       0.18
+  PQSortWait       0.15       0.20       0.19
+    Alltoall       0.08       0.09       0.08
+   Alltoallv       0.00       0.00       0.00
+      Decomp       0.00       0.00       0.00
+  DecompComm       0.00       0.00       0.00
+  DecompWait       0.00       0.00       0.00
+        Sort       3.88       5.76       5.58
+    MakeTree      15.89      16.58      16.42
+ SharedCells       0.00       0.81       0.23
+  SharedComm       0.00       0.02       0.00
+  SharedWait       0.00       0.81       0.23
+  Force Eval     405.74     407.97     407.21
+   Smth Time       0.24       0.34       0.27
+   Mono Time      18.31      20.73      19.09
+   Quad Time      52.56      58.47      54.69
+  QuadF Time       3.91      10.98       6.96
+   Hexa Time     108.79     134.87     118.18
+  HexaF Time       6.59      28.02      17.70
+   Grav Time     194.52     244.33     218.05
+    MAC Time      47.91      60.57      51.20
+   CUDA Wait       9.29      35.62      23.02
+  Walk Defer      10.26      46.15      26.30
+    WalkTerm       2.78      64.08      37.84
+      WalkNT     341.53     403.24     367.59
+    Fix Cube       9.15       9.30       9.17
+    Counters          Min          Max             Sum            Avg
+PQSort Sends            0            1              76           0.01
+PQSort Recvs            0            1              76           0.01
+ PQSort Maxn            0        13608           74736           9.12
+   Body-smth      8387474      8389742     68719476736     8388608.00
+   Body-mono   5807071896   6718271831  49634722868900  6058926131.46
+   Body-quad   6116500264   6828888964  52049445493593  6353692076.85
+  Body-quadF  10234231968  11860082688  90471508302400 11043885290.82
+   Body-hexa   3973718237   4988044215  35490978035254  4332394779.69
+  Body-hexaF   8270774272   9252241408  71468094236192  8724132597.19
+         MAC    712444507    864609945   6215037987385   758671629.32
+      BB MAC    172837392    204313419   1497104012505   182751954.65
+  Cube Empty            0            0               0           0.00
+   Cube Anti            0            0               0           0.00
+   Cube Corr     14205670     24059542    143194719889    17479824.21
+    Max smth            1            1            8192           1.00
+ Smth cycles          625          890         5836609         712.48
+ Mono cycles           67           70          563968          68.84
+ Quad cycles          186          192         1547167         188.86
+QuadF cycles            7           22          109607          13.38
+ Hexa cycles          590          606         4912439         599.66
+HexaF cycles           17           71          361745          44.16
+     KNterms    167585206    189073393   1439829230631   175760404.13
+      Bodies      8387474      8389742     68719476736     8388608.00
+ Local Cells            0         3480          141860          17.32
+  Local Quad            0          709           26173           3.19
+  Local Hexa      1197700      1198409      9817340355     1198405.81
+       Cells            0         4035          165056          20.15
+  Quad Cells            0         1027           34013           4.15
+  Hexa Cells      1579961      1584920     12955003395     1581421.31
+     TBodies      1087560      1189755      9090766638     1109712.72
+      Hcells     11056841     11163281     90765445838    11079766.34
+Shared Cells        19584        19584       160432128       19584.00
+    Requests       183728       197041      1528579219      186594.14
+    Deferred       389567       430270      3302546661      403142.90
+ Memory (MB)         1395         1423        11488208        1402.37
+   Heap (MB)        53945        54129       442259937       53986.81
+Avg nterms = 20952
+BuildTree 1335 (54129), tol=2.97986e-05
+BuildTree done 1335 (54129)
+FindForces
+FindForces done 1423 (54135)
+FreeTree done 1343 (54135)
+edge flux -1 -13 -1 plus 0 1 0 minus 1 14 1
+
+tpos = 0.0270328, znow = 73.0689, iter = 5, size = 40275.2, eps = 0.93428
+ke = 3.32627e+15, pe = -4.93309e+18, energy = -4.92976e+18
+CM accel: (-0.135563 -0.154132 -0.167096): 0.264679
+rms accel: 3268.16
+      Timers        Min        Max       Mean
+ Step (Wall)     444.38     444.42     444.39
+  Step (CPU)     444.37     444.42     444.40
+ Build Total      22.87      22.89      22.87
+      PQSort       4.42       6.36       6.16
+  PQSortComm       0.10       0.18       0.17
+  PQSortWait       0.13       0.19       0.17
+    Alltoall       0.08       0.09       0.08
+   Alltoallv       0.00       0.01       0.00
+      Decomp       0.00       0.00       0.00
+  DecompComm       0.00       0.00       0.00
+  DecompWait       0.00       0.00       0.00
+        Sort       3.84       5.78       5.58
+    MakeTree      15.90      16.56      16.41
+ SharedCells       0.00       0.79       0.25
+  SharedComm       0.00       0.03       0.00
+  SharedWait       0.00       0.79       0.25
+  Force Eval     405.54     407.81     407.01
+   Smth Time       0.24       0.34       0.27
+   Mono Time      18.31      20.72      19.07
+   Quad Time      52.76      58.62      54.83
+  QuadF Time       3.87      11.13       7.06
+   Hexa Time     108.41     134.70     118.05
+  HexaF Time       6.46      27.74      17.74
+   Grav Time     196.25     239.24     218.16
+    MAC Time      47.99      60.77      51.39
+   CUDA Wait       9.42      34.75      23.15
+  Walk Defer      10.87      46.31      26.01
+    WalkTerm       2.28      64.00      37.49
+      WalkNT     341.22     402.86     367.74
+    Fix Cube       9.15       9.30       9.17
+    Counters          Min          Max             Sum            Avg
+PQSort Sends            0            1             131           0.02
+PQSort Recvs            0            2             131           0.02
+ PQSort Maxn            0        15552          113904          13.90
+   Body-smth      8387258      8389958     68719476736     8388608.00
+   Body-mono   5799027704   6702994994  49566331146778  6050577532.57
+   Body-quad   6131381272   6847693206  52185516339219  6370302287.50
+  Body-quadF  10298458112  11878793232  90659159766192 11066791963.65
+   Body-hexa   3968250844   4989251679  35457509631103  4328309281.14
+  Body-hexaF   8244297728   9243197440  71295622553392  8703078924.97
+         MAC    712946315    873696367   6228479749119   760312469.37
+      BB MAC    172476112    203913492   1494395350085   182421307.38
+  Cube Empty            0            0               0           0.00
+   Cube Anti            0            0               0           0.00
+   Cube Corr     14275243     24219059    144015679794    17580039.04
+    Max smth            1            1            8192           1.00
+ Smth cycles          627          887         5838536         712.71
+ Mono cycles           67           70          563942          68.84
+ Quad cycles          186          191         1547094         188.85
+QuadF cycles            7           21          110864          13.53
+ Hexa cycles          590          606         4911524         599.55
+HexaF cycles           16           70          363425          44.36
+     KNterms    167415665    189084332   1438878545037   175644353.64
+      Bodies      8387258      8389958     68719476736     8388608.00
+ Local Cells            0         4402          248077          30.28
+  Local Quad            0          896           46024           5.62
+  Local Hexa      1197513      1198409      9817320504     1198403.38
+       Cells            0         5072          286926          35.03
+  Quad Cells            0         1242           59395           7.25
+  Hexa Cells      1579977      1584993     12955263757     1581453.10
+     TBodies      1087776      1190595      9095706503     1110315.74
+      Hcells     11057073     11164339     90770793317    11080419.11
+Shared Cells        19584        19584       160432128       19584.00
+    Requests       183757       197190      1529249031      186675.91
+    Deferred       389414       428306      3303796700      403295.50
+ Memory (MB)         1396         1423        11504025        1404.30
+   Heap (MB)        53945        54135       442294223       53990.99
+Avg nterms = 20938
+BuildTree 1343 (54135), tol=2.90856e-05
+BuildTree done 1343 (54135)
+FindForces
+FindForces done 1431 (54153)
+FreeTree done 1350 (54153)
+edge flux -6 -25 -2 plus 1 6 1 minus 7 31 3
+
+tpos = 0.0280328, znow = 71.2968, iter = 6, size = 41262.4, eps = 0.957181
+ke = 3.40638e+15, pe = -4.82278e+18, energy = -4.81937e+18
+CM accel: (-0.0325503 -0.0552459 -0.0657495): 0.0918402
+rms accel: 3189.96
+      Timers        Min        Max       Mean
+ Step (Wall)     445.30     445.34     445.31
+  Step (CPU)     445.29     445.34     445.31
+ Build Total      22.89      22.90      22.90
+      PQSort       4.62       6.38       6.16
+  PQSortComm       0.11       0.20       0.19
+  PQSortWait       0.13       0.20       0.18
+    Alltoall       0.08       0.11       0.09
+   Alltoallv       0.00       0.00       0.00
+      Decomp       0.00       0.00       0.00
+  DecompComm       0.00       0.00       0.00
+  DecompWait       0.00       0.00       0.00
+        Sort       4.02       5.79       5.56
+    MakeTree      15.90      16.55      16.42
+ SharedCells       0.00       0.76       0.26
+  SharedComm       0.00       0.00       0.00
+  SharedWait       0.00       0.76       0.26
+  Force Eval     406.50     408.78     407.98
+   Smth Time       0.24       0.34       0.27
+   Mono Time      18.28      20.58      19.04
+   Quad Time      52.89      58.80      54.96
+  QuadF Time       3.80      10.94       7.00
+   Hexa Time     108.11     134.93     117.90
+  HexaF Time       6.43      27.15      17.51
+   Grav Time     197.30     240.30     217.82
+    MAC Time      47.98      60.80      51.63
+   CUDA Wait       9.62      33.62      22.85
+  Walk Defer       9.55      45.72      26.06
+    WalkTerm       2.20      65.19      38.35
+      WalkNT     341.14     403.94     367.84
+    Fix Cube       9.15       9.31       9.16
+    Counters          Min          Max             Sum            Avg
+PQSort Sends            0            2             204           0.02
+PQSort Recvs            0            2             204           0.02
+ PQSort Maxn            0        15336          162504          19.84
+   Body-smth      8387045      8390171     68719476736     8388608.00
+   Body-mono   5791556544   6683252438  49497594920326  6042186879.92
+   Body-quad   6144281696   6866887779  52317281752804  6386386932.72
+  Body-quadF  10346430464  11916836864  90915830046032 11098123784.92
+   Body-hexa   3963114398   4991218114  35427116309884  4324599158.92
+  Body-hexaF   8198946816   9240018960  71051233651240  8673246295.32
+         MAC    713622299    885309798   6245555504782   762396912.20
+      BB MAC    172170904    205049150   1491803414511   182104909.00
+  Cube Empty            0            0               0           0.00
+   Cube Anti            0            0               0           0.00
+   Cube Corr     14343787     24379352    144829501623    17679382.52
+    Max smth            1            1            8192           1.00
+ Smth cycles          627          892         5840793         712.99
+ Mono cycles           67           71          563959          68.84
+ Quad cycles          186          192         1546925         188.83
+QuadF cycles            7           21          109561          13.37
+ Hexa cycles          591          605         4909628         599.32
+HexaF cycles           16           68          359807          43.92
+     KNterms    167191394    188778006   1437502075851   175476327.62
+      Bodies      8387045      8390171     68719476736     8388608.00
+ Local Cells            0         5392          416309          50.82
+  Local Quad            0         1108           77670           9.48
+  Local Hexa      1197301      1198409      9817288859     1198399.52
+       Cells            0         6086          480015          58.60
+  Quad Cells            0         1468           99442          12.14
+  Hexa Cells      1579993      1585051     12955505279     1581482.58
+     TBodies      1087936      1191234      9100498690     1110900.72
+      Hcells     11057273     11165264     90776060162    11081062.03
+Shared Cells        19584        19584       160432128       19584.00
+    Requests       183782       197323      1529909575      186756.54
+    Deferred       389409       427683      3303959354      403315.35
+ Memory (MB)         1396         1431        11521902        1406.48
+   Heap (MB)        53945        54153       442328906       53995.23
+Avg nterms = 20918
+BuildTree 1350 (54153), tol=2.84138e-05
+BuildTree done 1343 (54153)
+FindForces
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+_pmiu_daemon(SIGCHLD): [NID 04682] [c12-0c1s5n2] [Tue Feb 11 21:07:25 2014] PE RANK 4365 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04669] [c12-0c2s1n3] [Tue Feb 11 21:07:25 2014] PE RANK 6136 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06960] [c18-1c0s7n0] [Tue Feb 11 21:07:25 2014] PE RANK 1193 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06102] [c14-0c2s4n0] [Tue Feb 11 21:07:25 2014] PE RANK 6920 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06151] [c16-0c0s3n1] [Tue Feb 11 21:07:25 2014] PE RANK 2649 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04681] [c12-0c1s4n3] [Tue Feb 11 21:07:25 2014] PE RANK 4281 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06092] [c14-0c2s6n2] [Tue Feb 11 21:07:25 2014] PE RANK 7402 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04640] [c12-0c2s0n0] [Tue Feb 11 21:07:25 2014] PE RANK 5928 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06126] [c14-0c1s7n0] [Tue Feb 11 21:07:25 2014] PE RANK 3915 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04558] [c10-0c2s7n2] [Tue Feb 11 21:07:25 2014] PE RANK 7240 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06119] [c14-0c1s3n1] [Tue Feb 11 21:07:25 2014] PE RANK 4890 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06965] [c18-1c0s5n1] [Tue Feb 11 21:07:25 2014] PE RANK 1017 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06061] [c14-0c0s6n3] [Tue Feb 11 21:07:25 2014] PE RANK 3446 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06083] [c14-0c2s1n3] [Tue Feb 11 21:07:25 2014] PE RANK 5842 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06144] [c16-0c0s0n0] [Tue Feb 11 21:07:25 2014] PE RANK 1640 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06966] [c18-1c0s4n0] [Tue Feb 11 21:07:25 2014] PE RANK 962 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06969] [c18-1c0s3n1] [Tue Feb 11 21:07:25 2014] PE RANK 178 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06131] [c14-0c0s6n1] [Tue Feb 11 21:07:25 2014] PE RANK 3473 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08391] [c20-1c0s3n1] [Tue Feb 11 21:07:25 2014] PE RANK 274 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06120] [c14-0c1s4n0] [Tue Feb 11 21:07:25 2014] PE RANK 4450 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04554] [c10-0c2s5n2] [Tue Feb 11 21:07:25 2014] PE RANK 7104 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06219] [c16-0c1s5n3] [Tue Feb 11 21:07:25 2014] PE RANK 4573 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04623] [c12-0c0s7n1] [Tue Feb 11 21:07:25 2014] PE RANK 3356 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04513] [c10-0c0s0n3] [Tue Feb 11 21:07:25 2014] PE RANK 1981 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04706] [c12-2c2s1n0] [Tue Feb 11 21:07:25 2014] PE RANK 8075 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06044] [c14-2c2s1n0] [Tue Feb 11 21:07:25 2014] PE RANK 7788 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04629] [c12-0c1s5n1] [Tue Feb 11 21:07:25 2014] PE RANK 4350 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06089] [c14-0c2s4n3] [Tue Feb 11 21:07:25 2014] PE RANK 6898 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04646] [c12-0c2s3n0] [Tue Feb 11 21:07:25 2014] PE RANK 6346 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04519] [c10-0c0s3n3] [Tue Feb 11 21:07:25 2014] PE RANK 2269 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06115] [c14-0c1s1n1] [Tue Feb 11 21:07:25 2014] PE RANK 5464 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04518] [c10-0c0s3n2] [Tue Feb 11 21:07:25 2014] PE RANK 2252 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06080] [c14-0c2s0n2] [Tue Feb 11 21:07:25 2014] PE RANK 5863 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06182] [c16-0c2s3n0] [Tue Feb 11 21:07:25 2014] PE RANK 6656 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06081] [c14-0c2s0n3] [Tue Feb 11 21:07:25 2014] PE RANK 5885 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06124] [c14-0c1s6n0] [Tue Feb 11 21:07:25 2014] PE RANK 3810 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06076] [c14-0c1s1n2] [Tue Feb 11 21:07:25 2014] PE RANK 5420 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04577] [c10-0c1s0n1] [Tue Feb 11 21:07:25 2014] PE RANK 5240 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04537] [c10-0c1s3n3] [Tue Feb 11 21:07:25 2014] PE RANK 4989 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06184] [c16-0c2s4n0] [Tue Feb 11 21:07:25 2014] PE RANK 6690 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04644] [c12-0c2s2n0] [Tue Feb 11 21:07:25 2014] PE RANK 6368 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06103] [c14-0c2s4n1] [Tue Feb 11 21:07:25 2014] PE RANK 6930 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04632] [c12-0c1s3n0] [Tue Feb 11 21:07:25 2014] PE RANK 4897 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04602] [c10-0c0s2n0] [Tue Feb 11 21:07:25 2014] PE RANK 2190 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08485] [c22-1c0s2n3] [Tue Feb 11 21:07:25 2014] PE RANK 370 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06212] [c16-0c1s2n2] [Tue Feb 11 21:07:25 2014] PE RANK 4706 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04614] [c12-0c0s3n0] [Tue Feb 11 21:07:25 2014] PE RANK 2305 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04563] [c10-0c2s6n1] [Tue Feb 11 21:07:25 2014] PE RANK 7184 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08388] [c20-1c0s2n0] [Tue Feb 11 21:07:25 2014] PE RANK 296 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06064] [c14-0c1s7n2] [Tue Feb 11 21:07:25 2014] PE RANK 3874 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04568] [c10-0c2s3n0] [Tue Feb 11 21:07:25 2014] PE RANK 6254 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04689] [c12-0c0s7n3] [Tue Feb 11 21:07:25 2014] PE RANK 3316 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08498] [c22-1c0s6n0] [Tue Feb 11 21:07:25 2014] PE RANK 1422 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04658] [c12-0c2s6n2] [Tue Feb 11 21:07:25 2014] PE RANK 7374 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04556] [c10-0c2s6n2] [Tue Feb 11 21:07:25 2014] PE RANK 7150 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04701] [c12-0c0s1n3] [Tue Feb 11 21:07:25 2014] PE RANK 2104 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09944] [c24-1c0s3n2] [Tue Feb 11 21:07:25 2014] PE RANK 482 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05955] [c14-2c2s1n3] [Tue Feb 11 21:07:25 2014] PE RANK 7838 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06209] [c16-0c1s0n3] [Tue Feb 11 21:07:25 2014] PE RANK 5558 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06055] [c14-0c0s3n3] [Tue Feb 11 21:07:25 2014] PE RANK 2519 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04656] [c12-0c2s7n2] [Tue Feb 11 21:07:25 2014] PE RANK 7271 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06148] [c16-0c0s2n0] [Tue Feb 11 21:07:25 2014] PE RANK 2594 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06155] [c16-0c0s5n1] [Tue Feb 11 21:07:25 2014] PE RANK 2770 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04515] [c10-0c0s1n3] [Tue Feb 11 21:07:25 2014] PE RANK 2134 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06071] [c14-0c1s4n3] [Tue Feb 11 21:07:25 2014] PE RANK 4503 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06150] [c16-0c0s3n0] [Tue Feb 11 21:07:25 2014] PE RANK 2631 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08405] [c20-1c0s5n3] [Tue Feb 11 21:07:25 2014] PE RANK 1078 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04581] [c10-0c1s2n1] [Tue Feb 11 21:07:25 2014] PE RANK 5041 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04416] [c10-2c2s0n2] [Tue Feb 11 21:07:25 2014] PE RANK 7970 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06213] [c16-0c1s2n3] [Tue Feb 11 21:07:25 2014] PE RANK 4721 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06192] [c16-0c2s7n2] [Tue Feb 11 21:07:25 2014] PE RANK 7523 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06052] [c14-0c0s2n2] [Tue Feb 11 21:07:25 2014] PE RANK 2402 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04522] [c10-0c0s5n2] [Tue Feb 11 21:07:25 2014] PE RANK 3137 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04799] [c12-2c2s0n3] [Tue Feb 11 21:07:25 2014] PE RANK 7954 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06122] [c14-0c1s5n0] [Tue Feb 11 21:07:25 2014] PE RANK 4426 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06098] [c14-0c2s6n0] [Tue Feb 11 21:07:25 2014] PE RANK 7432 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04670] [c12-0c2s0n2] [Tue Feb 11 21:07:25 2014] PE RANK 5962 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06059] [c14-0c0s5n3] [Tue Feb 11 21:07:25 2014] PE RANK 2834 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04608] [c12-0c0s0n0] [Tue Feb 11 21:07:25 2014] PE RANK 1899 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06128] [c14-0c0s7n0] [Tue Feb 11 21:07:25 2014] PE RANK 3490 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04510] [c10-2c2s0n0] [Tue Feb 11 21:07:25 2014] PE RANK 8001 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06163] [c16-0c1s6n1] [Tue Feb 11 21:07:26 2014] PE RANK 3794 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04599] [c10-0c0s4n1] [Tue Feb 11 21:07:25 2014] PE RANK 3026 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04598] [c10-0c0s4n0] [Tue Feb 11 21:07:25 2014] PE RANK 3009 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06118] [c14-0c1s3n0] [Tue Feb 11 21:07:26 2014] PE RANK 4866 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04655] [c12-0c2s7n1] [Tue Feb 11 21:07:25 2014] PE RANK 7322 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04702] [c12-0c0s0n2] [Tue Feb 11 21:07:26 2014] PE RANK 1920 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06189] [c16-0c2s6n1] [Tue Feb 11 21:07:25 2014] PE RANK 7602 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06218] [c16-0c1s5n2] [Tue Feb 11 21:07:25 2014] PE RANK 4545 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06234] [c16-0c0s2n2] [Tue Feb 11 21:07:25 2014] PE RANK 2572 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06058] [c14-0c0s5n2] [Tue Feb 11 21:07:25 2014] PE RANK 2829 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06099] [c14-0c2s6n1] [Tue Feb 11 21:07:26 2014] PE RANK 7442 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09945] [c24-1c0s3n3] [Tue Feb 11 21:07:26 2014] PE RANK 498 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06169] [c16-0c1s3n1] [Tue Feb 11 21:07:25 2014] PE RANK 4661 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06146] [c16-0c0s1n0] [Tue Feb 11 21:07:26 2014] PE RANK 1739 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04633] [c12-0c1s3n1] [Tue Feb 11 21:07:25 2014] PE RANK 4925 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04694] [c12-0c0s4n2] [Tue Feb 11 21:07:26 2014] PE RANK 2945 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06063] [c14-0c0s7n3] [Tue Feb 11 21:07:26 2014] PE RANK 3550 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04538] [c10-0c1s2n2] [Tue Feb 11 21:07:26 2014] PE RANK 5134 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06074] [c14-0c1s2n2] [Tue Feb 11 21:07:25 2014] PE RANK 4809 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04654] [c12-0c2s7n0] [Tue Feb 11 21:07:25 2014] PE RANK 7297 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04529] [c10-0c1s7n3] [Tue Feb 11 21:07:26 2014] PE RANK 4031 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04628] [c12-0c1s5n0] [Tue Feb 11 21:07:25 2014] PE RANK 4328 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04698] [c12-0c0s2n2] [Tue Feb 11 21:07:25 2014] PE RANK 2381 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04642] [c12-0c2s1n0] [Tue Feb 11 21:07:25 2014] PE RANK 6091 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04674] [c12-0c1s1n2] [Tue Feb 11 21:07:25 2014] PE RANK 5383 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06946] [c18-1c0s1n2] [Tue Feb 11 21:07:26 2014] PE RANK 137 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04705] [c12-2c2s0n1] [Tue Feb 11 21:07:26 2014] PE RANK 7921 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08501] [c22-1c0s5n1] [Tue Feb 11 21:07:25 2014] PE RANK 753 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08488] [c22-1c0s4n2] [Tue Feb 11 21:07:25 2014] PE RANK 810 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04541] [c10-0c1s1n3] [Tue Feb 11 21:07:26 2014] PE RANK 5170 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08490] [c22-1c0s5n2] [Tue Feb 11 21:07:25 2014] PE RANK 779 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08401] [c20-1c0s7n3] [Tue Feb 11 21:07:25 2014] PE RANK 1267 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04531] [c10-0c1s6n3] [Tue Feb 11 21:07:26 2014] PE RANK 4113 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04610] [c12-0c0s1n0] [Tue Feb 11 21:07:25 2014] PE RANK 2061 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06067] [c14-0c1s6n3] [Tue Feb 11 21:07:26 2014] PE RANK 3868 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04621] [c12-0c0s6n1] [Tue Feb 11 21:07:25 2014] PE RANK 3386 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06223] [c16-0c1s7n3] [Tue Feb 11 21:07:26 2014] PE RANK 3730 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08387] [c20-1c0s1n1] [Tue Feb 11 21:07:25 2014] PE RANK 82 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08410] [c20-1c0s2n2] [Tue Feb 11 21:07:25 2014] PE RANK 322 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06190] [c16-0c2s7n0] [Tue Feb 11 21:07:26 2014] PE RANK 7629 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04542] [c10-0c1s0n2] [Tue Feb 11 21:07:26 2014] PE RANK 5252 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04678] [c12-0c1s3n2] [Tue Feb 11 21:07:25 2014] PE RANK 4929 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04572] [c10-0c2s1n0] [Tue Feb 11 21:07:26 2014] PE RANK 6058 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04613] [c12-0c0s2n1] [Tue Feb 11 21:07:25 2014] PE RANK 2353 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04657] [c12-0c2s7n3] [Tue Feb 11 21:07:26 2014] PE RANK 7292 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06174] [c16-0c1s0n0] [Tue Feb 11 21:07:26 2014] PE RANK 5642 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06147] [c16-0c0s1n1] [Tue Feb 11 21:07:26 2014] PE RANK 1750 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04512] [c10-0c0s0n2] [Tue Feb 11 21:07:26 2014] PE RANK 1952 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09925] [c24-1c0s2n1] [Tue Feb 11 21:07:26 2014] PE RANK 563 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09947] [c24-1c0s2n3] [Tue Feb 11 21:07:26 2014] PE RANK 541 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04637] [c12-0c1s1n1] [Tue Feb 11 21:07:26 2014] PE RANK 5361 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06075] [c14-0c1s2n3] [Tue Feb 11 21:07:26 2014] PE RANK 4824 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04620] [c12-0c0s6n0] [Tue Feb 11 21:07:26 2014] PE RANK 3373 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06202] [c16-0c2s2n2] [Tue Feb 11 21:07:26 2014] PE RANK 6593 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06166] [c16-0c1s4n0] [Tue Feb 11 21:07:26 2014] PE RANK 4610 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06242] [c16-2c2s1n0] [Tue Feb 11 21:07:26 2014] PE RANK 7745 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06243] [c16-2c2s1n1] [Tue Feb 11 21:07:26 2014] PE RANK 7762 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04663] [c12-0c2s4n3] [Tue Feb 11 21:07:26 2014] PE RANK 6994 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06072] [c14-0c1s3n2] [Tue Feb 11 21:07:26 2014] PE RANK 4843 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06079] [c14-0c1s0n3] [Tue Feb 11 21:07:26 2014] PE RANK 5522 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06160] [c16-0c1s7n0] [Tue Feb 11 21:07:26 2014] PE RANK 3682 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06158] [c16-0c0s7n0] [Tue Feb 11 21:07:26 2014] PE RANK 3650 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08389] [c20-1c0s2n1] [Tue Feb 11 21:07:25 2014] PE RANK 305 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06057] [c14-0c0s4n3] [Tue Feb 11 21:07:26 2014] PE RANK 2869 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06087] [c14-0c2s3n3] [Tue Feb 11 21:07:26 2014] PE RANK 6557 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06200] [c16-0c2s3n2] [Tue Feb 11 21:07:26 2014] PE RANK 6566 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06108] [c14-0c2s1n0] [Tue Feb 11 21:07:26 2014] PE RANK 5800 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09933] [c24-1c0s6n1] [Tue Feb 11 21:07:26 2014] PE RANK 1592 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04533] [c10-0c1s5n3] [Tue Feb 11 21:07:26 2014] PE RANK 4144 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06167] [c16-0c1s4n1] [Tue Feb 11 21:07:26 2014] PE RANK 4626 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06214] [c16-0c1s3n2] [Tue Feb 11 21:07:26 2014] PE RANK 4680 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06181] [c16-0c2s2n1] [Tue Feb 11 21:07:26 2014] PE RANK 6642 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06237] [c16-0c0s1n3] [Tue Feb 11 21:07:26 2014] PE RANK 1714 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06947] [c18-1c0s1n3] [Tue Feb 11 21:07:26 2014] PE RANK 155 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09930] [c24-1c0s5n0] [Tue Feb 11 21:07:26 2014] PE RANK 710 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04520] [c10-0c0s4n2] [Tue Feb 11 21:07:26 2014] PE RANK 2978 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04528] [c10-0c1s7n2] [Tue Feb 11 21:07:26 2014] PE RANK 4002 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08506] [c22-1c0s2n0] [Tue Feb 11 21:07:26 2014] PE RANK 387 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06211] [c16-0c1s1n3] [Tue Feb 11 21:07:26 2014] PE RANK 5587 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04796] [c12-2c2s1n2] [Tue Feb 11 21:07:26 2014] PE RANK 8098 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06195] [c16-0c2s6n3] [Tue Feb 11 21:07:26 2014] PE RANK 7578 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04798] [c12-2c2s0n2] [Tue Feb 11 21:07:26 2014] PE RANK 7945 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06149] [c16-0c0s2n1] [Tue Feb 11 21:07:26 2014] PE RANK 2610 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06334] [c16-2c2s0n2] [Tue Feb 11 21:07:26 2014] PE RANK 7681 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09938] [c24-1c0s6n2] [Tue Feb 11 21:07:26 2014] PE RANK 1549 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06050] [c14-0c0s1n2] [Tue Feb 11 21:07:26 2014] PE RANK 1793 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08408] [c20-1c0s3n2] [Tue Feb 11 21:07:26 2014] PE RANK 226 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04612] [c12-0c0s2n0] [Tue Feb 11 21:07:26 2014] PE RANK 2336 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08504] [c22-1c0s3n0] [Tue Feb 11 21:07:26 2014] PE RANK 430 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06964] [c18-1c0s5n0] [Tue Feb 11 21:07:26 2014] PE RANK 1002 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04569] [c10-0c2s3n1] [Tue Feb 11 21:07:26 2014] PE RANK 6258 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06141] [c14-0c0s1n1] [Tue Feb 11 21:07:26 2014] PE RANK 1779 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06086] [c14-0c2s3n2] [Tue Feb 11 21:07:26 2014] PE RANK 6531 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04536] [c10-0c1s3n2] [Tue Feb 11 21:07:26 2014] PE RANK 4960 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06066] [c14-0c1s6n2] [Tue Feb 11 21:07:26 2014] PE RANK 3850 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04580] [c10-0c1s2n0] [Tue Feb 11 21:07:26 2014] PE RANK 5026 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04553] [c10-0c2s4n3] [Tue Feb 11 21:07:26 2014] PE RANK 7036 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06069] [c14-0c1s5n3] [Tue Feb 11 21:07:26 2014] PE RANK 4404 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06159] [c16-0c0s7n1] [Tue Feb 11 21:07:26 2014] PE RANK 3668 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06068] [c14-0c1s5n2] [Tue Feb 11 21:07:26 2014] PE RANK 4392 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08489] [c22-1c0s4n3] [Tue Feb 11 21:07:26 2014] PE RANK 816 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04419] [c10-2c2s1n3] [Tue Feb 11 21:07:26 2014] PE RANK 8146 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04664] [c12-0c2s3n2] [Tue Feb 11 21:07:26 2014] PE RANK 6308 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06191] [c16-0c2s7n1] [Tue Feb 11 21:07:26 2014] PE RANK 7637 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04583] [c10-0c1s3n1] [Tue Feb 11 21:07:26 2014] PE RANK 5010 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06090] [c14-0c2s5n2] [Tue Feb 11 21:07:26 2014] PE RANK 6853 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06199] [c16-0c2s4n3] [Tue Feb 11 21:07:26 2014] PE RANK 6739 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04573] [c10-0c2s1n1] [Tue Feb 11 21:07:26 2014] PE RANK 6076 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06185] [c16-0c2s4n1] [Tue Feb 11 21:07:26 2014] PE RANK 6706 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06045] [c14-2c2s1n1] [Tue Feb 11 21:07:26 2014] PE RANK 7794 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04591] [c10-0c1s7n1] [Tue Feb 11 21:07:26 2014] PE RANK 4056 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08484] [c22-1c0s2n2] [Tue Feb 11 21:07:26 2014] PE RANK 361 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06220] [c16-0c1s6n2] [Tue Feb 11 21:07:26 2014] PE RANK 3745 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04564] [c10-0c2s5n0] [Tue Feb 11 21:07:26 2014] PE RANK 7076 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06332] [c16-2c2s1n2] [Tue Feb 11 21:07:26 2014] PE RANK 7714 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04634] [c12-0c1s2n0] [Tue Feb 11 21:07:26 2014] PE RANK 5070 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08494] [c22-1c0s7n2] [Tue Feb 11 21:07:26 2014] PE RANK 1474 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06228] [c16-0c0s5n2] [Tue Feb 11 21:07:26 2014] PE RANK 2723 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06046] [c14-2c2s0n0] [Tue Feb 11 21:07:26 2014] PE RANK 7873 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04417] [c10-2c2s0n3] [Tue Feb 11 21:07:26 2014] PE RANK 7988 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04624] [c12-0c1s7n0] [Tue Feb 11 21:07:26 2014] PE RANK 3947 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06047] [c14-2c2s0n1] [Tue Feb 11 21:07:26 2014] PE RANK 7894 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06156] [c16-0c0s6n0] [Tue Feb 11 21:07:26 2014] PE RANK 3625 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06110] [c14-0c2s0n0] [Tue Feb 11 21:07:26 2014] PE RANK 5890 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06203] [c16-0c2s2n3] [Tue Feb 11 21:07:26 2014] PE RANK 6609 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04600] [c10-0c0s3n0] [Tue Feb 11 21:07:26 2014] PE RANK 2220 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09928] [c24-1c0s4n0] [Tue Feb 11 21:07:26 2014] PE RANK 621 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06060] [c14-0c0s6n2] [Tue Feb 11 21:07:26 2014] PE RANK 3430 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04574] [c10-0c2s0n0] [Tue Feb 11 21:07:26 2014] PE RANK 6021 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06132] [c14-0c0s5n0] [Tue Feb 11 21:07:26 2014] PE RANK 2785 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06088] [c14-0c2s4n2] [Tue Feb 11 21:07:26 2014] PE RANK 6885 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04559] [c10-0c2s7n3] [Tue Feb 11 21:07:26 2014] PE RANK 7250 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06956] [c18-1c0s6n2] [Tue Feb 11 21:07:26 2014] PE RANK 1122 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04526] [c10-0c0s7n2] [Tue Feb 11 21:07:26 2014] PE RANK 3266 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09937] [c24-1c0s7n3] [Tue Feb 11 21:07:26 2014] PE RANK 1533 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05954] [c14-2c2s1n2] [Tue Feb 11 21:07:26 2014] PE RANK 7810 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04588] [c10-0c1s6n0] [Tue Feb 11 21:07:26 2014] PE RANK 4066 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04668] [c12-0c2s1n2] [Tue Feb 11 21:07:26 2014] PE RANK 6114 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06157] [c16-0c0s6n1] [Tue Feb 11 21:07:26 2014] PE RANK 3632 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06125] [c14-0c1s6n1] [Tue Feb 11 21:07:26 2014] PE RANK 3824 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06104] [c14-0c2s3n0] [Tue Feb 11 21:07:26 2014] PE RANK 6498 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04652] [c12-0c2s6n0] [Tue Feb 11 21:07:26 2014] PE RANK 7329 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04530] [c10-0c1s6n2] [Tue Feb 11 21:07:26 2014] PE RANK 4102 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08495] [c22-1c0s7n3] [Tue Feb 11 21:07:26 2014] PE RANK 1490 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06073] [c14-0c1s3n3] [Tue Feb 11 21:07:26 2014] PE RANK 4850 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09941] [c24-1c0s5n3] [Tue Feb 11 21:07:26 2014] PE RANK 690 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08398] [c20-1c0s7n0] [Tue Feb 11 21:07:26 2014] PE RANK 1288 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06201] [c16-0c2s3n3] [Tue Feb 11 21:07:26 2014] PE RANK 6588 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04586] [c10-0c1s5n0] [Tue Feb 11 21:07:26 2014] PE RANK 4174 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06180] [c16-0c2s2n0] [Tue Feb 11 21:07:26 2014] PE RANK 6624 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04555] [c10-0c2s5n3] [Tue Feb 11 21:07:26 2014] PE RANK 7124 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08491] [c22-1c0s5n3] [Tue Feb 11 21:07:26 2014] PE RANK 786 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08392] [c20-1c0s4n0] [Tue Feb 11 21:07:26 2014] PE RANK 868 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04638] [c12-0c1s0n0] [Tue Feb 11 21:07:26 2014] PE RANK 5319 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04550] [c10-0c2s3n2] [Tue Feb 11 21:07:26 2014] PE RANK 6276 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06193] [c16-0c2s7n3] [Tue Feb 11 21:07:26 2014] PE RANK 7548 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04645] [c12-0c2s2n1] [Tue Feb 11 21:07:26 2014] PE RANK 6393 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06048] [c14-0c0s0n2] [Tue Feb 11 21:07:26 2014] PE RANK 1834 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06082] [c14-0c2s1n2] [Tue Feb 11 21:07:26 2014] PE RANK 5838 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04589] [c10-0c1s6n1] [Tue Feb 11 21:07:26 2014] PE RANK 4082 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06196] [c16-0c2s5n2] [Tue Feb 11 21:07:26 2014] PE RANK 6761 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04585] [c10-0c1s4n1] [Tue Feb 11 21:07:26 2014] PE RANK 4211 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06224] [c16-0c0s7n2] [Tue Feb 11 21:07:26 2014] PE RANK 3561 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06121] [c14-0c1s4n1] [Tue Feb 11 21:07:26 2014] PE RANK 4464 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08486] [c22-1c0s3n2] [Tue Feb 11 21:07:26 2014] PE RANK 452 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06143] [c14-0c0s0n1] [Tue Feb 11 21:07:26 2014] PE RANK 1881 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04703] [c12-0c0s0n3] [Tue Feb 11 21:07:26 2014] PE RANK 1946 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04659] [c12-0c2s6n3] [Tue Feb 11 21:07:26 2014] PE RANK 7380 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09940] [c24-1c0s5n2] [Tue Feb 11 21:07:26 2014] PE RANK 674 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04704] [c12-2c2s0n0] [Tue Feb 11 21:07:26 2014] PE RANK 7906 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04636] [c12-0c1s1n0] [Tue Feb 11 21:07:26 2014] PE RANK 5346 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09927] [c24-1c0s3n1] [Tue Feb 11 21:07:26 2014] PE RANK 596 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06186] [c16-0c2s5n0] [Tue Feb 11 21:07:26 2014] PE RANK 6788 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04516] [c10-0c0s2n2] [Tue Feb 11 21:07:26 2014] PE RANK 2144 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06178] [c16-0c2s1n0] [Tue Feb 11 21:07:26 2014] PE RANK 5773 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06957] [c18-1c0s6n3] [Tue Feb 11 21:07:26 2014] PE RANK 1148 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06954] [c18-1c0s5n2] [Tue Feb 11 21:07:26 2014] PE RANK 1090 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08404] [c20-1c0s5n2] [Tue Feb 11 21:07:26 2014] PE RANK 1057 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06109] [c14-0c2s1n1] [Tue Feb 11 21:07:26 2014] PE RANK 5809 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04680] [c12-0c1s4n2] [Tue Feb 11 21:07:26 2014] PE RANK 4267 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06165] [c16-0c1s5n1] [Tue Feb 11 21:07:26 2014] PE RANK 4594 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06335] [c16-2c2s0n3] [Tue Feb 11 21:07:26 2014] PE RANK 7698 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04676] [c12-0c1s2n2] [Tue Feb 11 21:07:26 2014] PE RANK 5088 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08500] [c22-1c0s5n0] [Tue Feb 11 21:07:26 2014] PE RANK 737 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06096] [c14-0c2s7n0] [Tue Feb 11 21:07:26 2014] PE RANK 7456 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06194] [c16-0c2s6n2] [Tue Feb 11 21:07:26 2014] PE RANK 7556 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06062] [c14-0c0s7n2] [Tue Feb 11 21:07:26 2014] PE RANK 3520 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04545] [c10-0c2s0n3] [Tue Feb 11 21:07:26 2014] PE RANK 6009 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04693] [c12-0c0s5n3] [Tue Feb 11 21:07:26 2014] PE RANK 3124 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06958] [c18-1c0s7n2] [Tue Feb 11 21:07:26 2014] PE RANK 1227 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04619] [c12-0c0s5n1] [Tue Feb 11 21:07:26 2014] PE RANK 3096 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04420] [c10-2c2s2n2] [Tue Feb 11 21:07:26 2014] PE RANK 8162 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04567] [c10-0c2s4n1] [Tue Feb 11 21:07:26 2014] PE RANK 7067 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04699] [c12-0c0s2n3] [Tue Feb 11 21:07:26 2014] PE RANK 2386 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04576] [c10-0c1s0n0] [Tue Feb 11 21:07:26 2014] PE RANK 5216 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06197] [c16-0c2s5n3] [Tue Feb 11 21:07:26 2014] PE RANK 6775 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04697] [c12-0c0s3n3] [Tue Feb 11 21:07:26 2014] PE RANK 2292 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09942] [c24-1c0s4n2] [Tue Feb 11 21:07:26 2014] PE RANK 640 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04571] [c10-0c2s2n1] [Tue Feb 11 21:07:26 2014] PE RANK 6226 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04690] [c12-0c0s6n2] [Tue Feb 11 21:07:26 2014] PE RANK 3393 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06216] [c16-0c1s4n2] [Tue Feb 11 21:07:26 2014] PE RANK 4522 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06229] [c16-0c0s5n3] [Tue Feb 11 21:07:26 2014] PE RANK 2738 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08411] [c20-1c0s2n3] [Tue Feb 11 21:07:26 2014] PE RANK 340 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06105] [c14-0c2s3n1] [Tue Feb 11 21:07:26 2014] PE RANK 6513 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06975] [c18-1c0s0n1] [Tue Feb 11 21:07:26 2014] PE RANK 28 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05953] [c14-2c2s0n3] [Tue Feb 11 21:07:26 2014] PE RANK 7860 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06950] [c18-1c0s3n2] [Tue Feb 11 21:07:26 2014] PE RANK 202 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06205] [c16-0c2s1n3] [Tue Feb 11 21:07:26 2014] PE RANK 5745 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06179] [c16-0c2s1n1] [Tue Feb 11 21:07:26 2014] PE RANK 5777 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04560] [c10-0c2s7n0] [Tue Feb 11 21:07:26 2014] PE RANK 7211 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09946] [c24-1c0s2n2] [Tue Feb 11 21:07:26 2014] PE RANK 513 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04691] [c12-0c0s6n3] [Tue Feb 11 21:07:26 2014] PE RANK 3408 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04534] [c10-0c1s4n2] [Tue Feb 11 21:07:26 2014] PE RANK 4233 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08507] [c22-1c0s2n1] [Tue Feb 11 21:07:26 2014] PE RANK 401 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04672] [c12-0c1s0n2] [Tue Feb 11 21:07:26 2014] PE RANK 5293 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04509] [c10-2c2s1n1] [Tue Feb 11 21:07:26 2014] PE RANK 8060 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06077] [c14-0c1s1n3] [Tue Feb 11 21:07:26 2014] PE RANK 5425 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04539] [c10-0c1s2n3] [Tue Feb 11 21:07:26 2014] PE RANK 5138 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06241] [c16-2c2s0n1] [Tue Feb 11 21:07:26 2014] PE RANK 7666 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06153] [c16-0c0s4n1] [Tue Feb 11 21:07:26 2014] PE RANK 2674 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06333] [c16-2c2s1n3] [Tue Feb 11 21:07:26 2014] PE RANK 7730 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04561] [c10-0c2s7n1] [Tue Feb 11 21:07:26 2014] PE RANK 7217 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04535] [c10-0c1s4n3] [Tue Feb 11 21:07:26 2014] PE RANK 4244 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06113] [c14-0c1s0n1] [Tue Feb 11 21:07:26 2014] PE RANK 5495 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04547] [c10-0c2s1n3] [Tue Feb 11 21:07:26 2014] PE RANK 6162 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04552] [c10-0c2s4n2] [Tue Feb 11 21:07:26 2014] PE RANK 7015 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06207] [c16-0c2s0n3] [Tue Feb 11 21:07:26 2014] PE RANK 5724 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06134] [c14-0c0s4n0] [Tue Feb 11 21:07:26 2014] PE RANK 2882 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06116] [c14-0c1s2n0] [Tue Feb 11 21:07:26 2014] PE RANK 4776 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08492] [c22-1c0s6n2] [Tue Feb 11 21:07:26 2014] PE RANK 1378 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 05952] [c14-2c2s0n2] [Tue Feb 11 21:07:26 2014] PE RANK 7840 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06972] [c18-1c0s1n0] [Tue Feb 11 21:07:26 2014] PE RANK 40 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06145] [c16-0c0s0n1] [Tue Feb 11 21:07:26 2014] PE RANK 1651 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04611] [c12-0c0s1n1] [Tue Feb 11 21:07:26 2014] PE RANK 2073 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06226] [c16-0c0s6n2] [Tue Feb 11 21:07:26 2014] PE RANK 3591 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04594] [c10-0c0s6n0] [Tue Feb 11 21:07:26 2014] PE RANK 3202 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04617] [c12-0c0s4n1] [Tue Feb 11 21:07:26 2014] PE RANK 2940 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04647] [c12-0c2s3n1] [Tue Feb 11 21:07:26 2014] PE RANK 6354 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06084] [c14-0c2s2n2] [Tue Feb 11 21:07:26 2014] PE RANK 6442 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06070] [c14-0c1s4n2] [Tue Feb 11 21:07:26 2014] PE RANK 4482 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04595] [c10-0c0s6n1] [Tue Feb 11 21:07:26 2014] PE RANK 3216 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06133] [c14-0c0s5n1] [Tue Feb 11 21:07:26 2014] PE RANK 2812 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06183] [c16-0c2s3n1] [Tue Feb 11 21:07:26 2014] PE RANK 6677 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06135] [c14-0c0s4n1] [Tue Feb 11 21:07:26 2014] PE RANK 2905 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04700] [c12-0c0s1n2] [Tue Feb 11 21:07:26 2014] PE RANK 2080 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06097] [c14-0c2s7n1] [Tue Feb 11 21:07:26 2014] PE RANK 7473 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04686] [c12-0c1s7n2] [Tue Feb 11 21:07:26 2014] PE RANK 3971 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06227] [c16-0c0s6n3] [Tue Feb 11 21:07:26 2014] PE RANK 3613 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04421] [c10-2c2s2n3] [Tue Feb 11 21:07:26 2014] PE RANK 8189 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09935] [c24-1c0s7n1] [Tue Feb 11 21:07:26 2014] PE RANK 1621 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08413] [c20-1c0s1n3] [Tue Feb 11 21:07:26 2014] PE RANK 125 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06962] [c18-1c0s6n0] [Tue Feb 11 21:07:26 2014] PE RANK 1154 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04570] [c10-0c2s2n0] [Tue Feb 11 21:07:26 2014] PE RANK 6221 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06239] [c16-0c0s0n3] [Tue Feb 11 21:07:26 2014] PE RANK 1689 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06177] [c16-0c2s0n1] [Tue Feb 11 21:07:26 2014] PE RANK 5681 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06112] [c14-0c1s0n0] [Tue Feb 11 21:07:26 2014] PE RANK 5475 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06198] [c16-0c2s4n2] [Tue Feb 11 21:07:26 2014] PE RANK 6728 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06968] [c18-1c0s3n0] [Tue Feb 11 21:07:26 2014] PE RANK 162 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06210] [c16-0c1s1n2] [Tue Feb 11 21:07:26 2014] PE RANK 5578 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04604] [c10-0c0s1n0] [Tue Feb 11 21:07:26 2014] PE RANK 2017 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06164] [c16-0c1s5n0] [Tue Feb 11 21:07:26 2014] PE RANK 4578 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04606] [c10-0c0s0n0] [Tue Feb 11 21:07:26 2014] PE RANK 1985 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04615] [c12-0c0s3n1] [Tue Feb 11 21:07:26 2014] PE RANK 2325 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06953] [c18-1c0s4n3] [Tue Feb 11 21:07:26 2014] PE RANK 956 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09924] [c24-1c0s2n0] [Tue Feb 11 21:07:26 2014] PE RANK 544 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04667] [c12-0c2s2n3] [Tue Feb 11 21:07:26 2014] PE RANK 6424 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06140] [c14-0c0s1n0] [Tue Feb 11 21:07:26 2014] PE RANK 1761 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04596] [c10-0c0s5n0] [Tue Feb 11 21:07:26 2014] PE RANK 3046 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04579] [c10-0c1s1n1] [Tue Feb 11 21:07:26 2014] PE RANK 5207 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06175] [c16-0c1s0n1] [Tue Feb 11 21:07:26 2014] PE RANK 5649 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04665] [c12-0c2s3n3] [Tue Feb 11 21:07:26 2014] PE RANK 6324 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06204] [c16-0c2s1n2] [Tue Feb 11 21:07:26 2014] PE RANK 5730 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04607] [c10-0c0s0n1] [Tue Feb 11 21:07:26 2014] PE RANK 2006 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04653] [c12-0c2s6n1] [Tue Feb 11 21:07:26 2014] PE RANK 7347 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04517] [c10-0c0s2n3] [Tue Feb 11 21:07:26 2014] PE RANK 2162 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08505] [c22-1c0s3n1] [Tue Feb 11 21:07:26 2014] PE RANK 434 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04525] [c10-0c0s6n3] [Tue Feb 11 21:07:26 2014] PE RANK 3198 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04548] [c10-0c2s2n2] [Tue Feb 11 21:07:26 2014] PE RANK 6189 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06208] [c16-0c1s0n2] [Tue Feb 11 21:07:26 2014] PE RANK 5550 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09934] [c24-1c0s7n0] [Tue Feb 11 21:07:26 2014] PE RANK 1601 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04557] [c10-0c2s6n3] [Tue Feb 11 21:07:26 2014] PE RANK 7154 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06091] [c14-0c2s5n3] [Tue Feb 11 21:07:26 2014] PE RANK 6877 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08409] [c20-1c0s3n3] [Tue Feb 11 21:07:26 2014] PE RANK 252 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04544] [c10-0c2s0n2] [Tue Feb 11 21:07:26 2014] PE RANK 5994 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04641] [c12-0c2s0n1] [Tue Feb 11 21:07:26 2014] PE RANK 5946 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06136] [c14-0c0s3n0] [Tue Feb 11 21:07:26 2014] PE RANK 2466 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08502] [c22-1c0s4n0] [Tue Feb 11 21:07:26 2014] PE RANK 845 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06138] [c14-0c0s2n0] [Tue Feb 11 21:07:26 2014] PE RANK 2434 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08412] [c20-1c0s1n2] [Tue Feb 11 21:07:26 2014] PE RANK 105 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06078] [c14-0c1s0n2] [Tue Feb 11 21:07:26 2014] PE RANK 5516 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04671] [c12-0c2s0n3] [Tue Feb 11 21:07:26 2014] PE RANK 5970 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08386] [c20-1c0s1n0] [Tue Feb 11 21:07:26 2014] PE RANK 66 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06170] [c16-0c1s2n0] [Tue Feb 11 21:07:26 2014] PE RANK 4740 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08395] [c20-1c0s5n1] [Tue Feb 11 21:07:26 2014] PE RANK 1049 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04797] [c12-2c2s1n3] [Tue Feb 11 21:07:26 2014] PE RANK 8114 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06152] [c16-0c0s4n0] [Tue Feb 11 21:07:26 2014] PE RANK 2660 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04418] [c10-2c2s1n2] [Tue Feb 11 21:07:26 2014] PE RANK 8130 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04524] [c10-0c0s6n2] [Tue Feb 11 21:07:26 2014] PE RANK 3170 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04540] [c10-0c1s1n2] [Tue Feb 11 21:07:26 2014] PE RANK 5160 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04639] [c12-0c1s0n1] [Tue Feb 11 21:07:26 2014] PE RANK 5330 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06232] [c16-0c0s3n2] [Tue Feb 11 21:07:26 2014] PE RANK 2530 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04543] [c10-0c1s0n3] [Tue Feb 11 21:07:26 2014] PE RANK 5266 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04622] [c12-0c0s7n0] [Tue Feb 11 21:07:26 2014] PE RANK 3337 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06217] [c16-0c1s4n3] [Tue Feb 11 21:07:26 2014] PE RANK 4529 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04673] [c12-0c1s0n3] [Tue Feb 11 21:07:26 2014] PE RANK 5298 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08400] [c20-1c0s7n2] [Tue Feb 11 21:07:26 2014] PE RANK 1258 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04616] [c12-0c0s4n0] [Tue Feb 11 21:07:26 2014] PE RANK 2914 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04532] [c10-0c1s5n2] [Tue Feb 11 21:07:26 2014] PE RANK 4130 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08493] [c22-1c0s6n3] [Tue Feb 11 21:07:26 2014] PE RANK 1400 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08496] [c22-1c0s7n0] [Tue Feb 11 21:07:26 2014] PE RANK 1446 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06221] [c16-0c1s6n3] [Tue Feb 11 21:07:26 2014] PE RANK 3762 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09943] [c24-1c0s4n3] [Tue Feb 11 21:07:26 2014] PE RANK 657 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04582] [c10-0c1s3n0] [Tue Feb 11 21:07:26 2014] PE RANK 5005 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06093] [c14-0c2s6n3] [Tue Feb 11 21:07:26 2014] PE RANK 7410 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06106] [c14-0c2s2n0] [Tue Feb 11 21:07:26 2014] PE RANK 6478 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06171] [c16-0c1s2n1] [Tue Feb 11 21:07:26 2014] PE RANK 4754 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04692] [c12-0c0s5n2] [Tue Feb 11 21:07:26 2014] PE RANK 3104 exit signal Terminated
+aprun: Apid 4466046: Caught signal Terminated, sending to application
+_pmiu_daemon(SIGCHLD): [NID 08503] [c22-1c0s4n1] [Tue Feb 11 21:07:26 2014] PE RANK 861 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06951] [c18-1c0s3n3] [Tue Feb 11 21:07:26 2014] PE RANK 209 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06233] [c16-0c0s3n3] [Tue Feb 11 21:07:26 2014] PE RANK 2546 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06173] [c16-0c1s1n1] [Tue Feb 11 21:07:26 2014] PE RANK 5618 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04707] [c12-2c2s1n1] [Tue Feb 11 21:07:26 2014] PE RANK 8082 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08396] [c20-1c0s6n0] [Tue Feb 11 21:07:26 2014] PE RANK 1326 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04666] [c12-0c2s2n2] [Tue Feb 11 21:07:26 2014] PE RANK 6402 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04618] [c12-0c0s5n0] [Tue Feb 11 21:07:26 2014] PE RANK 3080 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06973] [c18-1c0s1n1] [Tue Feb 11 21:07:26 2014] PE RANK 61 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06049] [c14-0c0s0n3] [Tue Feb 11 21:07:26 2014] PE RANK 1842 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04603] [c10-0c0s2n1] [Tue Feb 11 21:07:26 2014] PE RANK 2203 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09932] [c24-1c0s6n0] [Tue Feb 11 21:07:26 2014] PE RANK 1573 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06963] [c18-1c0s6n1] [Tue Feb 11 21:07:26 2014] PE RANK 1170 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06129] [c14-0c0s7n1] [Tue Feb 11 21:07:26 2014] PE RANK 3508 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06959] [c18-1c0s7n3] [Tue Feb 11 21:07:26 2014] PE RANK 1246 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04514] [c10-0c0s1n2] [Tue Feb 11 21:07:26 2014] PE RANK 2117 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08399] [c20-1c0s7n1] [Tue Feb 11 21:07:26 2014] PE RANK 1308 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04584] [c10-0c1s4n0] [Tue Feb 11 21:07:26 2014] PE RANK 4194 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04566] [c10-0c2s4n0] [Tue Feb 11 21:07:26 2014] PE RANK 7043 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08407] [c20-1c0s4n3] [Tue Feb 11 21:07:26 2014] PE RANK 913 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04527] [c10-0c0s7n3] [Tue Feb 11 21:07:26 2014] PE RANK 3293 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04643] [c12-0c2s1n1] [Tue Feb 11 21:07:26 2014] PE RANK 6104 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04511] [c10-2c2s0n1] [Tue Feb 11 21:07:26 2014] PE RANK 8024 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06222] [c16-0c1s7n2] [Tue Feb 11 21:07:26 2014] PE RANK 3719 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06085] [c14-0c2s2n3] [Tue Feb 11 21:07:26 2014] PE RANK 6458 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06123] [c14-0c1s5n1] [Tue Feb 11 21:07:26 2014] PE RANK 4445 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08499] [c22-1c0s6n1] [Tue Feb 11 21:07:26 2014] PE RANK 1426 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04648] [c12-0c2s4n0] [Tue Feb 11 21:07:26 2014] PE RANK 6956 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08393] [c20-1c0s4n1] [Tue Feb 11 21:07:26 2014] PE RANK 892 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09936] [c24-1c0s7n2] [Tue Feb 11 21:07:26 2014] PE RANK 1514 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04679] [c12-0c1s3n3] [Tue Feb 11 21:07:26 2014] PE RANK 4946 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06230] [c16-0c0s4n2] [Tue Feb 11 21:07:26 2014] PE RANK 2697 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06130] [c14-0c0s6n0] [Tue Feb 11 21:07:26 2014] PE RANK 3460 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06236] [c16-0c0s1n2] [Tue Feb 11 21:07:26 2014] PE RANK 1698 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06176] [c16-0c2s0n0] [Tue Feb 11 21:07:26 2014] PE RANK 5672 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08397] [c20-1c0s6n1] [Tue Feb 11 21:07:26 2014] PE RANK 1329 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06056] [c14-0c0s4n2] [Tue Feb 11 21:07:26 2014] PE RANK 2862 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04592] [c10-0c0s7n0] [Tue Feb 11 21:07:26 2014] PE RANK 3241 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04593] [c10-0c0s7n1] [Tue Feb 11 21:07:26 2014] PE RANK 3250 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06095] [c14-0c2s7n3] [Tue Feb 11 21:07:26 2014] PE RANK 7516 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08497] [c22-1c0s7n1] [Tue Feb 11 21:07:26 2014] PE RANK 1457 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06054] [c14-0c0s3n2] [Tue Feb 11 21:07:26 2014] PE RANK 2503 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08403] [c20-1c0s6n3] [Tue Feb 11 21:07:26 2014] PE RANK 1361 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04688] [c12-0c0s7n2] [Tue Feb 11 21:07:26 2014] PE RANK 3301 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06111] [c14-0c2s0n1] [Tue Feb 11 21:07:26 2014] PE RANK 5915 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09939] [c24-1c0s6n3] [Tue Feb 11 21:07:26 2014] PE RANK 1560 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04578] [c10-0c1s1n0] [Tue Feb 11 21:07:26 2014] PE RANK 5193 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08402] [c20-1c0s6n2] [Tue Feb 11 21:07:26 2014] PE RANK 1355 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06162] [c16-0c1s6n0] [Tue Feb 11 21:07:26 2014] PE RANK 3787 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04549] [c10-0c2s2n3] [Tue Feb 11 21:07:26 2014] PE RANK 6197 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06107] [c14-0c2s2n1] [Tue Feb 11 21:07:26 2014] PE RANK 6488 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06161] [c16-0c1s7n1] [Tue Feb 11 21:07:26 2014] PE RANK 3698 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04675] [c12-0c1s1n3] [Tue Feb 11 21:07:26 2014] PE RANK 5403 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09926] [c24-1c0s3n0] [Tue Feb 11 21:07:26 2014] PE RANK 586 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06137] [c14-0c0s3n1] [Tue Feb 11 21:07:26 2014] PE RANK 2481 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06231] [c16-0c0s4n3] [Tue Feb 11 21:07:26 2014] PE RANK 2714 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04562] [c10-0c2s6n0] [Tue Feb 11 21:07:26 2014] PE RANK 7175 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06094] [c14-0c2s7n2] [Tue Feb 11 21:07:26 2014] PE RANK 7501 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06172] [c16-0c1s1n0] [Tue Feb 11 21:07:26 2014] PE RANK 5613 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06051] [c14-0c0s1n3] [Tue Feb 11 21:07:26 2014] PE RANK 1819 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04631] [c12-0c1s4n1] [Tue Feb 11 21:07:26 2014] PE RANK 4305 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04635] [c12-0c1s2n1] [Tue Feb 11 21:07:26 2014] PE RANK 5083 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04677] [c12-0c1s2n3] [Tue Feb 11 21:07:26 2014] PE RANK 5107 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06974] [c18-1c0s0n0] [Tue Feb 11 21:07:26 2014] PE RANK 14 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04587] [c10-0c1s5n1] [Tue Feb 11 21:07:26 2014] PE RANK 4188 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06168] [c16-0c1s3n0] [Tue Feb 11 21:07:26 2014] PE RANK 4648 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04605] [c10-0c0s1n1] [Tue Feb 11 21:07:26 2014] PE RANK 2043 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06206] [c16-0c2s0n2] [Tue Feb 11 21:07:26 2014] PE RANK 5704 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04565] [c10-0c2s5n1] [Tue Feb 11 21:07:26 2014] PE RANK 7090 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04597] [c10-0c0s5n1] [Tue Feb 11 21:07:26 2014] PE RANK 3068 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06235] [c16-0c0s2n3] [Tue Feb 11 21:07:26 2014] PE RANK 2577 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04696] [c12-0c0s3n2] [Tue Feb 11 21:07:26 2014] PE RANK 2279 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06225] [c16-0c0s7n3] [Tue Feb 11 21:07:26 2014] PE RANK 3577 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04630] [c12-0c1s4n0] [Tue Feb 11 21:07:26 2014] PE RANK 4290 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06955] [c18-1c0s5n3] [Tue Feb 11 21:07:26 2014] PE RANK 1116 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04662] [c12-0c2s4n2] [Tue Feb 11 21:07:26 2014] PE RANK 6978 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04508] [c10-2c2s1n0] [Tue Feb 11 21:07:26 2014] PE RANK 8036 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09931] [c24-1c0s5n1] [Tue Feb 11 21:07:26 2014] PE RANK 721 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08390] [c20-1c0s3n0] [Tue Feb 11 21:07:26 2014] PE RANK 256 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04609] [c12-0c0s0n1] [Tue Feb 11 21:07:26 2014] PE RANK 1905 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06053] [c14-0c0s2n3] [Tue Feb 11 21:07:26 2014] PE RANK 2428 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06187] [c16-0c2s5n1] [Tue Feb 11 21:07:26 2014] PE RANK 6814 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06215] [c16-0c1s3n3] [Tue Feb 11 21:07:26 2014] PE RANK 4699 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06238] [c16-0c0s0n2] [Tue Feb 11 21:07:26 2014] PE RANK 1678 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06952] [c18-1c0s4n2] [Tue Feb 11 21:07:26 2014] PE RANK 939 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04523] [c10-0c0s5n3] [Tue Feb 11 21:07:26 2014] PE RANK 3164 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04683] [c12-0c1s5n3] [Tue Feb 11 21:07:26 2014] PE RANK 4381 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04575] [c10-0c2s0n1] [Tue Feb 11 21:07:26 2014] PE RANK 6040 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06114] [c14-0c1s1n0] [Tue Feb 11 21:07:26 2014] PE RANK 5448 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04649] [c12-0c2s4n1] [Tue Feb 11 21:07:26 2014] PE RANK 6969 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04695] [c12-0c0s4n3] [Tue Feb 11 21:07:27 2014] PE RANK 2962 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06100] [c14-0c2s5n0] [Tue Feb 11 21:07:26 2014] PE RANK 6828 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06139] [c14-0c0s2n1] [Tue Feb 11 21:07:27 2014] PE RANK 2461 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06117] [c14-0c1s2n1] [Tue Feb 11 21:07:27 2014] PE RANK 4795 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08406] [c20-1c0s4n2] [Tue Feb 11 21:07:27 2014] PE RANK 905 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06154] [c16-0c0s5n0] [Tue Feb 11 21:07:27 2014] PE RANK 2758 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06240] [c16-2c2s0n0] [Tue Feb 11 21:07:27 2014] PE RANK 7650 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06961] [c18-1c0s7n1] [Tue Feb 11 21:07:27 2014] PE RANK 1206 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 09929] [c24-1c0s4n1] [Tue Feb 11 21:07:27 2014] PE RANK 638 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04521] [c10-0c0s4n3] [Tue Feb 11 21:07:27 2014] PE RANK 2994 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04551] [c10-0c2s3n3] [Tue Feb 11 21:07:27 2014] PE RANK 6290 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06967] [c18-1c0s4n1] [Tue Feb 11 21:07:27 2014] PE RANK 982 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06142] [c14-0c0s0n0] [Tue Feb 11 21:07:27 2014] PE RANK 1867 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08394] [c20-1c0s5n0] [Tue Feb 11 21:07:27 2014] PE RANK 1035 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06101] [c14-0c2s5n1] [Tue Feb 11 21:07:27 2014] PE RANK 6843 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04546] [c10-0c2s1n2] [Tue Feb 11 21:07:27 2014] PE RANK 6144 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04590] [c10-0c1s7n0] [Tue Feb 11 21:07:26 2014] PE RANK 4034 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04687] [c12-0c1s7n3] [Tue Feb 11 21:07:26 2014] PE RANK 3994 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04625] [c12-0c1s7n1] [Tue Feb 11 21:07:26 2014] PE RANK 3956 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06127] [c14-0c1s7n1] [Tue Feb 11 21:07:26 2014] PE RANK 3934 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06065] [c14-0c1s7n3] [Tue Feb 11 21:07:26 2014] PE RANK 3890 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 06188] [c16-0c2s6n0] [Tue Feb 11 21:07:27 2014] PE RANK 7592 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 08487] [c22-1c0s3n3] [Tue Feb 11 21:07:27 2014] PE RANK 466 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 04601] [c10-0c0s3n1] [Tue Feb 11 21:07:28 2014] PE RANK 2226 exit signal Terminated

@@ -61,6 +61,8 @@ int MPMY_Alltoall(void *sendbuf, int sendcount, MPMY_Datatype sendtype,
 		  void *recvbuf, int recvcount, MPMY_Datatype recvtype);
 int MPMY_Alltoallv(void *sendbuf, int *sendcounts, int *sendoffsets, MPMY_Datatype sendtype, 
 		   void *recvbuf, int *recvcounts, int *recvoffsets, MPMY_Datatype recvtype);
+int MPMY_Alltoallv_simple(void *sendbuf, int *sendcounts, int *sendoffsets, MPMY_Datatype sendtype, 
+			  void *recvbuf, int *recvcounts, int *recvoffsets, MPMY_Datatype recvtype);
 int Native_MPMY_Allgather(void *sendbuf, int sendcount, MPMY_Datatype type, void *recvbuf);
 int Native_MPMY_Allgatherv(void *sendbuf, int sendcount, MPMY_Datatype type, void *recvbuf,
 			   int *rcounts, int *roffsets);
@@ -102,6 +104,8 @@ void MPMY_Diagnostic(int (*printflike)(const char *, ...));
 
 /* And a version suitable for passing to OnAbnormal */
 void PrintMPMYDiags(void);
+
+double MPMY_Wtime(void);
 
 /* These don't really have analogues in mpi.  MPI does have Sendrecv
    and Sendrecv_replace, but those are both more general (allowing

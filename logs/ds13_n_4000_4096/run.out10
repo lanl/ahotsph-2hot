@@ -1,0 +1,113 @@
+Welcome to the tree19 hexadecapole N-body integrator running on 4096 procs
+Version 2HOT_nln-1.0.3-titan-28-gd3d2513-dirty
+Compiled Feb  9 2014 22:13:38
+Compiler 4.8.1 20130531 (Cray Inc.)
+Arch cudaxk7
+Saving phi and acc
+Node 0 is nid19097
+cfile "run.ctl" opened
+Putting all Msgs in memfile
+Compute 3.5 CUDA device: [Tesla K20X]
+Setting timeout to 14400 seconds.
+Reading "ds13_n_4000_4096.sdf"
+     SDFread      84.43      84.86      84.45
+read 68719476736 x 36 at 29297 MB/s
+double H0 = 0.0685674
+double Omega0 = 1
+double Omega0_m = 0.31834
+double Omega0_r = 0
+double redshift = 80.2421
+double Omega0_lambda = 0.68166
+double velfac = 1
+Maxmem after data read is 923 (53747)
+float errtol = 2e-05;
+float stol_max = 0;
+float ptol_boost = 0;
+float dt = 0.032;
+double tpos = 0.0235328;
+double tvel = 0.0235328;
+int force_smoothing_type = 4;
+float epsilon_mscale = 30;
+int start_iter = 0;
+int nsteps = 100000;
+int nproc = 4096;
+int do_Bmax = 0;
+int do_BH = 0;
+int do_Arel = 1;
+int do_DL = 1;
+float CWfac = 0.02;
+float DLfac = 4.00;
+float DLmax = 1e+09;
+float frac_tol = 1e-07;
+float frac_tol0 = 0.1;
+int quad_ncut = 3;
+int hexa_ncut = 7;
+int geometric_center = 1;
+int subtract_background = 1;
+int mxn_hblock = 16777216;
+int mxn_min_qsink = 384;
+int mxn_min_hsink = 384;
+int mxn_min_qsrc = 128;
+int mxn_min_hsrc = 128;
+int mxn_do_pQ = 1;
+int mxn_do_pH = 1;
+int body_size = 56;
+int outbody_size = 52;
+int cell_size = 40;
+int quadcell_size = 80;
+int hexacell_size = 160;
+int cofm_size = 592;
+int tbody_size = 16;
+int hcell_size = 40;
+int hash_bits = 21;
+int memory_tune_MB = 0;
+int identsort_output = 1;
+Checkpoint to ds13_n_4000_4096.nnnn, every 2000 steps or 15000 seconds
+int timer_freq = 1;
+float sort_tol = 0.0010;
+int do_periodic = 1, nimage is 2;
+int fix_cube_ewald_le = 1;
+int cosmology = 1;
+int light_cone = 0;
+int Ztol = 1;
+float comov_epsilon = 30.000000;
+float comov_epsilon_Zmin = 0.000000;
+float dt_hiz_tol = 0.040000;
+int setpvel = 0;
+int setdisplacement = 0;
+float noise = 0.000000;
+float R[0] = 2983137.750000;
+float R[1] = 2983137.750000;
+float R[2] = 2983137.750000;
+Outputs at
+  a      t
+0.020  0.049
+0.050  0.193
+0.100  0.545
+0.200  1.537
+0.250  2.142
+0.300  2.805
+0.333  3.274
+0.400  4.266
+0.500  5.849
+0.600  7.493
+0.667  8.596
+0.700  9.145
+0.800 10.767
+0.900 12.332
+0.950 13.089
+1.000 13.828
+gnobj = 68719476736
+mtot = 843442946048.000000
+edge flux 0 0 0 plus 0 0 0 minus 0 0 0
+BuildTree 923 (53747), tol=3.26844e-05
+preliminary BuildTree
+[NID 02150] 2014-02-09 22:56:24 Apid 4459228: initiated application termination
+[NID 02150] 2014-02-09 22:56:26 Apid 4459228: OOM killer terminated this process.
+[NID 00927] 2014-02-09 22:56:27 Apid 4459228: OOM killer terminated this process.
+[NID 02297] 2014-02-09 22:56:28 Apid 4459228: OOM killer terminated this process.
+[NID 16373] 2014-02-09 22:56:31 Apid 4459228: OOM killer terminated this process.
+[NID 02301] 2014-02-09 22:56:39 Apid 4459228: OOM killer terminated this process.
+[NID 16296] 2014-02-09 22:56:41 Apid 4459228: OOM killer terminated this process.
+Application 4459228 exit signals: Killed
+Application 4459228 resources: utime ~0s, stime ~372s, Rss ~6704, inblocks ~503296, outblocks ~686336

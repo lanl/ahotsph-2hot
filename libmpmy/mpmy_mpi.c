@@ -361,6 +361,12 @@ int MPMY_Flick(void){
     return MPMY_SUCCESS;
 }
 
+double
+MPMY_Wtime(void)
+{
+    return MPI_Wtime();
+}
+
 #ifndef XK6
 #include <slurm/slurm.h>
 

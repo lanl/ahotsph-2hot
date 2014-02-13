@@ -1,9 +1,9 @@
-defaultCC:=/opt/gcc/4.8.1/bin/gcc
+defaultCC:=/opt/gcc/4.8.2/bin/gcc
 override LD:=cc
 
 CUDA:=-DCUDA
 CC_SPECIFIC:=-g -Wall -std=c99 -D_XOPEN_SOURCE=500
-ARCH_SPECIFIC:=-march=bdver1 -mprefer-avx128 -mcx16 -msahf -mno-movbe -maes -mpclmul -mpopcnt -mabm -mlwp -mno-fma -mfma4 -mxop -mno-bmi -mno-bmi2 -mno-tbm -mavx -mno-avx2 -msse4.2 -msse4.1 -mlzcnt -mno-rdrnd -mno-f16c -mno-fsgsbase --param l1-cache-size=16 --param l1-cache-line-size=64 --param l2-cache-size=2048 -DXK6 -DSTK_FORCE_ALIGNMENT=4 -D_FILE_OFFSET_BITS=64 -DUSE_SYSTEM_MALLOC -DUSE_MPIIO -DUSE_HWCLOCK -DPROCS_PER_NODE=16 -DARCH=cudaxk7 $(CUDA)
+ARCH_SPECIFIC:=-march=bdver1 -mprefer-avx128 -mcx16 -msahf -mno-movbe -maes -mpclmul -mpopcnt -mabm -mlwp -mno-fma -mfma4 -mxop -mno-bmi -mno-bmi2 -mno-tbm -mavx -mno-avx2 -msse4.2 -msse4.1 -mlzcnt -mno-rdrnd -mno-f16c -mno-fsgsbase --param l1-cache-size=16 --param l1-cache-line-size=64 --param l2-cache-size=2048 -DXK6 -DSTK_FORCE_ALIGNMENT=4 -D_FILE_OFFSET_BITS=64 -DUSE_SYSTEM_MALLOC -DUSE_MPIIO -DUSE_HWCLOCK -DNO_MSGS -DPROCS_PER_NODE=16 -DARCH=cudaxk7 $(CUDA)
 OPTIMIZE=-O2
 AGGRESSIVE_OPT=-Ofast
 LDFLAGS=-g

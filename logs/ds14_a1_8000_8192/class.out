@@ -1,0 +1,40 @@
+Running CLASS version 1.7.0-msw1-3-g80e82e8-dirty
+Compiled Dec  4 2013 18:05:00
+ -> Omega0_g = 5.50184e-05
+ -> Omega0_b = 0.049017
+ -> omega0_b = 0.0220323
+ -> Omega0_ur = 2.54089e-05
+ -> omega0_ur = 1.14208e-05
+ -> Omega0_cdm = 0.26781
+ -> omega0_cdm = 0.120376
+ncdm species i=1 sampled with 5 points for purpose of perturbation integration
+ncdm species i=1 sampled with 11 points for purpose of background integration
+ -> Omega0_ncdm = 0.00143246
+ -> omega0_ncdm = 0.000643864
+ -> Omega_tot = 0.31834
+ -> Omega0_lambda = 0.68166
+ -> Omega0_fld = 0
+Computing background
+ -> ncdm species i=1 sampled with 11 (resp. 5) points for purpose of background (resp. perturbation) integration. In the relativistic limit it gives N_eff = 1.01249
+ -> non-cold dark matter species with i=1 has m_i = 6.000000e-02 eV (so m_i / omega_i =9.318737e+01 eV)
+ -> age = 13.824483 Gyr
+ -> conformal age = 14164.384902 Mpc
+Computing thermodynamics
+ -> recombination at z = 1089.490375
+    corresponding to conformal time = 280.521953 Mpc
+    with comoving sound horizon = 144.670820 Mpc
+    and angular diameter distance = 12.731761 Mpc
+ -> baryon drag stops at z = 1059.323184
+    corresponding to conformal time = 286.445959 Mpc
+    with comoving sound horizon rs = 147.356816 Mpc
+ -> reionization  at z = 11.365234
+    corresponding to conformal time = 4248.243292 Mpc
+Computing sources
+Computing primordial spectra (analytic spectrum)
+No harmonic space transfer functions to compute. Bessel module skipped.
+No harmonic space transfer functions to compute. Transfer module skipped.
+Computing unlensed linear spectra
+ -> sigma8=0.834944 (computed till k = 89.8843 h/Mpc)
+Computing non-linear matter power spectrum with Halofit (including update by Bird et al 2011)
+No lensing requested. Lensing module skipped.
+Writing output files in ds14_a1_8000_8192_... 
