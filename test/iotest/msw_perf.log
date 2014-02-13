@@ -1,0 +1,37 @@
+Sun Nov 11 13:54:48 MST 2012
+mpirun -np 4608 ./posixio tempdir/temp
+Reported: 100 (out of 192) daemons -  2400 (out of 4608) procs
+Reported: 192 (out of 192) daemons -  4608 (out of 4608) procs
+posixio write bandwidth = 17420.82 Mbytes/sec
+posixio read bandwidth  = 3145004.22 Mbytes/sec
+mpirun -np 4608 ./mpiio temp
+Reported: 100 (out of 192) daemons -  2400 (out of 4608) procs
+Reported: 192 (out of 192) daemons -  4608 (out of 4608) procs
+using panfs_concurrent_write
+Tue Nov 27 20:58:04 MST 2012
+mpirun -np 24576 ./posixio tempdir/temp
+Reported: 100 (out of 1024) daemons -  2400 (out of 24576) procs
+Reported: 200 (out of 1024) daemons -  4800 (out of 24576) procs
+Reported: 300 (out of 1024) daemons -  7200 (out of 24576) procs
+Reported: 400 (out of 1024) daemons -  9600 (out of 24576) procs
+Reported: 500 (out of 1024) daemons -  12000 (out of 24576) procs
+Reported: 600 (out of 1024) daemons -  14400 (out of 24576) procs
+Reported: 700 (out of 1024) daemons -  16800 (out of 24576) procs
+Reported: 800 (out of 1024) daemons -  19200 (out of 24576) procs
+Reported: 900 (out of 1024) daemons -  21600 (out of 24576) procs
+Reported: 1000 (out of 1024) daemons -  24000 (out of 24576) procs
+Reported: 1024 (out of 1024) daemons -  24576 (out of 24576) procs
+posixio write bandwidth = 19612.78 Mbytes/sec
+posixio read bandwidth  = 15872363.17 Mbytes/sec
+mpirun -np 24576 ./mpiio temp
+Reported: 100 (out of 1024) daemons -  2400 (out of 24576) procs
+Reported: 200 (out of 1024) daemons -  4800 (out of 24576) procs
+Reported: 300 (out of 1024) daemons -  7200 (out of 24576) procs
+Reported: 400 (out of 1024) daemons -  9600 (out of 24576) procs
+Reported: 500 (out of 1024) daemons -  12000 (out of 24576) procs
+Reported: 600 (out of 1024) daemons -  14400 (out of 24576) procs
+Reported: 700 (out of 1024) daemons -  16800 (out of 24576) procs
+Reported: 800 (out of 1024) daemons -  19200 (out of 24576) procs
+Reported: 900 (out of 1024) daemons -  21600 (out of 24576) procs
+Reported: 1000 (out of 1024) daemons -  24000 (out of 24576) procs
+Reported: 1024 (out of 1024) daemons -  24576 (out of 24576) procs

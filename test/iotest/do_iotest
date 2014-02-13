@@ -1,0 +1,19 @@
+#!/bin/bash
+# msub -j oe -l nodes=128:ppn=24,walltime=00:20:00,`cat ~/bad2` ./do_iotest
+id=$SLURM_JOB_ID
+SLURM_NNODES=$SLURM_JOB_NUM_NODES
+n=$SLURM_NNODES
+np=$[n*24]
+/bin/rm -rf temp*
+date >> msw_perf.log
+
+mkdir -p tempdir
+cmd="mpirun -np $np ./posixio tempdir/temp"
+echo $cmd >> msw_perf.log
+$cmd >> msw_perf.log
+/bin/rm -rf tempdir
+
+cmd="mpirun -np $np ./mpiio temp"
+echo $cmd >> msw_perf.log
+$cmd >> msw_perf.log
+/bin/rm -rf temp
