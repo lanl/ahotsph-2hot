@@ -34,7 +34,11 @@
 #define NFILES 4096
 
 /* MPI only allows 2GB buffer sizes, and MPI_Get_Count uses an int */
+#ifdef XK6
+#define MAXIOSIZE (1024*1024*1024)
+#else
 #define MAXIOSIZE (256*1024*1024)
+#endif
 #define SLOTS 8
 
 static struct _File{
@@ -199,7 +203,11 @@ MPMY_Fread(void *ptr, size_t size, size_t nitems, MPMYFile *Fp)
 	    nread = (left < MAXIOSIZE) ? left : MAXIOSIZE;
 	    Msgf(("read %ld at %lld\n", nread, mpi_offset));
 	    Msg_flush();
+#ifdef XK6
+	    MPI_File_read_at_all(fp->fd, mpi_offset, (void *)p, nread, MPI_CHAR, &status);
+#else
 	    MPI_File_read_at(fp->fd, mpi_offset, (void *)p, nread, MPI_CHAR, &status);
+#endif
 	    left -= nread;
 	    p += nread;
 	    mpi_offset += nread;
@@ -253,7 +261,11 @@ MPMY_Fwrite(const void *ptr, size_t size, size_t nitems, MPMYFile *Fp)
 		MPI_File_iwrite_at(fp->fd, mpi_offset, (void *)p, nwrite, MPI_CHAR, &fp->request);
 		fp->async_nwrite = nwrite;
 	    } else {
+#ifdef XK6
+		MPI_File_write_at_all(fp->fd, mpi_offset, (void *)p, nwrite, MPI_CHAR, &status);
+#else
 		MPI_File_write_at(fp->fd, mpi_offset, (void *)p, nwrite, MPI_CHAR, &status);
+#endif
 	    }
 	    left -= nwrite;
 	    p += nwrite;
