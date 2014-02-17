@@ -277,6 +277,14 @@ MPMY_JobDone(void)
     return retval;
 }
 
+#ifndef HAVE_MPMY_WTIME
+double
+MPMY_Wtime(void)
+{
+    return clock()/CLOCKS_PER_SEC;
+}
+#endif
+
 #ifndef HAVE_MPMY_JOBREMAINING
 int
 MPMY_JobRemaining(void)

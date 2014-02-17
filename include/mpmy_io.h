@@ -28,6 +28,7 @@ typedef void MPMYFile;
 #define MPMY_IOZERO 00100000	/* if(procnum==0){...} */
 #define MPMY_INDEPENDENT 00200000 /* many files.  Complete independence */
 #define MPMY_NFILE 00400000	/* many files. Really. */
+#define MPMY_ASYNC 01000000	/* asynchronous */
 
 /* modes for seek */
 #define MPMY_SEEK_SET 0

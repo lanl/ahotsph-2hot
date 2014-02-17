@@ -1,3 +1,4 @@
+#undef NO_MSGS
 /* This file contains the parallel I/O suitable for CMMD and NX.
    It wouldn't be hard to add cubix-syntax as well.  Are there any
    other options?  Would they fit in this structure?   The only
@@ -34,10 +35,14 @@
 
 /* MPI only allows 2GB buffer sizes, and MPI_Get_Count uses an int */
 #define MAXIOSIZE (256*1024*1024)
+#define SLOTS 8
 
 static struct _File{
     MPI_File fd;
+    MPI_Request request;
+    int async_nwrite;
     int iomode;
+    int async;
 } _files[NFILES];
 
 static int files;		/* need dynamic storage */
@@ -50,6 +55,7 @@ MPMY_Fopen(const char *path, int flags)
     MPI_File fd;
     MPI_Info info;
     int iomode = MPMY_SINGL;	/* default */
+    int ioasync = 0;
     int real_flags = MPI_MODE_RDONLY; /* if no flags specified */
     int ret;
 
@@ -84,6 +90,7 @@ MPMY_Fopen(const char *path, int flags)
     if (flags & MPMY_NFILE) Error("MPMY_NFILE not supported\n");
     if (flags & MPMY_IOZERO) Error("MPMY_IOZERO not supported\n");
     if (flags & MPMY_INDEPENDENT) Error("MPMY_INDEPENDENT not supported\n");
+    if (flags & MPMY_ASYNC) ioasync = MPMY_ASYNC;
 
     if (flags & MPMY_SINGL) {
 	Msgf(("Fopen %s in SINGL mode\n", path));
@@ -97,6 +104,7 @@ MPMY_Fopen(const char *path, int flags)
     if (ret == 0) {
 	_files[files].iomode = iomode;
 	_files[files].fd = fd;
+	_files[files].async = ioasync;
 	Msgf(("Fopen returns fd %p, iomode=%d, flags=0x%x\n", 
 	      fd, iomode, flags));
 	return &(_files[files++]);
@@ -124,6 +132,15 @@ MPMY_Fclose(MPMYFile *Fp)
 	return -1;
     }
     Msgf(("Fclose %p\n", fp->fd));
+    if (fp->async) {
+	MPI_Status status;
+	int cnt;
+	Msgf(("Wait %d\n", fp->request));
+	MPI_Wait(&fp->request, &status);
+	MPI_Get_count(&status, MPI_CHAR, &cnt);
+	if (cnt != fp->async_nwrite) Error("async MPMY_Fwrite has a problem, wrote %d of %d\n",
+					   cnt, fp->async_nwrite);
+    }
     ret = MPI_File_close(&fp->fd);
     return ret;
 }
@@ -231,13 +248,21 @@ MPMY_Fwrite(const void *ptr, size_t size, size_t nitems, MPMYFile *Fp)
 	    nwrite = (left < MAXIOSIZE) ? left : MAXIOSIZE;
 	    Msgf(("write %ld at %lld\n", nwrite, mpi_offset));
 	    Msg_flush();
-	    MPI_File_write_at(fp->fd, mpi_offset, (void *)p, nwrite, MPI_CHAR, &status);
+	    if (fp->async) {
+		if (nwrite == MAXIOSIZE) Error("Async writes not yet supported for chunks larger than MAXIOSIZE\n");
+		MPI_File_iwrite_at(fp->fd, mpi_offset, (void *)p, nwrite, MPI_CHAR, &fp->request);
+		fp->async_nwrite = nwrite;
+	    } else {
+		MPI_File_write_at(fp->fd, mpi_offset, (void *)p, nwrite, MPI_CHAR, &status);
+	    }
 	    left -= nwrite;
 	    p += nwrite;
 	    mpi_offset += nwrite;
-	    MPI_Get_count(&status, MPI_CHAR, &cnt);
-	    if (cnt != nwrite) Error("MPMY_Fwrite has a problem, wrote %d of %ld\n",
-				     cnt, nwrite);
+	    if (!fp->async) {
+		MPI_Get_count(&status, MPI_CHAR, &cnt);
+		if (cnt != nwrite) Error("MPMY_Fwrite has a problem, wrote %d of %ld\n",
+					 cnt, nwrite);
+	    }
 	}
     }
     return nitems;

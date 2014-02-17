@@ -1,4 +1,6 @@
+#ifndef NO_MSGS
 #define NO_MSGS
+#endif
 #include <stdarg.h>
 #include <stddef.h>
 #include <errno.h>

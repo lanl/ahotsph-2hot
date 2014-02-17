@@ -361,13 +361,33 @@ int MPMY_Flick(void){
     return MPMY_SUCCESS;
 }
 
+#define HAVE_MPMY_WTIME
 double
 MPMY_Wtime(void)
 {
     return MPI_Wtime();
 }
 
-#ifndef XK6
+#ifdef XK6
+#include <stdlib.h>
+#include <time.h>
+
+#define HAVE_MPMY_JOBREMAINING
+int
+MPMY_JobRemaining(void)
+{
+    static time_t walltime_end;
+    time_t now = time(NULL);
+
+    if (!walltime_end) {
+	char *pbs_walltime = getenv("PBS_WALLTIME");
+	if (pbs_walltime) walltime_end = now + atoi(pbs_walltime);
+	else walltime_end = now + 24*3600;
+    }
+    return walltime_end - now;
+}
+
+#else
 #include <slurm/slurm.h>
 
 #define HAVE_MPMY_JOBREMAINING
