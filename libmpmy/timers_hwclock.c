@@ -2,9 +2,11 @@
 #include "mpmy_time.h"
 #include "Malloc.h"
 #include "chn.h"
+#include "cpu.h"
 
 static Chn timer_chn;
 static int initialized;
+static double cpu_hz;
 
 typedef struct {
     unsigned long long start;
@@ -13,16 +15,6 @@ typedef struct {
     double wc_accum;
     int type;
 } MPMY_Timer;
-
-#ifdef AMD6100
-#define DEFAULT_MHZ 2300.0e6
-#else
-#ifdef XK6
-#define DEFAULT_MHZ 2200.0e6
-#else
-#define DEFAULT_MHZ 2668.0e6
-#endif
-#endif
 
 static __inline__ unsigned long long rdtsc(void)
 {
@@ -34,8 +26,9 @@ static __inline__ unsigned long long rdtsc(void)
 void *MPMY_CreateTimer(int type){
     MPMY_Timer *ret;
 
-    if( initialized == 0 ){
+    if (initialized == 0) {
 	ChnInit(&timer_chn, sizeof(MPMY_Timer), 40, Realloc_f);
+	cpu_hz = clockspeedHz(0, 0);
 	initialized = 1;
     }
 
@@ -102,7 +95,7 @@ double MPMY_ReadTimer(void *p){
 
     switch(t->type){
     case MPMY_CPU_TIME:
-	return t->accum/DEFAULT_MHZ;
+	return t->accum/cpu_hz;
     case MPMY_WC_TIME:
 	return t->wc_accum;
     }
