@@ -70,16 +70,20 @@ endif
 $(objdir)/mpmy_seq$(objsuf):
 $(objdir)/mpmy_seq$(objsuf):
 $(objdir)/mpmy_seq$(objsuf):
-$(objdir)/mpmy_seq$(objsuf): $(treedir)/include/Msgs.h
+$(objdir)/mpmy_seq$(objsuf): $(treedir)/include/Msgs.h $(treedir)/include/gccextensions.h
+$(objdir)/mpmy_seq$(objsuf): $(treedir)/include/mpmy.h $(treedir)/include/timers.h
 $(objdir)/mpmy_seq$(objsuf):
-$(objdir)/mpmy_seq$(objsuf): $(treedir)/include/gccextensions.h $(treedir)/include/mpmy.h
-$(objdir)/mpmy_seq$(objsuf): $(treedir)/include/timers.h $(treedir)/include/Assert.h $(treedir)/include/error.h
+$(objdir)/mpmy_seq$(objsuf): $(treedir)/include/Assert.h $(treedir)/include/error.h
 $(objdir)/mpmy_seq$(objsuf): $(treedir)/include/mpmy_io.h
 $(objdir)/mpmy_seq$(objsuf):
 $(objdir)/mpmy_seq$(objsuf):
 $(objdir)/mpmy_seq$(objsuf): $(treedir)/include/mpmy_time.h $(treedir)/include/mpmy_abnormal.h
-$(objdir)/mpmy_seq$(objsuf): mpmy_io.c
+$(objdir)/mpmy_seq$(objsuf): timers_hwclock.c $(treedir)/include/Malloc.h $(treedir)/include/chn.h
+$(objdir)/mpmy_seq$(objsuf): $(treedir)/include/cpu.h
 $(objdir)/mpmy_seq$(objsuf):
+$(objdir)/mpmy_seq$(objsuf):
+$(objdir)/mpmy_seq$(objsuf):
+$(objdir)/mpmy_seq$(objsuf): $(treedir)/include/malloc.h mpmy_io.c
 $(objdir)/mpmy_seq$(objsuf):
 $(objdir)/mpmy_seq$(objsuf):
 $(objdir)/mpmy_seq$(objsuf):
@@ -88,145 +92,35 @@ $(objdir)/mpmy_seq$(objsuf):
 $(objdir)/mpmy_seq$(objsuf):
 $(objdir)/mpmy_seq$(objsuf):
 $(objdir)/mpmy_seq$(objsuf): $(treedir)/include/protos.h
-$(objdir)/mpmy_seq$(objsuf): $(treedir)/include/Malloc.h iozero.h iozero.c io_generic.c
-$(objdir)/mpmy_seq$(objsuf): mpmy_abnormal.c
-$(objdir)/mpmy_seq$(objsuf):
-$(objdir)/mpmy_seq$(objsuf): $(treedir)/include/singlio.h mpmy_generic.c
-$(objdir)/mpmy_seq$(objsuf): timers_posix.c $(treedir)/include/chn.h
+$(objdir)/mpmy_seq$(objsuf): iozero.h iozero.c io_generic.c mpmy_abnormal.c
 $(objdir)/mpmy_seq$(objsuf):
 $(objdir)/mpmy_seq$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf): $(treedir)/include/Assert.h $(treedir)/include/error.h
-$(objdir)/mpmy_lsv$(objsuf): $(treedir)/include/gccextensions.h $(treedir)/include/Msgs.h
-$(objdir)/mpmy_lsv$(objsuf): $(treedir)/include/chn.h $(treedir)/include/Malloc.h $(treedir)/include/protos.h
-$(objdir)/mpmy_lsv$(objsuf): $(treedir)/include/mpmy.h $(treedir)/include/timers.h $(treedir)/include/lsv.h
-$(objdir)/mpmy_lsv$(objsuf): $(treedir)/include/mpmy_time.h $(treedir)/include/mpmy_io.h
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf): $(treedir)/include/mpmy_abnormal.h
-$(objdir)/mpmy_lsv$(objsuf): mpmy_io.c
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf): iozero.h iozero.c io_generic.c
-$(objdir)/mpmy_lsv$(objsuf): mpmy_abnormal.c $(treedir)/include/singlio.h
-$(objdir)/mpmy_lsv$(objsuf): mpmy_generic.c timers_posix.c
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_lsv$(objsuf):
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_nx$(objsuf): $(treedir)/include/Malloc.h
-$(objdir)/mpmy_nx$(objsuf): $(treedir)/include/error.h
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_nx$(objsuf): $(treedir)/include/gccextensions.h $(treedir)/include/chn.h
-$(objdir)/mpmy_nx$(objsuf): $(treedir)/include/protos.h $(treedir)/include/Msgs.h $(treedir)/include/mpmy.h
-$(objdir)/mpmy_nx$(objsuf): $(treedir)/include/timers.h $(treedir)/include/mpmy_io.h
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_nx$(objsuf): $(treedir)/include/mpmy_abnormal.h $(treedir)/include/Assert.h timers_nx.c
-$(objdir)/mpmy_nx$(objsuf): $(treedir)/include/mpmy_time.h mpmy_io.c
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_nx$(objsuf): iozero.h iozero.c io_generic.c mpmy_abnormal.c
-$(objdir)/mpmy_nx$(objsuf): $(treedir)/include/singlio.h mpmy_generic.c timers_posix.c
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_nx$(objsuf):
-$(objdir)/mpmy_vertex$(objsuf):
-$(objdir)/mpmy_vertex$(objsuf):
-$(objdir)/mpmy_vertex$(objsuf):
-$(objdir)/mpmy_vertex$(objsuf):
-$(objdir)/mpmy_vertex$(objsuf):
-$(objdir)/mpmy_vertex$(objsuf):
-$(objdir)/mpmy_vertex$(objsuf):
-$(objdir)/mpmy_vertex$(objsuf):
-$(objdir)/mpmy_vertex$(objsuf):
-$(objdir)/mpmy_vertex$(objsuf):
-$(objdir)/mpmy_vertex$(objsuf):
-$(objdir)/mpmy_vertex$(objsuf):
-$(objdir)/mpmy_vertex$(objsuf): $(treedir)/include/Malloc.h
-$(objdir)/mpmy_vertex$(objsuf): $(treedir)/include/error.h $(treedir)/include/gccextensions.h
-$(objdir)/mpmy_vertex$(objsuf): $(treedir)/include/chn.h $(treedir)/include/protos.h $(treedir)/include/Msgs.h
-$(objdir)/mpmy_vertex$(objsuf): $(treedir)/include/mpmy.h $(treedir)/include/timers.h
-$(objdir)/mpmy_vertex$(objsuf): $(treedir)/include/mpmy_abnormal.h $(treedir)/include/mpmy_io.h
-$(objdir)/mpmy_vertex$(objsuf):
-$(objdir)/mpmy_vertex$(objsuf): $(treedir)/include/verify.h mpmy_io.c
-$(objdir)/mpmy_vertex$(objsuf):
-$(objdir)/mpmy_vertex$(objsuf):
-$(objdir)/mpmy_vertex$(objsuf):
-$(objdir)/mpmy_vertex$(objsuf): $(treedir)/include/Assert.h iozero.h
-$(objdir)/mpmy_vertex$(objsuf): iozero.c io_generic.c mpmy_abnormal.c
-$(objdir)/mpmy_vertex$(objsuf):
-$(objdir)/mpmy_vertex$(objsuf): $(treedir)/include/singlio.h
-$(objdir)/mpmy_vertex$(objsuf): mpmy_generic.c timers_posix.c $(treedir)/include/mpmy_time.h
-$(objdir)/mpmy_vertex$(objsuf):
-$(objdir)/mpmy_vertex$(objsuf):
-$(objdir)/mpmy_sunmos$(objsuf):
-$(objdir)/mpmy_sunmos$(objsuf):
-$(objdir)/mpmy_sunmos$(objsuf):
-$(objdir)/mpmy_sunmos$(objsuf): $(treedir)/include/chn.h
-$(objdir)/mpmy_sunmos$(objsuf): $(treedir)/include/mpmy.h $(treedir)/include/timers.h
-$(objdir)/mpmy_sunmos$(objsuf): $(treedir)/include/mpmy_abnormal.h $(treedir)/include/gccextensions.h
-$(objdir)/mpmy_sunmos$(objsuf): $(treedir)/include/mpmy_io.h
-$(objdir)/mpmy_sunmos$(objsuf):
-$(objdir)/mpmy_sunmos$(objsuf):
-$(objdir)/mpmy_sunmos$(objsuf):
-$(objdir)/mpmy_sunmos$(objsuf):
-$(objdir)/mpmy_sunmos$(objsuf): $(treedir)/include/Malloc.h $(treedir)/include/error.h
-$(objdir)/mpmy_sunmos$(objsuf): $(treedir)/include/Msgs.h timers_posix.c $(treedir)/include/mpmy_time.h
-$(objdir)/mpmy_sunmos$(objsuf):
-$(objdir)/mpmy_sunmos$(objsuf):
-$(objdir)/mpmy_sunmos$(objsuf): mpmy_io.c
-$(objdir)/mpmy_sunmos$(objsuf):
-$(objdir)/mpmy_sunmos$(objsuf):
-$(objdir)/mpmy_sunmos$(objsuf):
-$(objdir)/mpmy_sunmos$(objsuf):
-$(objdir)/mpmy_sunmos$(objsuf):
-$(objdir)/mpmy_sunmos$(objsuf):
-$(objdir)/mpmy_sunmos$(objsuf):
-$(objdir)/mpmy_sunmos$(objsuf):
-$(objdir)/mpmy_sunmos$(objsuf):
-$(objdir)/mpmy_sunmos$(objsuf): $(treedir)/include/Assert.h
-$(objdir)/mpmy_sunmos$(objsuf): $(treedir)/include/protos.h iozero.h iozero.c io_generic.c
-$(objdir)/mpmy_sunmos$(objsuf): mpmy_abnormal.c
-$(objdir)/mpmy_sunmos$(objsuf): $(treedir)/include/singlio.h
-$(objdir)/mpmy_sunmos$(objsuf): mpmy_generic.c
+$(objdir)/mpmy_seq$(objsuf):
+$(objdir)/mpmy_seq$(objsuf):
+$(objdir)/mpmy_seq$(objsuf):
+$(objdir)/mpmy_seq$(objsuf):
+$(objdir)/mpmy_seq$(objsuf): $(treedir)/include/singlio.h
+$(objdir)/mpmy_seq$(objsuf): mpmy_generic.c
+$(objdir)/mpmy_mpi$(objsuf): /opt/cray/mpt/6.2.0/gni/mpich2-gnu/48/include/mpi.h
+$(objdir)/mpmy_mpi$(objsuf): /opt/cray/mpt/6.2.0/gni/mpich2-gnu/48/include/mpio.h
+$(objdir)/mpmy_mpi$(objsuf): $(treedir)/include/mpmy_abnormal.h $(treedir)/include/gccextensions.h
+$(objdir)/mpmy_mpi$(objsuf): $(treedir)/include/Malloc.h $(treedir)/include/error.h $(treedir)/include/chn.h
+$(objdir)/mpmy_mpi$(objsuf): $(treedir)/include/mpmy.h $(treedir)/include/timers.h
+$(objdir)/mpmy_mpi$(objsuf):
+$(objdir)/mpmy_mpi$(objsuf):
+$(objdir)/mpmy_mpi$(objsuf):
+$(objdir)/mpmy_mpi$(objsuf): $(treedir)/include/Assert.h
+$(objdir)/mpmy_mpi$(objsuf): $(treedir)/include/Msgs.h $(treedir)/include/memfile.h
 $(objdir)/mpmy_mpi$(objsuf):
 $(objdir)/mpmy_mpi$(objsuf):
 $(objdir)/mpmy_mpi$(objsuf):
 $(objdir)/mpmy_mpi$(objsuf):
-$(objdir)/mpmy_mpi$(objsuf):
-$(objdir)/mpmy_mpi$(objsuf): $(treedir)/include/Malloc.h $(treedir)/include/error.h
-$(objdir)/mpmy_mpi$(objsuf):
-$(objdir)/mpmy_mpi$(objsuf): $(treedir)/include/gccextensions.h $(treedir)/include/chn.h
-$(objdir)/mpmy_mpi$(objsuf): $(treedir)/include/mpmy.h $(treedir)/include/timers.h $(treedir)/include/Assert.h
-$(objdir)/mpmy_mpi$(objsuf): $(treedir)/include/Msgs.h timers_mpi.c $(treedir)/include/mpmy_time.h
-$(objdir)/mpmy_mpi$(objsuf): mpmy_mpiio.c
+$(objdir)/mpmy_mpi$(objsuf): timers_hwclock.c $(treedir)/include/mpmy_time.h $(treedir)/include/cpu.h
 $(objdir)/mpmy_mpi$(objsuf):
 $(objdir)/mpmy_mpi$(objsuf):
 $(objdir)/mpmy_mpi$(objsuf):
+$(objdir)/mpmy_mpi$(objsuf):
+$(objdir)/mpmy_mpi$(objsuf): $(treedir)/include/malloc.h mpmy_mpiio.c
 $(objdir)/mpmy_mpi$(objsuf):
 $(objdir)/mpmy_mpi$(objsuf):
 $(objdir)/mpmy_mpi$(objsuf):
@@ -237,94 +131,8 @@ $(objdir)/mpmy_mpi$(objsuf):
 $(objdir)/mpmy_mpi$(objsuf): $(treedir)/include/protos.h
 $(objdir)/mpmy_mpi$(objsuf): $(treedir)/include/mpmy_io.h io_generic.c mpmy_abnormal.c
 $(objdir)/mpmy_mpi$(objsuf):
+$(objdir)/mpmy_mpi$(objsuf):
+$(objdir)/mpmy_mpi$(objsuf):
+$(objdir)/mpmy_mpi$(objsuf):
 $(objdir)/mpmy_mpi$(objsuf): $(treedir)/include/singlio.h
-$(objdir)/mpmy_mpi$(objsuf): $(treedir)/include/mpmy_abnormal.h mpmy_generic.c timers_posix.c
-$(objdir)/mpmy_mpi$(objsuf):
-$(objdir)/mpmy_mpi$(objsuf):
-$(objdir)/mpmy_eui$(objsuf): $(treedir)/include/chn.h
-$(objdir)/mpmy_eui$(objsuf):
-$(objdir)/mpmy_eui$(objsuf): $(treedir)/include/Malloc.h $(treedir)/include/error.h
-$(objdir)/mpmy_eui$(objsuf):
-$(objdir)/mpmy_eui$(objsuf): $(treedir)/include/gccextensions.h $(treedir)/include/mpmy.h
-$(objdir)/mpmy_eui$(objsuf): $(treedir)/include/timers.h $(treedir)/include/Assert.h
-$(objdir)/mpmy_eui$(objsuf): $(treedir)/include/mpmy_abnormal.h $(treedir)/include/Msgs.h
-$(objdir)/mpmy_eui$(objsuf): timers_readrtc.c
-$(objdir)/mpmy_eui$(objsuf):
-$(objdir)/mpmy_eui$(objsuf):
-$(objdir)/mpmy_eui$(objsuf):
-$(objdir)/mpmy_eui$(objsuf):
-$(objdir)/mpmy_eui$(objsuf):
-$(objdir)/mpmy_eui$(objsuf): $(treedir)/include/mpmy_time.h
-$(objdir)/mpmy_eui$(objsuf): mpmy_io.c
-$(objdir)/mpmy_eui$(objsuf):
-$(objdir)/mpmy_eui$(objsuf):
-$(objdir)/mpmy_eui$(objsuf):
-$(objdir)/mpmy_eui$(objsuf):
-$(objdir)/mpmy_eui$(objsuf):
-$(objdir)/mpmy_eui$(objsuf):
-$(objdir)/mpmy_eui$(objsuf):
-$(objdir)/mpmy_eui$(objsuf):
-$(objdir)/mpmy_eui$(objsuf):
-$(objdir)/mpmy_eui$(objsuf):
-$(objdir)/mpmy_eui$(objsuf): $(treedir)/include/protos.h $(treedir)/include/mpmy_io.h iozero.h iozero.c
-$(objdir)/mpmy_eui$(objsuf): io_generic.c mpmy_abnormal.c
-$(objdir)/mpmy_eui$(objsuf):
-$(objdir)/mpmy_eui$(objsuf): $(treedir)/include/singlio.h mpmy_generic.c timers_posix.c
-$(objdir)/mpmy_pvm$(objsuf):
-$(objdir)/mpmy_pvm$(objsuf):
-$(objdir)/mpmy_pvm$(objsuf):
-$(objdir)/mpmy_pvm$(objsuf):
-$(objdir)/mpmy_pvm$(objsuf):
-$(objdir)/mpmy_pvm$(objsuf):
-$(objdir)/mpmy_pvm$(objsuf):
-$(objdir)/mpmy_pvm$(objsuf):
-$(objdir)/mpmy_pvm$(objsuf):
-$(objdir)/mpmy_pvm$(objsuf):
-$(objdir)/mpmy_pvm$(objsuf):
-$(objdir)/mpmy_pvm$(objsuf):
-$(objdir)/mpmy_pvm$(objsuf): $(treedir)/include/Malloc.h $(treedir)/include/error.h
-$(objdir)/mpmy_pvm$(objsuf): $(treedir)/include/gccextensions.h $(treedir)/include/chn.h
-$(objdir)/mpmy_pvm$(objsuf): $(treedir)/include/protos.h $(treedir)/include/Msgs.h $(treedir)/include/mpmy.h
-$(objdir)/mpmy_pvm$(objsuf): $(treedir)/include/timers.h $(treedir)/include/mpmy_abnormal.h
-$(objdir)/mpmy_pvm$(objsuf): $(treedir)/include/mpmy_io.h
-$(objdir)/mpmy_pvm$(objsuf): $(treedir)/include/verify.h mpmy_io.c
-$(objdir)/mpmy_pvm$(objsuf):
-$(objdir)/mpmy_pvm$(objsuf):
-$(objdir)/mpmy_pvm$(objsuf):
-$(objdir)/mpmy_pvm$(objsuf):
-$(objdir)/mpmy_pvm$(objsuf): $(treedir)/include/Assert.h iozero.h iozero.c io_generic.c
-$(objdir)/mpmy_pvm$(objsuf): mpmy_abnormal.c
-$(objdir)/mpmy_pvm$(objsuf):
-$(objdir)/mpmy_pvm$(objsuf): $(treedir)/include/singlio.h mpmy_generic.c timers_posix.c
-$(objdir)/mpmy_pvm$(objsuf): $(treedir)/include/mpmy_time.h
-$(objdir)/mpmy_pvm$(objsuf):
-$(objdir)/mpmy_pvm$(objsuf):
-$(objdir)/mpmy_craypvm$(objsuf):
-$(objdir)/mpmy_craypvm$(objsuf):
-$(objdir)/mpmy_craypvm$(objsuf):
-$(objdir)/mpmy_craypvm$(objsuf):
-$(objdir)/mpmy_craypvm$(objsuf):
-$(objdir)/mpmy_craypvm$(objsuf):
-$(objdir)/mpmy_craypvm$(objsuf):
-$(objdir)/mpmy_craypvm$(objsuf):
-$(objdir)/mpmy_craypvm$(objsuf):
-$(objdir)/mpmy_craypvm$(objsuf):
-$(objdir)/mpmy_craypvm$(objsuf):
-$(objdir)/mpmy_craypvm$(objsuf):
-$(objdir)/mpmy_craypvm$(objsuf): $(treedir)/include/Malloc.h
-$(objdir)/mpmy_craypvm$(objsuf): $(treedir)/include/error.h $(treedir)/include/gccextensions.h
-$(objdir)/mpmy_craypvm$(objsuf): $(treedir)/include/chn.h $(treedir)/include/protos.h $(treedir)/include/Msgs.h
-$(objdir)/mpmy_craypvm$(objsuf): $(treedir)/include/mpmy.h $(treedir)/include/timers.h
-$(objdir)/mpmy_craypvm$(objsuf): $(treedir)/include/mpmy_abnormal.h $(treedir)/include/mpmy_io.h
-$(objdir)/mpmy_craypvm$(objsuf):
-$(objdir)/mpmy_craypvm$(objsuf): $(treedir)/include/verify.h mpmy_io.c
-$(objdir)/mpmy_craypvm$(objsuf):
-$(objdir)/mpmy_craypvm$(objsuf):
-$(objdir)/mpmy_craypvm$(objsuf):
-$(objdir)/mpmy_craypvm$(objsuf): $(treedir)/include/Assert.h iozero.h
-$(objdir)/mpmy_craypvm$(objsuf): iozero.c io_generic.c mpmy_abnormal.c
-$(objdir)/mpmy_craypvm$(objsuf):
-$(objdir)/mpmy_craypvm$(objsuf): $(treedir)/include/singlio.h
-$(objdir)/mpmy_craypvm$(objsuf): mpmy_generic.c timers_posix.c $(treedir)/include/mpmy_time.h
-$(objdir)/mpmy_craypvm$(objsuf):
-$(objdir)/mpmy_craypvm$(objsuf):
+$(objdir)/mpmy_mpi$(objsuf): mpmy_generic.c
