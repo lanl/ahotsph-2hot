@@ -34,8 +34,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef UTIL_CPU_H__
 #define UTIL_CPU_H__ 1
 
+#include <stdio.h>
 #include <string.h>
-#include <malloc.h>
+#include <stdlib.h>
+
+#ifndef Msgf
+#define Msgf(args)
+#endif
 
 struct CPU_s {
     double Hz;
@@ -48,29 +53,21 @@ static char *nameclean(char *s)
 {
     char *cp = s, *cp2, *cpend = s + strlen(s);
     size_t i;
+    char **e, *erase[] = {"(R)", "(TM)", "(tm)", "CPU", "Processor", "@", NULL};
 
-    cp2 = s;
-    while ((cp2 = strstr(cp2, "(R)")) != NULL) {
-	*cp2++ = ' ';
-	*cp2++ = ' ';
-	*cp2++ = ' ';
-    }
-    cp2 = s;
-    while ((cp2 = strstr(cp2, "CPU")) != NULL) {
-	*cp2++ = ' ';
-	*cp2++ = ' ';
-	*cp2++ = ' ';
-    }
-    cp2 = s;
-    while ((cp2 = strchr(cp2, '@')) != NULL) {
-	*cp2++ = ' ';
+    for (e = erase; *e; e++) {
+	cp2 = s;
+	while ((cp2 = strstr(cp2, *e)) != NULL) {
+	    for (i = 0; i < strlen(*e); i++) 
+		*cp2++ = ' ';
+	}
     }
     while ((i = strcspn(cp, WHITESPACE)) > 0) {
 	cp += i;
 	i = strspn(cp, WHITESPACE);
 	if (i > 0) {
 	    cp2 = cp + i;
-	    *cp++ = ' ';
+	    if (cp2 < cpend - 1) *cp++ = ' ';
 	    if (cp2 > cp) {
 		memmove(cp, cp2, cpend - cp);
 		cpend -= cp2 - cp;

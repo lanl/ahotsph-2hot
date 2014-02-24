@@ -377,14 +377,21 @@ int
 MPMY_JobRemaining(void)
 {
     static time_t walltime_end;
-    time_t now = time(NULL);
+    time_t start;
+    /* non-standard env variable.  Must be set by user script. */
+    /* export PBS_STARTTIME=`date +%s` at beginning of script */
+    char *pbs_starttime = getenv("PBS_STARTTIME");
+    if (pbs_starttime) 
+	start = atoi(pbs_starttime);
+    else
+	start = time(NULL);	/* now */
 
     if (!walltime_end) {
 	char *pbs_walltime = getenv("PBS_WALLTIME");
-	if (pbs_walltime) walltime_end = now + atoi(pbs_walltime);
-	else walltime_end = now + 24*3600;
+	if (pbs_walltime) walltime_end = start + atoi(pbs_walltime);
+	else walltime_end = start + 24*3600;
     }
-    return walltime_end - now;
+    return walltime_end - start;
 }
 
 #else
