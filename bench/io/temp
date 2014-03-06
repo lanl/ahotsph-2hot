@@ -1,0 +1,139 @@
+#!/bin/bash
+#PBS -A AST102
+#PBS -l walltime=2:00:00
+#PBS -l nodes=512
+#PBS -l feature=gpudefault
+#PBS -j oe
+
+cd $PBS_O_WORKDIR
+
+ARCHFFT=$ARCH
+BIN=/ccs/home/msw/proj/bin
+TOP=/ccs/home/msw
+n=$PBS_NUM_NODES
+np=$((PBS_NUM_NODES * PBS_NUM_PPN))
+Nic=4096
+Nps=4096
+TAG=ds13_n_4000_4096
+ICTAG=ds13_n_4000_4096
+HOTEXEC=devel/nlna
+ICPROG=2LPTic64_cic
+ICBASEDIR=.
+ICCONVERT=gptosdf.${ARCHFFT}-mpi
+
+for file in tree19/apps/class_v1.7.0/class tree19/apps/class_v1.7.0/pk_ref.pre tree19/scripts/conv_pk.py tree19/scripts/SDFedit tree19/apps/${ICPROG:0:8}/${ICPROG}* tree19/apps/convert/${ICCONVERT} tree19/apps/pspec-mpi/pspech.${ARCHFFT}-mpi tree19/apps/pspec-mpi/powspec.${ARCHFFT}-mpi tree19/apps/dmm/gdmm.${ARCH}-mpi tree19/apps/etc/jobremaining.${ARCH}-mpi; do
+    rsync -abq ${TOP}/$file $BIN
+done
+rsync -abqR ${TOP}/2HOT/./${HOTEXEC}.${ARCHCUDA}-mpi $BIN
+
+pushd $ICBASEDIR > /dev/null
+if [ class.ini -nt ${ICTAG}.dat ]; then
+    echo Generating input power spectra for $ICTAG
+    cp -p ${BIN}/pk_ref.pre .
+    ${BIN}/class class.ini pk_ref.pre > class.out
+    mkdir -p dat
+    mv ${ICTAG}_?k_*.dat ${ICTAG}_parameters.ini ${ICTAG}_unused_parameters dat
+    ${BIN}/conv_pk.py dat/${ICTAG}_pk_1.000.dat ${ICTAG}.dat
+    for a in 1.000 0.667 0.500 0.333 0.250; do 
+        ps_file=${ICTAG}.dat
+        cosmo_file=params.ctl
+        out=${ICTAG}_sigma_${a}.dat
+        if [ $cosmo_file -nt dat/$out ]; then
+            (${TOP}/tree19/apps/sigma/sigma.${ARCH} $ps_file $cosmo_file $a; mv $out dat) &
+        fi
+    done
+fi
+
+if [ ${ICPROG} == 'ic' -a ${ICTAG}.dat -nt ${ICTAG}.sdf ]; then
+    echo Generating initial conditions for $ICTAG on $Nic procs
+    ${MPIRUN} -n $Nic -S 4 ${BIN}/${ICPROG}.${ARCHFFT}-mpi fft.ctl > fft.out
+fi
+
+if [ ${ICPROG:0:6} == '2LPTic' -a ${ICBASEDIR}/${ICTAG}.dat -nt ${ICBASEDIR}/${ICTAG}.sdf ]; then
+    echo Generating initial conditions with ${ICPROG} for $ICTAG on $Nic procs
+    rsync -aq ${TOP}/tree19/scripts/dummy_glass.dat .
+    mkdir -p ${ICTAG}
+    ${MPIRUN} -S 4 -n $Nic ${BIN}/${ICPROG}.${ARCH} ic.param > ic.out
+    ${MPIRUN} -S 4 -n $Nic ${BIN}/${ICCONVERT} ${ICTAG}/ic $Nic >& ic_convert.out
+    mv ${ICTAG}/ic.sdf ${ICTAG}.sdf
+fi
+popd > /dev/null
+
+if [ ${GENCTLPHASE} == 'iconly' ]; then
+    echo ${GENCTLPHASE} is set, exiting
+    exit 0
+fi    
+
+if [ -s ${ICBASEDIR}/${ICTAG}.sdf -a ! -s ${TAG}_1.000 ]; then
+    if [ `grep Nmesh ${ICBASEDIR}/ic.param | awk '{print $2}'` -le 16 ]; then nn=1; else nn=$np; fi
+    echo Evolving $TAG on $nn procs
+    if [ ${TAG}.restart -nt ${ICBASEDIR}/${ICTAG}.sdf ]; then
+        ${MPIRUN} -n $nn ${BIN}/${HOTEXEC}.${ARCHCUDA}-mpi rerun.ctl >> run.out 2>&1
+    else
+        ${MPIRUN} -n $nn ${BIN}/${HOTEXEC}.${ARCHCUDA}-mpi run.ctl >> run.out 2>&1
+    fi
+fi
+
+if [ `${BIN}/jobremaining.${ARCH}-mpi` -lt 300 ]; then
+   echo 'Job allocation done, exiting'
+   exit 0
+fi
+
+if [ ${GENCTLPHASE} == 'pspech' ]; then
+  for snap in 1.000 0.950 0.900 0.800 0.700 0.667 0.600 0.500 0.400 0.333 0.300 0.250 0.200 0.100 0.050 0.020 0.010 0.005 0.000; do 
+    if [ $snap == 0.000 ]; then
+        name=${ICTAG}.sdf
+        out=pspech_${ICTAG}_${snap}
+    else
+        name=${TAG}_${snap}
+        out=pspech_${name}
+    fi
+    if [ $name -nt $out*c1 ]; then
+        echo Calculating power spectra for $name on $Nps procs
+        ${BIN}/SDFedit datafile[]=\"$name\" outfile[]=\"$out\" chain_factor=1 pspech.ctl
+        ${MPIRUN} -n $Nps ${BIN}/pspech.${ARCHFFT}-mpi params.ctl pspech.ctl >> pspech.out
+    fi
+  done
+fi
+
+rsync -abq ${TOP}/tree19/scripts/powspec.ctl .
+Nmesh=`grep Nmesh ic.param | awk '{print $2}'`
+if [ $Nmesh -lt 1024 ]; then Nmesh=1024; fi
+for snap in 1.000 0.500 0.250 0.667 0.333 0.250 0.100 0.020 0.050 0.010 0.000; do 
+    if [ $snap == 0.000 ]; then
+	ln -s ${TAG}.sdf ${TAG}_${snap}
+    fi
+    for fold_factor in 1 2 4 8; do
+	name=${TAG}_${snap}
+	out=${name}_ps${Nmesh}f${fold_factor}
+	if [ $name -nt $out ]; then
+	    echo Calculating power spectra for $name on $Nps procs
+	    ${BIN}/SDFedit fold_factor=${fold_factor} Nmesh=${Nmesh} powspec.ctl
+	    ${MPIRUN} -n $Nps ${BIN}/powspec.${ARCHFFT}-mpi powspec.ctl $name >> powspec.out
+	fi
+    done
+done
+
+for snap in 1.000 0.500 0.250 0.100 0.050 0.020 0.010 0.000; do 
+  if [ $snap == 0.000 ]; then
+      name=${ICTAG}.sdf
+      out=gdmm_${ICTAG}_${snap}
+  else
+      name=${TAG}_${snap}
+      out=gdmm_${name}
+  fi
+  if [ $name -nt $out ]; then
+      echo Calculating gdmm for $name on $np procs
+      ${BIN}/SDFedit datafile[]=\"$name\" outfile[]=\"$out\" gdmm.ctl
+      ${MPIRUN} -n $np ${BIN}/gdmm.${ARCH}-mpi gdmm.ctl >> gdmm.out
+  fi
+done
+
+if [ -s ./post_process -a ${TAG}*1.000 -nt ./post_process ]; then
+    ./post_process
+fi
+
+if [ -s ./script_gate ]; then
+    ./script_gate
+fi
+

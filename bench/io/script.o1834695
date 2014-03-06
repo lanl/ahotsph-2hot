@@ -1,0 +1,243 @@
+Output from 962-969,1044-1051,2020-2027,2100-2107,2500-2507,2580-2587,3556-3563,3636-3643:
+Set compute mode to DEFAULT for GPU 0000:02:00.0.
+All done.
+Reply (complete) from 962-969,1044-1051,2020-2027,2100-2107,2500-2507,2580-2587,3556-3563,3636-3643 exit code: 0
+io
+
+sent 17543 bytes  received 31 bytes  35148.00 bytes/sec
+total size is 17477  speedup is 0.99
+io_all
+
+sent 17555 bytes  received 31 bytes  35172.00 bytes/sec
+total size is 17485  speedup is 0.99
+PE 0: MPICH processor detected:
+PE 0:   AuthenticAMD (21:1:2) (family:model:stepping)
+PE 0: MPICH environment settings:
+PE 0:   MPICH_ENV_DISPLAY          = 1
+PE 0:   MPICH_VERSION_DISPLAY      = 0
+PE 0:   MPICH_ABORT_ON_ERROR       = 1
+PE 0:   MPICH_CPUMASK_DISPLAY      = 0
+PE 0:   MPICH_RANK_REORDER_METHOD  = 1
+PE 0:   MPICH_RANK_REORDER_DISPLAY = 0
+PE 0:   MPICH_MEMCPY_MEM_CHECK     = 0
+PE 0:   MPICH_USE_SYSTEM_MEMCPY    = 1
+PE 0:   MPICH_NO_BUFFER_ALIAS_CHECK= 0
+PE 0:   MPICH_COLL_SYNC            = 0
+PE 0:   MPICH_MSG_QUEUE_DBG        = 0
+PE 0: MPICH/SMP environment settings:
+PE 0:   MPICH_SMP_SINGLE_COPY_OFF  = 0
+PE 0:   MPICH_SMP_SINGLE_COPY_SIZE = 8192
+PE 0: MPICH/GNI environment settings:
+PE 0:           MPICH_GNI_RECV_CQ_SIZE = 40960
+PE 0:          MPICH_GNI_LOCAL_CQ_SIZE = 8192
+PE 0:            MPICH_GNI_DEBUG_LEVEL = 0
+PE 0:    MPICH_GNI_MAX_VSHORT_MSG_SIZE = 2000
+PE 0:     MPICH_GNI_MAX_EAGER_MSG_SIZE = 8192
+PE 0:               MPICH_GNI_NUM_BUFS = 64
+PE 0:             MPICH_GNI_NUM_MBOXES = -1
+PE 0:       MPICH_GNI_MBOXES_PER_BLOCK = 4096
+PE 0:         MPICH_GNI_RDMA_THRESHOLD = 1024
+PE 0:          MPICH_GNI_RCVCQ_PROCNUM = 1
+PE 0:    MPICH_GNI_NDREG_ENTRIES(req.) = 228
+PE 0:          MPICH_GNI_NDREG_MAXSIZE = 524288
+PE 0:        MPICH_GNI_MALLOC_FALLBACK = 0
+PE 0:          MPICH_GNI_NDREG_LAZYMEM = LAZY_ALL
+PE 0:          MPICH_GNI_DMAPP_INTEROP = 1
+PE 0:           MPICH_GNI_DYNAMIC_CONN = 1
+PE 0:        MPICH_GNI_MAX_NUM_RETRIES = 16
+PE 0:              MPICH_GNI_FORK_MODE = PARTCOPY
+PE 0:         MPICH_GNI_MBOX_PLACEMENT = DEFAULT
+PE 0:        MPICH_GNI_VC_MSG_PROTOCOL = MBOX
+PE 0:      MPICH_GNI_BTE_MULTI_CHANNEL = 1
+PE 0:           MPICH_GNI_LMT_GET_PATH = 1
+PE 0:               MPICH_GNI_LMT_PATH = 1
+PE 0:     MPICH_NEMESIS_ASYNC_PROGRESS = 0
+PE 0: MPICH_GNI_ASYNC_PROGRESS_TIMEOUT = -1
+PE 0:       MPICH_GNI_DATAGRAM_TIMEOUT = -1
+PE 0:            MPICH_GNI_FMA_SHARING = 1
+PE 0:          MPICH_GNI_USE_PCI_IOMMU = 0
+PE 0:            MPICH_GNI_CQE_BACKOFF = 0
+PE 0:    MPICH_GNI_USE_UNASSIGNED_CPUS = 1
+PE 0: MPICH/COLLECTIVE environment settings:
+PE 0:   MPICH_COLL_OPT_OFF         = 0
+PE 0:   MPICH_COLL_BAL_INJECTION   = auto
+PE 0:   MPICH_USE_DMAPP_COLL       = 0
+PE 0:   MPICH_DMAPP_COLL_RADIX     = 64
+PE 0:   MPICH_BCAST_ONLY_TREE      = 1
+PE 0:   MPICH_ALLTOALL_SHORT_MSG   = 32-2048
+PE 0:   MPICH_ALLTOALLV_THROTTLE   = 1
+PE 0:   MPICH_ALLGATHER_VSHORT_MSG = 1024-8192
+PE 0:   MPICH_ALLGATHERV_VSHORT_MSG= 1024-8192
+PE 0:   MPICH_GATHERV_SHORT_MSG    = 16384
+PE 0:   MPICH_SCATTERV_SHORT_MSG   = 2048-8192
+PE 0:   MPICH_SCATTERV_SYNCHRONOUS = 0
+PE 0:   MPICH_ALLREDUCE_NO_SMP     = 0
+PE 0:   MPICH_REDUCE_NO_SMP        = 0
+PE 0: MPICH/MPIIO environment settings:
+PE 0:   MPICH_MPIIO_HINTS_DISPLAY  = 0
+PE 0:   MPICH_MPIIO_HINTS          = striping_factor=160
+PE 0:   MPICH_MPIIO_CB_ALIGN       = 2
+PE 0: MPICH Thread Safety settings:
+PE 0:   MPICH_MAX_THREAD_SAFETY    = serialized
+PE 0:   rank 0 required = single, was provided = single
+Write bandwidth without file sync = 1256.683644 Mbytes/sec
+Read bandwidth without prior file sync = 177217.351299 Mbytes/sec
+Application 4331593 resources: utime ~61433s, stime ~1290s, Rss ~141716, inblocks ~268628722, outblocks ~268437702
+PE 0: MPICH processor detected:
+PE 0:   AuthenticAMD (21:1:2) (family:model:stepping)
+PE 0: MPICH environment settings:
+PE 0:   MPICH_ENV_DISPLAY          = 1
+PE 0:   MPICH_VERSION_DISPLAY      = 0
+PE 0:   MPICH_ABORT_ON_ERROR       = 1
+PE 0:   MPICH_CPUMASK_DISPLAY      = 0
+PE 0:   MPICH_RANK_REORDER_METHOD  = 1
+PE 0:   MPICH_RANK_REORDER_DISPLAY = 0
+PE 0:   MPICH_MEMCPY_MEM_CHECK     = 0
+PE 0:   MPICH_USE_SYSTEM_MEMCPY    = 1
+PE 0:   MPICH_NO_BUFFER_ALIAS_CHECK= 0
+PE 0:   MPICH_COLL_SYNC            = 0
+PE 0:   MPICH_MSG_QUEUE_DBG        = 0
+PE 0: MPICH/SMP environment settings:
+PE 0:   MPICH_SMP_SINGLE_COPY_OFF  = 0
+PE 0:   MPICH_SMP_SINGLE_COPY_SIZE = 8192
+PE 0: MPICH/GNI environment settings:
+PE 0:           MPICH_GNI_RECV_CQ_SIZE = 40960
+PE 0:          MPICH_GNI_LOCAL_CQ_SIZE = 8192
+PE 0:            MPICH_GNI_DEBUG_LEVEL = 0
+PE 0:    MPICH_GNI_MAX_VSHORT_MSG_SIZE = 2000
+PE 0:     MPICH_GNI_MAX_EAGER_MSG_SIZE = 8192
+PE 0:               MPICH_GNI_NUM_BUFS = 64
+PE 0:             MPICH_GNI_NUM_MBOXES = -1
+PE 0:       MPICH_GNI_MBOXES_PER_BLOCK = 4096
+PE 0:         MPICH_GNI_RDMA_THRESHOLD = 1024
+PE 0:          MPICH_GNI_RCVCQ_PROCNUM = 1
+PE 0:    MPICH_GNI_NDREG_ENTRIES(req.) = 228
+PE 0:          MPICH_GNI_NDREG_MAXSIZE = 524288
+PE 0:        MPICH_GNI_MALLOC_FALLBACK = 0
+PE 0:          MPICH_GNI_NDREG_LAZYMEM = LAZY_ALL
+PE 0:          MPICH_GNI_DMAPP_INTEROP = 1
+PE 0:           MPICH_GNI_DYNAMIC_CONN = 1
+PE 0:        MPICH_GNI_MAX_NUM_RETRIES = 16
+PE 0:              MPICH_GNI_FORK_MODE = PARTCOPY
+PE 0:         MPICH_GNI_MBOX_PLACEMENT = DEFAULT
+PE 0:        MPICH_GNI_VC_MSG_PROTOCOL = MBOX
+PE 0:      MPICH_GNI_BTE_MULTI_CHANNEL = 1
+PE 0:           MPICH_GNI_LMT_GET_PATH = 1
+PE 0:               MPICH_GNI_LMT_PATH = 1
+PE 0:     MPICH_NEMESIS_ASYNC_PROGRESS = 0
+PE 0: MPICH_GNI_ASYNC_PROGRESS_TIMEOUT = -1
+PE 0:       MPICH_GNI_DATAGRAM_TIMEOUT = -1
+PE 0:            MPICH_GNI_FMA_SHARING = 1
+PE 0:          MPICH_GNI_USE_PCI_IOMMU = 0
+PE 0:            MPICH_GNI_CQE_BACKOFF = 0
+PE 0:    MPICH_GNI_USE_UNASSIGNED_CPUS = 1
+PE 0: MPICH/COLLECTIVE environment settings:
+PE 0:   MPICH_COLL_OPT_OFF         = 0
+PE 0:   MPICH_COLL_BAL_INJECTION   = auto
+PE 0:   MPICH_USE_DMAPP_COLL       = 0
+PE 0:   MPICH_DMAPP_COLL_RADIX     = 64
+PE 0:   MPICH_BCAST_ONLY_TREE      = 1
+PE 0:   MPICH_ALLTOALL_SHORT_MSG   = 32-2048
+PE 0:   MPICH_ALLTOALLV_THROTTLE   = 1
+PE 0:   MPICH_ALLGATHER_VSHORT_MSG = 1024-8192
+PE 0:   MPICH_ALLGATHERV_VSHORT_MSG= 1024-8192
+PE 0:   MPICH_GATHERV_SHORT_MSG    = 16384
+PE 0:   MPICH_SCATTERV_SHORT_MSG   = 2048-8192
+PE 0:   MPICH_SCATTERV_SYNCHRONOUS = 0
+PE 0:   MPICH_ALLREDUCE_NO_SMP     = 0
+PE 0:   MPICH_REDUCE_NO_SMP        = 0
+PE 0: MPICH/MPIIO environment settings:
+PE 0:   MPICH_MPIIO_HINTS_DISPLAY  = 0
+PE 0:   MPICH_MPIIO_HINTS          = striping_factor=160
+PE 0:   MPICH_MPIIO_CB_ALIGN       = 2
+PE 0: MPICH Thread Safety settings:
+PE 0:   MPICH_MAX_THREAD_SAFETY    = serialized
+PE 0:   rank 0 required = single, was provided = single
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+aprun: Apid 4331600: Caught signal Terminated, sending to application
+_pmiu_daemon(SIGCHLD): [NID 03638] [c8-5c2s4n2] [Tue Jan  7 22:49:37 2014] PE RANK 577 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03558] [c8-5c2s3n0] [Tue Jan  7 22:49:37 2014] PE RANK 513 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00967] [c2-5c2s3n3] [Tue Jan  7 22:49:37 2014] PE RANK 145 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02103] [c4-5c2s4n3] [Tue Jan  7 22:49:37 2014] PE RANK 849 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02583] [c6-5c2s4n1] [Tue Jan  7 22:49:37 2014] PE RANK 785 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03562] [c8-5c2s5n0] [Tue Jan  7 22:49:37 2014] PE RANK 641 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00965] [c2-5c2s2n3] [Tue Jan  7 22:49:37 2014] PE RANK 49 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00968] [c2-5c2s4n2] [Tue Jan  7 22:49:37 2014] PE RANK 865 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00963] [c2-5c2s1n3] [Tue Jan  7 22:49:37 2014] PE RANK 17 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03641] [c8-5c2s3n3] [Tue Jan  7 22:49:37 2014] PE RANK 433 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 01044] [c2-5c2s5n0] [Tue Jan  7 22:49:37 2014] PE RANK 929 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02585] [c6-5c2s3n1] [Tue Jan  7 22:49:37 2014] PE RANK 369 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02501] [c6-5c2s2n3] [Tue Jan  7 22:49:37 2014] PE RANK 305 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03563] [c8-5c2s5n1] [Tue Jan  7 22:49:37 2014] PE RANK 657 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03556] [c8-5c2s2n0] [Tue Jan  7 22:49:37 2014] PE RANK 481 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03559] [c8-5c2s3n1] [Tue Jan  7 22:49:37 2014] PE RANK 529 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 01051] [c2-5c2s2n1] [Tue Jan  7 22:49:37 2014] PE RANK 81 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02022] [c4-5c2s3n0] [Tue Jan  7 22:49:37 2014] PE RANK 193 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02581] [c6-5c2s5n1] [Tue Jan  7 22:49:37 2014] PE RANK 689 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02105] [c4-5c2s3n3] [Tue Jan  7 22:49:37 2014] PE RANK 177 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 01047] [c2-5c2s4n1] [Tue Jan  7 22:49:37 2014] PE RANK 913 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02507] [c6-5c2s5n3] [Tue Jan  7 22:49:37 2014] PE RANK 721 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03560] [c8-5c2s4n0] [Tue Jan  7 22:49:37 2014] PE RANK 545 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03640] [c8-5c2s3n2] [Tue Jan  7 22:49:37 2014] PE RANK 417 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00962] [c2-5c2s1n2] [Tue Jan  7 22:49:37 2014] PE RANK 12 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03637] [c8-5c2s5n3] [Tue Jan  7 22:49:37 2014] PE RANK 625 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02025] [c4-5c2s4n1] [Tue Jan  7 22:49:37 2014] PE RANK 817 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02021] [c4-5c2s2n1] [Tue Jan  7 22:49:37 2014] PE RANK 241 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02101] [c4-5c2s5n3] [Tue Jan  7 22:49:37 2014] PE RANK 1009 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03557] [c8-5c2s2n1] [Tue Jan  7 22:49:37 2014] PE RANK 497 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02500] [c6-5c2s2n2] [Tue Jan  7 22:49:37 2014] PE RANK 289 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00969] [c2-5c2s4n3] [Tue Jan  7 22:49:37 2014] PE RANK 881 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 01045] [c2-5c2s5n1] [Tue Jan  7 22:49:37 2014] PE RANK 945 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02102] [c4-5c2s4n2] [Tue Jan  7 22:49:37 2014] PE RANK 833 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02505] [c6-5c2s4n3] [Tue Jan  7 22:49:37 2014] PE RANK 753 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02503] [c6-5c2s3n3] [Tue Jan  7 22:49:37 2014] PE RANK 401 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02502] [c6-5c2s3n2] [Tue Jan  7 22:49:37 2014] PE RANK 385 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 01049] [c2-5c2s3n1] [Tue Jan  7 22:49:37 2014] PE RANK 113 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 01050] [c2-5c2s2n0] [Tue Jan  7 22:49:37 2014] PE RANK 65 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02026] [c4-5c2s5n0] [Tue Jan  7 22:49:37 2014] PE RANK 961 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 01048] [c2-5c2s3n0] [Tue Jan  7 22:49:37 2014] PE RANK 97 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02586] [c6-5c2s2n0] [Tue Jan  7 22:49:37 2014] PE RANK 321 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02584] [c6-5c2s3n0] [Tue Jan  7 22:49:37 2014] PE RANK 353 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02100] [c4-5c2s5n2] [Tue Jan  7 22:49:37 2014] PE RANK 993 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 01046] [c2-5c2s4n0] [Tue Jan  7 22:49:37 2014] PE RANK 897 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02580] [c6-5c2s5n0] [Tue Jan  7 22:49:37 2014] PE RANK 673 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03636] [c8-5c2s5n2] [Tue Jan  7 22:49:37 2014] PE RANK 609 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02504] [c6-5c2s4n2] [Tue Jan  7 22:49:37 2014] PE RANK 737 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03643] [c8-5c2s2n3] [Tue Jan  7 22:49:37 2014] PE RANK 465 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03642] [c8-5c2s2n2] [Tue Jan  7 22:49:37 2014] PE RANK 449 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02107] [c4-5c2s2n3] [Tue Jan  7 22:49:37 2014] PE RANK 273 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02023] [c4-5c2s3n1] [Tue Jan  7 22:49:37 2014] PE RANK 209 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02104] [c4-5c2s3n2] [Tue Jan  7 22:49:37 2014] PE RANK 161 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02020] [c4-5c2s2n0] [Tue Jan  7 22:49:37 2014] PE RANK 225 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02506] [c6-5c2s5n2] [Tue Jan  7 22:49:37 2014] PE RANK 705 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02106] [c4-5c2s2n2] [Tue Jan  7 22:49:37 2014] PE RANK 270 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03561] [c8-5c2s4n1] [Tue Jan  7 22:49:37 2014] PE RANK 561 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02027] [c4-5c2s5n1] [Tue Jan  7 22:49:37 2014] PE RANK 977 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 03639] [c8-5c2s4n3] [Tue Jan  7 22:49:37 2014] PE RANK 593 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02024] [c4-5c2s4n0] [Tue Jan  7 22:49:37 2014] PE RANK 801 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00966] [c2-5c2s3n2] [Tue Jan  7 22:49:37 2014] PE RANK 129 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 00964] [c2-5c2s2n2] [Tue Jan  7 22:49:37 2014] PE RANK 38 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02587] [c6-5c2s2n1] [Tue Jan  7 22:49:37 2014] PE RANK 348 exit signal Terminated
+_pmiu_daemon(SIGCHLD): [NID 02582] [c6-5c2s4n0] [Tue Jan  7 22:49:37 2014] PE RANK 769 exit signal Terminated
+Output from 962-969,1044-1051,2020-2027,2100-2107,2500-2507,2580-2587,3556-3563,3636-3643:
+Set compute mode to EXCLUSIVE_PROCESS for GPU 0000:02:00.0.
+All done.
+Reply (complete) from 962-969,1044-1051,2020-2027,2100-2107,2500-2507,2580-2587,3556-3563,3636-3643 exit code: 0

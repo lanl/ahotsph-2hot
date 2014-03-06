@@ -1,0 +1,30 @@
+#!/bin/bash
+#PBS -A AST102
+#PBS -q debug
+#PBS -l walltime=0:20:00
+#PBS -l nodes=512
+#PBS -l feature=gpudefault
+#PBS -j oe
+
+cd $PBS_O_WORKDIR
+
+n=$PBS_NUM_NODES
+np=$((PBS_NUM_NODES * PBS_NUM_PPN))
+#export MPICH_ENV_DISPLAY=1
+
+s=$HOME/2HOT/bench/io
+rsync -v ${s}/io .
+rsync -v ${s}/io_all .
+
+/bin/rm -rf test1 test2
+
+export MPICH_MPIIO_HINTS='striping_factor=160'
+
+lfs setstripe -c 160 .
+
+aprun -n $np ./io test1
+aprun -n $np ./io_all test2
+
+lfs getstripe -q test1
+
+rsync -v script.* ${s}

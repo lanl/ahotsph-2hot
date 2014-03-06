@@ -1,0 +1,22 @@
+Output from 2252-2255,2258-2259,2348-2349,2354,15096,15098-15099,15140-15143:
+Set compute mode to DEFAULT for GPU 0000:02:00.0.
+All done.
+Reply (complete) from 2252-2255,2258-2259,2348-2349,2354,15096,15098-15099,15140-15143 exit code: 0
+io
+
+sent 17543 bytes  received 31 bytes  35148.00 bytes/sec
+total size is 17477  speedup is 0.99
+io_all
+
+sent 17555 bytes  received 31 bytes  35172.00 bytes/sec
+total size is 17485  speedup is 0.99
+Write bandwidth without file sync = 1303.361742 Mbytes/sec
+Read bandwidth without prior file sync = 10963.670338 Mbytes/sec
+Application 4330997 resources: utime ~4161s, stime ~267s, Rss ~140180, inblocks ~67155874, outblocks ~67109424
+Write bandwidth without file sync = 802.533990 Mbytes/sec
+Read bandwidth without prior file sync = 2211.936705 Mbytes/sec
+Application 4330998 resources: utime ~14756s, stime ~287s, Rss ~142520, inblocks ~67206993, outblocks ~67122778
+Output from 2252-2255,2258-2259,2348-2349,2354,15096,15098-15099,15140-15143:
+Set compute mode to EXCLUSIVE_PROCESS for GPU 0000:02:00.0.
+All done.
+Reply (complete) from 2252-2255,2258-2259,2348-2349,2354,15096,15098-15099,15140-15143 exit code: 0
