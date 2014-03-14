@@ -211,7 +211,7 @@ int WalkFlushFreq(int flush_freq);
 */
    
 INLINE hcellptr
-Find(tree_t *tp, Key_t key)
+Find(const tree_t *tp, Key_t key)
 {
     hcellptr *firstp = tp->htab+KeyAndInt(key, tp->hash_mask);
     hcellptr np;
@@ -233,7 +233,7 @@ Find(tree_t *tp, Key_t key)
 }
 
 INLINE hcellptr
-Findx(tree_t *tp, Key_t key)
+Findx(const tree_t *tp, Key_t key)
 {
     hcellptr *firstp = tp->htab+KeyAndInt(key, tp->hash_mask);
     hcellptr np;
