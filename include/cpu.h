@@ -68,8 +68,9 @@ static char *nameclean(char *s)
 	if (i > 0) {
 	    cp2 = cp + i;
 	    if (cp2 < cpend - 1) *cp++ = ' ';
-	    if (cp2 > cp) {
-		memmove(cp, cp2, cpend - cp);
+	    else *cp++ = '\0';
+	    if (cpend > cp2) {
+		memmove(cp, cp2, cpend - cp2);
 		cpend -= cp2 - cp;
 	    }
 	}
