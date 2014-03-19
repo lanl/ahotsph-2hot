@@ -11,8 +11,9 @@ extern "C"{
 #endif /* __cplusplus */
 void *MPMY_CreateTimer(int type);
 int MPMY_StartTimer(void *);
-    int MPMY_CopyTimer(void *, void *);
+int MPMY_CopyTimer(void *, void *);
 int MPMY_StopTimer(void *);
+int MPMY_AccumTimer(void *, double dt);
 int MPMY_ClearTimer(void *);
 double MPMY_ReadTimer(void *);
 int MPMY_DestroyTimer(void *);

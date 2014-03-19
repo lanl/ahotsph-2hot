@@ -82,6 +82,20 @@ int MPMY_StopTimer(void *p){
     return MPMY_SUCCESS;
 }
 
+int MPMY_AccumTimer(void *p, double dt){
+    MPMY_Timer *t = p;
+
+    switch(t->type){
+    case MPMY_CPU_TIME:
+	t->accum += dt;
+	break;
+    case MPMY_WC_TIME:
+	t->wc_accum += dt;
+	break;
+    }
+    return MPMY_SUCCESS;
+}
+
 int MPMY_ClearTimer(void *p){
     MPMY_Timer *t = p;
 
