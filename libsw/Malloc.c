@@ -7,7 +7,7 @@
 #include <stdarg.h>
 #include "Msgs.h"
 #include "Malloc.h"
-#include "malloc.h"
+#include "sw_malloc.h"
 
 #define WARNSIZEINITIAL (1024L*1024*1024*2)
 static size_t WarnSize = WARNSIZEINITIAL;

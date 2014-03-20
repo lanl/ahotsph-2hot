@@ -33,7 +33,7 @@
 #include "Assert.h"
 #include "chn.h"
 #include "Msgs.h"
-#include "malloc.h"
+#include "sw_malloc.h"
 
 /* The Chain macro is used to chain together 'freed' nodes. */
 /* We write a pointer on top of the first word and a magic */

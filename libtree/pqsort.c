@@ -20,7 +20,6 @@
 #include "Assert.h"
 #include "key.h"
 #include "Malloc.h"
-#include "malloc.h"
 #include "mpmy.h"
 #include "gc.h"
 #include "Msgs.h"

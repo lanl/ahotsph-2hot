@@ -63,7 +63,7 @@ malloc_used(void)
 #include <string.h>
 #include <stddef.h>
 #include <stdio.h>
-#include "malloc.h"
+#include "sw_malloc.h"
 #include "protos.h"
 #include "Msgs.h"
 #include "error.h"

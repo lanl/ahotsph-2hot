@@ -7,7 +7,6 @@
 #include <math.h>
 #include "SDF.h"
 #include "protos.h"
-#include "malloc.h"
 #include "Malloc.h"
 #include "SDFwrite.h"
 #include "SDFread.h"
