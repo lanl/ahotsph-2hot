@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 #include "Malloc.h"
 #include "key.h"
 

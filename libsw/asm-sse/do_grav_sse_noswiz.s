@@ -140,6 +140,5 @@ do_grav_sse_noswiz:
         ret                                                     #377.1
         .align    4,0x90
 # mark_end;
-	.type	do_grav_sse,@function
 	.size	do_grav_sse,.-do_grav_sse
 # -- End  do_grav_sse

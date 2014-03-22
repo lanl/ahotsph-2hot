@@ -117,5 +117,4 @@ do_grav_sse_noswiz_eps:
         popq      %rbp                                          #377.1
         ret                                                     #377.1
 # mark_end;
-	.type	do_grav_sse,@function
 # -- End  do_grav_sse

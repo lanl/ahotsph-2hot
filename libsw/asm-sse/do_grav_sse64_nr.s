@@ -1,17 +1,13 @@
 # -- Begin  do_grav_sse_nr
 	.data
-	.align 16
-	.type	three, @object
-	.size	three, 16
+	.align 8
 three:
 	.long	1077936128
 	.long	1077936128
 	.long	1077936128
 	.long	1077936128
 	.globl	minus_half
-	.align 16
-	.type	minus_half, @object
-	.size	minus_half, 16
+	.align 8
 minus_half:
 	.long	3204448256
 	.long	3204448256
@@ -154,6 +150,4 @@ do_grav_sse_nr:
         popq      %rbp                                          #377.1
         ret                                                     #377.1
 # mark_end;
-	.type	do_grav_sse_nr,@function
-	.size	do_grav_sse_nr,.-do_grav_sse_nr
 # -- End  do_grav_sse_nr

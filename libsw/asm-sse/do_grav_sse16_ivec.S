@@ -22,12 +22,9 @@
 	.text
 	.p2align 4,,15
 	.globl	do_grav_sse16_ivec_asm
-	.type	do_grav_sse16_ivec_asm, @function
 do_grav_sse16_ivec_asm:
 .init:
-	.cfi_startproc
 	subq	$256, %rsp
-	.cfi_def_cfa_offset 264
         movq    264(%rsp), %rax
         movss   (%rdx), %xmm0
         movss   4(%rdx), %xmm4
@@ -214,24 +211,19 @@ do_grav_sse16_ivec_asm:
 	movss   %xmm12,  (%r9)  # phi
 .end:
 	addq	$256, %rsp
-	.cfi_def_cfa_offset 8
 	ret
-	.cfi_endproc
 .LFE0:
-	.size	do_grav_sse16_ivec_asm, .-do_grav_sse16_ivec_asm
-	.section	.rodata.cst16,"aM",@progbits,16
-	.align 16
+	.align 15
 .three:
 	.long	1077936128
 	.long	1077936128
 	.long	1077936128
 	.long	1077936128
-	.align 16
+	.align 15
 .minus_half:
 	.long	3204448256
 	.long	3204448256
 	.long	3204448256
 	.long	3204448256
-	.align 16
+	.align 15
 	.ident	"GCC: (GNU) 4.6.0 20110603 (Red Hat 4.6.0-10)"
-	.section	.note.GNU-stack,"",@progbits
