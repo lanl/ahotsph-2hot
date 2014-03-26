@@ -55,7 +55,7 @@ $(objdir)/pqsort$(objsuf):
 $(objdir)/pqsort$(objsuf):
 $(objdir)/pqsort$(objsuf): $(treedir)/include/Assert.h $(treedir)/include/error.h
 $(objdir)/pqsort$(objsuf): $(treedir)/include/gccextensions.h $(treedir)/include/Malloc.h
-$(objdir)/pqsort$(objsuf): $(treedir)/include/malloc.h $(treedir)/include/mpmy.h $(treedir)/include/gc.h
+$(objdir)/pqsort$(objsuf): $(treedir)/include/mpmy.h $(treedir)/include/gc.h
 $(objdir)/pqsort$(objsuf): $(treedir)/include/Msgs.h $(treedir)/include/stk.h
 $(objdir)/pqsort$(objsuf): $(treedir)/include/decomp.h $(treedir)/include/abm.h
 $(objdir)/pqsort$(objsuf): $(treedir)/include/chn.h $(treedir)/include/dll.h $(treedir)/include/rsort.h
@@ -122,7 +122,7 @@ $(objdir)/image$(objsuf):
 $(objdir)/image$(objsuf):
 $(objdir)/image$(objsuf):
 $(objdir)/image$(objsuf):
-$(objdir)/image$(objsuf): $(treedir)/include/SDF.h $(treedir)/include/protos.h $(treedir)/include/malloc.h
+$(objdir)/image$(objsuf): $(treedir)/include/SDF.h $(treedir)/include/protos.h
 $(objdir)/image$(objsuf): $(treedir)/include/Malloc.h $(treedir)/include/error.h
 $(objdir)/image$(objsuf): $(treedir)/include/gccextensions.h $(treedir)/include/SDFwrite.h
 $(objdir)/image$(objsuf): $(treedir)/include/SDFread.h $(treedir)/include/timers.h

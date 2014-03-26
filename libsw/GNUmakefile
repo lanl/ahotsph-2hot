@@ -42,7 +42,7 @@ $(objdir)/Malloc$(objsuf):
 $(objdir)/Malloc$(objsuf):
 $(objdir)/Malloc$(objsuf):
 $(objdir)/Malloc$(objsuf): $(treedir)/include/Msgs.h $(treedir)/include/gccextensions.h
-$(objdir)/Malloc$(objsuf): $(treedir)/include/Malloc.h $(treedir)/include/error.h $(treedir)/include/malloc.h
+$(objdir)/Malloc$(objsuf): $(treedir)/include/Malloc.h $(treedir)/include/error.h
 $(objdir)/key$(objsuf):
 $(objdir)/key$(objsuf):
 $(objdir)/key$(objsuf):
@@ -108,7 +108,6 @@ $(objdir)/files$(objsuf): $(treedir)/include/timers.h
 $(objdir)/files$(objsuf):
 $(objdir)/chn$(objsuf): $(treedir)/include/Assert.h $(treedir)/include/error.h
 $(objdir)/chn$(objsuf): $(treedir)/include/gccextensions.h $(treedir)/include/chn.h $(treedir)/include/Msgs.h
-$(objdir)/chn$(objsuf): $(treedir)/include/malloc.h
 $(objdir)/dll$(objsuf): $(treedir)/include/chn.h $(treedir)/include/dll.h $(treedir)/include/Malloc.h
 $(objdir)/dll$(objsuf): $(treedir)/include/error.h $(treedir)/include/gccextensions.h
 $(objdir)/stk$(objsuf): $(treedir)/include/Assert.h $(treedir)/include/error.h

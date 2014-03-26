@@ -1,4 +1,4 @@
-defaultCC:=gcc-4.8.2
+defaultCC:=gcc
 
 CC_SPECIFIC:=-g -Wall -std=c99 -D_XOPEN_SOURCE=500
 ARCH_SPECIFIC:=-march=corei7-avx --param l1-cache-size=32 --param l1-cache-line-size=64 --param l2-cache-size=20480 -DSTK_FORCE_ALIGNMENT=4 -D_FILE_OFFSET_BITS=64 -DUSE_SYSTEM_MALLOC -DUSE_MPIIO -DUSE_HWCLOCK -DPROCS_PER_NODE=16 -DARCH=i7

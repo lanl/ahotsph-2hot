@@ -213,17 +213,17 @@ do_grav_sse16_ivec_asm:
 	addq	$256, %rsp
 	ret
 .LFE0:
-	.align 15
+	.align 16
 .three:
 	.long	1077936128
 	.long	1077936128
 	.long	1077936128
 	.long	1077936128
-	.align 15
+	.align 16
 .minus_half:
 	.long	3204448256
 	.long	3204448256
 	.long	3204448256
 	.long	3204448256
-	.align 15
+	.align 16
 	.ident	"GCC: (GNU) 4.6.0 20110603 (Red Hat 4.6.0-10)"

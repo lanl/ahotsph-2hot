@@ -1,14 +1,14 @@
 Welcome to the tree19 hexadecapole N-body integrator running on 1 procs
 Version 2HOT_nln-1.0.1-avx8
-Compiled Dec  6 2013 10:31:37
+Compiled Dec  6 2013 12:50:57
 Saving phi and acc
 Node 0 is ss1.lanl.gov
 cfile "run_e3.ctl" opened
 Putting all Msgs in memfile
 Setting timeout to 3600 seconds.
 Reading "./test_2M.sdf"
-     SDFread       0.45       0.45       0.45
-read 2097152 x 36 at 169 MB/s
+     SDFread       0.65       0.65       0.65
+read 2097152 x 36 at 117 MB/s
 double H0 = 0.0719989
 double Omega0 = 1
 double Omega0_m = 0.272187
@@ -98,7 +98,7 @@ FreeTree done 137 (365)
 
 Output to test_2M_e3_0.012 242 (365)
     SDFwrite       0.20       0.20       0.20
-write speed 551 MB/s
+write speed 553 MB/s
 Output to test_2M_e3_0.012 done 242 (429)
 edge flux 0 0 0 plus 0 0 0 minus 0 0 0
 
@@ -107,29 +107,29 @@ ke = 4.41509e+10, pe = 1.04493e+12, energy = 1.08908e+12
 CM accel: (-0.0841427 -0.192883 0.198299): 0.289147
 rms accel: 2668.06
       Timers        Min        Max       Mean
- Step (Wall)      88.18      88.18      88.18
-  Step (CPU)      85.94      85.94      85.94
- Build Total       5.47       5.47       5.47
-      PQSort       3.08       3.08       3.08
+ Step (Wall)      88.28      88.28      88.28
+  Step (CPU)      86.04      86.04      86.04
+ Build Total       5.42       5.42       5.42
+      PQSort       3.14       3.14       3.14
       Decomp       0.00       0.00       0.00
   DecompComm       0.00       0.00       0.00
   DecompWait       0.00       0.00       0.00
-        Sort       3.08       3.08       3.08
-    MakeTree       3.02       3.02       3.02
+        Sort       3.14       3.14       3.14
+    MakeTree       2.97       2.97       2.97
  SharedCells       0.00       0.00       0.00
   SharedComm       0.00       0.00       0.00
-  Force Eval      80.51      80.51      80.51
+  Force Eval      80.40      80.40      80.40
    Smth Time       0.02       0.02       0.02
-   Mono Time       1.60       1.60       1.60
-   Quad Time      16.41      16.41      16.41
-   Hexa Time      11.48      11.48      11.48
-  HexaF Time      10.76      10.76      10.76
-   Grav Time      40.46      40.46      40.46
-    MAC Time      22.39      22.39      22.39
+   Mono Time       1.56       1.56       1.56
+   Quad Time      16.40      16.40      16.40
+   Hexa Time      11.47      11.47      11.47
+  HexaF Time      10.78      10.78      10.78
+   Grav Time      40.42      40.42      40.42
+    MAC Time      22.32      22.32      22.32
   Walk Defer       0.00       0.00       0.00
     WalkTerm       0.00       0.00       0.00
-      WalkNT      80.51      80.51      80.51
-    Fix Cube       1.00       1.00       1.00
+      WalkNT      80.40      80.40      80.40
+    Fix Cube       0.97       0.97       0.97
     Counters          Min          Max             Sum            Avg
    Body-smth            0            0               0           0.00
    Body-mono   1518354481   1518354481      1518354481  1518354481.00
@@ -141,10 +141,10 @@ rms accel: 2668.06
    Cube Corr            0            0               0           0.00
     Max smth            0            0               0           0.00
  Smth cycles            0            0               0           0.00
- Mono cycles           28           28              28          28.00
+ Mono cycles           27           27              27          27.00
  Quad cycles           67           67              67          67.00
- Hexa cycles          200          200             200         200.00
-HexaF cycles          185          185             185         185.00
+ Hexa cycles          199          199             199         199.00
+HexaF cycles          186          186             186         186.00
      KNterms     48520318     48520318        48520318    48520318.00
       Bodies      2097152      2097152         2097152     2097152.00
  Local Cells            0            0               0           0.00
@@ -173,29 +173,29 @@ ke = 4.47676e+10, pe = 1.03067e+12, energy = 1.07543e+12
 CM accel: (-0.0786304 -0.152342 0.217248): 0.276745
 rms accel: 2629.71
       Timers        Min        Max       Mean
- Step (Wall)      84.19      84.19      84.19
-  Step (CPU)      82.05      82.05      82.05
- Build Total       2.63       2.63       2.63
-      PQSort       1.24       1.24       1.24
+ Step (Wall)      83.93      83.93      83.93
+  Step (CPU)      81.80      81.80      81.80
+ Build Total       2.55       2.55       2.55
+      PQSort       1.27       1.27       1.27
       Decomp       0.00       0.00       0.00
   DecompComm       0.00       0.00       0.00
   DecompWait       0.00       0.00       0.00
-        Sort       1.24       1.24       1.24
-    MakeTree       1.38       1.38       1.38
+        Sort       1.27       1.27       1.27
+    MakeTree       1.28       1.28       1.28
  SharedCells       0.00       0.00       0.00
   SharedComm       0.00       0.00       0.00
-  Force Eval      80.48      80.48      80.48
+  Force Eval      80.24      80.24      80.24
    Smth Time       0.02       0.02       0.02
-   Mono Time       1.56       1.56       1.56
-   Quad Time      16.45      16.45      16.45
-   Hexa Time      11.55      11.55      11.55
-  HexaF Time      10.63      10.63      10.63
-   Grav Time      40.42      40.42      40.42
-    MAC Time      22.40      22.40      22.40
+   Mono Time       1.54       1.54       1.54
+   Quad Time      16.34      16.34      16.34
+   Hexa Time      11.46      11.46      11.46
+  HexaF Time      10.61      10.61      10.61
+   Grav Time      40.17      40.17      40.17
+    MAC Time      22.50      22.50      22.50
   Walk Defer       0.00       0.00       0.00
     WalkTerm       0.00       0.00       0.00
-      WalkNT      80.48      80.48      80.48
-    Fix Cube       0.97       0.97       0.97
+      WalkNT      80.24      80.24      80.24
+    Fix Cube       1.01       1.01       1.01
     Counters          Min          Max             Sum            Avg
    Body-smth            0            0               0           0.00
    Body-mono   1514976910   1514976910      1514976910  1514976910.00
@@ -208,8 +208,8 @@ rms accel: 2629.71
     Max smth            0            0               0           0.00
  Smth cycles            0            0               0           0.00
  Mono cycles           27           27              27          27.00
- Quad cycles           68           68              68          68.00
- Hexa cycles          200          200             200         200.00
+ Quad cycles           67           67              67          67.00
+ Hexa cycles          199          199             199         199.00
 HexaF cycles          186          186             186         186.00
      KNterms     48351504     48351504        48351504    48351504.00
       Bodies      2097152      2097152         2097152     2097152.00
@@ -239,29 +239,29 @@ ke = 4.53796e+10, pe = 1.01627e+12, energy = 1.06165e+12
 CM accel: (-0.0729393 -0.207547 0.206367): 0.301635
 rms accel: 2592.75
       Timers        Min        Max       Mean
- Step (Wall)      84.15      84.15      84.15
-  Step (CPU)      82.02      82.02      82.02
- Build Total       2.62       2.62       2.62
-      PQSort       1.24       1.24       1.24
+ Step (Wall)      83.94      83.94      83.94
+  Step (CPU)      81.81      81.81      81.81
+ Build Total       2.56       2.56       2.56
+      PQSort       1.25       1.25       1.25
       Decomp       0.00       0.00       0.00
   DecompComm       0.00       0.00       0.00
   DecompWait       0.00       0.00       0.00
-        Sort       1.24       1.24       1.24
-    MakeTree       1.37       1.37       1.37
+        Sort       1.25       1.25       1.25
+    MakeTree       1.30       1.30       1.30
  SharedCells       0.00       0.00       0.00
   SharedComm       0.00       0.00       0.00
-  Force Eval      80.45      80.45      80.45
+  Force Eval      80.27      80.27      80.27
    Smth Time       0.02       0.02       0.02
-   Mono Time       1.52       1.52       1.52
-   Quad Time      16.44      16.44      16.44
-   Hexa Time      11.58      11.58      11.58
-  HexaF Time      10.52      10.52      10.52
-   Grav Time      40.29      40.29      40.29
-    MAC Time      22.44      22.44      22.44
+   Mono Time       1.49       1.49       1.49
+   Quad Time      16.34      16.34      16.34
+   Hexa Time      11.48      11.48      11.48
+  HexaF Time      10.50      10.50      10.50
+   Grav Time      40.03      40.03      40.03
+    MAC Time      22.40      22.40      22.40
   Walk Defer       0.00       0.00       0.00
     WalkTerm       0.00       0.00       0.00
-      WalkNT      80.45      80.45      80.45
-    Fix Cube       0.97       0.97       0.97
+      WalkNT      80.27      80.27      80.27
+    Fix Cube       0.98       0.98       0.98
     Counters          Min          Max             Sum            Avg
    Body-smth            0            0               0           0.00
    Body-mono   1469893011   1469893011      1469893011  1469893011.00
@@ -274,9 +274,9 @@ rms accel: 2592.75
     Max smth            0            0               0           0.00
  Smth cycles            0            0               0           0.00
  Mono cycles           27           27              27          27.00
- Quad cycles           68           68              68          68.00
- Hexa cycles          201          201             201         201.00
-HexaF cycles          186          186             186         186.00
+ Quad cycles           67           67              67          67.00
+ Hexa cycles          199          199             199         199.00
+HexaF cycles          185          185             185         185.00
      KNterms     48172330     48172330        48172330    48172330.00
       Bodies      2097152      2097152         2097152     2097152.00
  Local Cells            0            0               0           0.00

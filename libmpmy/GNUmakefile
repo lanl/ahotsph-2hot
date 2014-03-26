@@ -83,7 +83,7 @@ $(objdir)/mpmy_seq$(objsuf): $(treedir)/include/cpu.h
 $(objdir)/mpmy_seq$(objsuf):
 $(objdir)/mpmy_seq$(objsuf):
 $(objdir)/mpmy_seq$(objsuf):
-$(objdir)/mpmy_seq$(objsuf): $(treedir)/include/malloc.h mpmy_io.c
+$(objdir)/mpmy_seq$(objsuf): mpmy_io.c
 $(objdir)/mpmy_seq$(objsuf):
 $(objdir)/mpmy_seq$(objsuf):
 $(objdir)/mpmy_seq$(objsuf):
@@ -120,7 +120,7 @@ $(objdir)/mpmy_mpi$(objsuf):
 $(objdir)/mpmy_mpi$(objsuf):
 $(objdir)/mpmy_mpi$(objsuf):
 $(objdir)/mpmy_mpi$(objsuf):
-$(objdir)/mpmy_mpi$(objsuf): $(treedir)/include/malloc.h mpmy_mpiio.c
+$(objdir)/mpmy_mpi$(objsuf): mpmy_mpiio.c
 $(objdir)/mpmy_mpi$(objsuf):
 $(objdir)/mpmy_mpi$(objsuf):
 $(objdir)/mpmy_mpi$(objsuf):
