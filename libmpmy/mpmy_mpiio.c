@@ -241,6 +241,7 @@ MPMY_Fwrite(const void *ptr, size_t size, size_t nitems, MPMYFile *Fp)
 	MPI_Offset mpi_offset;
 	size_t left, *sizes;
 	int i;
+	int at_least_once = 1; 	/* for write_at_all to be synchronous for small writes */
 	assert(sizeof(size_t) == MPMY_Datasize[MPMY_LONG]);
 	sizes = Malloc(sizeof(size_t)*MPMY_Nproc());
 	Native_MPMY_Allgather(&nwrite, 1, MPMY_LONG, sizes);
@@ -252,7 +253,7 @@ MPMY_Fwrite(const void *ptr, size_t size, size_t nitems, MPMYFile *Fp)
 	Msgf(("My offset in MPMY_Fwrite is %lld\n", mpi_offset));
 	Free(sizes);
 	left = nwrite;
-	while (left > 0) {
+	while (left > 0 || at_least_once) {
 	    nwrite = (left < MAXIOSIZE) ? left : MAXIOSIZE;
 	    Msgf(("write %ld at %lld\n", nwrite, mpi_offset));
 	    Msg_flush();
@@ -264,12 +265,13 @@ MPMY_Fwrite(const void *ptr, size_t size, size_t nitems, MPMYFile *Fp)
 #ifdef XK6
 		MPI_File_write_at_all(fp->fd, mpi_offset, (void *)p, nwrite, MPI_CHAR, &status);
 #else
-		MPI_File_write_at(fp->fd, mpi_offset, (void *)p, nwrite, MPI_CHAR, &status);
+		if (nwrite) MPI_File_write_at(fp->fd, mpi_offset, (void *)p, nwrite, MPI_CHAR, &status);
 #endif
 	    }
 	    left -= nwrite;
 	    p += nwrite;
 	    mpi_offset += nwrite;
+	    at_least_once = 0;
 	    if (!fp->async) {
 		MPI_Get_count(&status, MPI_CHAR, &cnt);
 		if (cnt != nwrite) Error("MPMY_Fwrite has a problem, wrote %d of %ld\n",
