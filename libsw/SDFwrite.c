@@ -44,10 +44,6 @@ static int wrote_header = 0;
 #define DATAALIGN 32
 
 static void
-SDFwrite_alist(const char *filename, int gnobj, int nobj, 
-	 const void *btab, int bsize, const char *bodydesc, va_list alist);
-
-static void
 SDFwrite_alist64(const char *filename, int mode, int64_t gnobj, int64_t nobj, 
 	 const void *btab, int bsize, const char *bodydesc, va_list alist);
 
@@ -70,11 +66,12 @@ void
 SDFwrite(const char *filename, int gnobj, int nobj, 
 	 const void *btab, int bsize, const char *bodydesc, ...){
     va_list alist;
+    int mode = MPMY_WRONLY|MPMY_CREAT|MPMY_TRUNC|MPMY_MULTI;
 
     EnableTimer(&SDFwriteTm, "SDFwrite");
     StartTimer(&SDFwriteTm);
     va_start(alist, bodydesc);
-    SDFwrite_alist(filename, gnobj, nobj, btab, bsize, bodydesc, alist);
+    SDFwrite_alist64(filename, mode, gnobj, nobj, btab, bsize, bodydesc, alist);
     va_end(alist);
     StopTimer(&SDFwriteTm);
     OutputTimer(&SDFwriteTm, singlPrintf); /* global sync and set timer->max */
@@ -126,9 +123,10 @@ SDFappend64(const char *filename, int64_t gnobj, int64_t nobj,
 void
 SDFwritehdr(const char *filename, const char *bodydesc, ...){
     va_list alist;
+    int mode = MPMY_WRONLY|MPMY_CREAT|MPMY_TRUNC|MPMY_MULTI;
 
     va_start(alist, bodydesc);
-    SDFwrite_alist(filename, 0, 0, NULL, 0, bodydesc, alist);
+    SDFwrite_alist64(filename, mode, 0, 0, NULL, 0, bodydesc, alist);
     va_end(alist);
     wrote_header = 1;
 }
@@ -143,157 +141,6 @@ void
 SDFsetwroteheader(void)
 {
   wrote_header = 1;
-}
-
-static void
-SDFwrite_alist(const char *filename, int gnobj, int nobj, 
-	 const void *btab, int bsize, const char *bodydesc, va_list alist)
-{
-    MPMYFile *myfd;
-    int i, pad;
-    char line[LINE_LEN];
-    int ival;
-    double dval;
-    char *sval;
-    char *name;
-    char *buf;
-    int len;
-    int mode;
-    int ok, allok, retried;
-
-    Msgf(("In Wtdata\n"));
-    header_len = 0;
-
-    header_size = BUF_INC;
-    header_buf = Malloc(header_size);
-
-    if (MPMY_Procnum() == 0 && wrote_header == 0) {
-	outstr ("# SDF\n");
-	sprintf(line, "parameter byteorder = 0x%x;\n", 
-		SDFcpubyteorder()); outstr(line); 
-	while( (name = va_arg(alist, char *)) ){
-	    Msgf(("name(%lx)=%s\n", (unsigned long int)name, name));
-	    switch( va_arg(alist, enum SDF_type_enum) ){
-	      case SDF_INT:
-		ival = va_arg(alist, int);
-		sprintf(line, "int %s = %d;\n", name, ival); outstr(line);
-		break;
-	      case SDF_FLOAT:
-		dval = va_arg(alist, double);
-		if (dval == 0.0 || (dval*dval < 1e10 && dval*dval > 1e-10)) {
-		    sprintf(line, "float %s = %.8g;\n", name, dval);
-		} else {
-		    sprintf(line, "float %s = %.8e;\n", name, dval);
-		}
-		outstr(line);
-		break;
-	      case SDF_DOUBLE:
-		dval = va_arg(alist, double);
-		if (dval == 0.0 || (dval*dval < 1e10 && dval*dval > 1e-10)) {
-		    sprintf(line, "double %s = %.16g;\n", name, dval); 
-		} else {
-		    sprintf(line, "double %s = %.16e;\n", name, dval); 
-		}
-		outstr(line);
-		break;
-	      case SDF_STRING:
-		sval = va_arg(alist, char *);
-		sprintf(line, "char %s[] = \"%s\";\n", name, sval);
-		outstr(line);
-		break;
-	      default:
-		Shout("Unexpected type in wtdata\n");
-		break;
-	    }
-	}
-	if( bodydesc ){
-	    outstr(bodydesc);
-	    if( gnobj > 0 )
-	      sprintf(line, "[%d];\n", gnobj);
-	    else
-	      sprintf(line, "[];\n");
-	    outstr(line);
-	}
-	outstr("#\f\n");
-	outstr ("# SDF-EOH ");
-	/* This little bit of magic will cause the first word of data */
-	/* to be aligned.  This isn't required by anything, but it makes */
-	/* it a lot easier to use really primitive tools like od. */
-	pad = (header_len+1)%DATAALIGN;	/* the +1 is to account for the '\n' */
-	if( pad )
-	  pad = DATAALIGN - pad;
-	for(i=0; i<pad; i++){
-	    line[i] = ' ';
-	}
-	line[pad] = '\n';
-	line[pad+1] = '\0';
-	outstr(line);
-	/* Avoid separate write for header due to paragon limitations */
-	/* It's only memory, after all */
-	len = header_len+bsize*nobj;
-	buf = header_buf = Realloc(header_buf, len);
-	memcpy(buf+header_len, btab, bsize*nobj);
-    } else {
-	len = bsize*nobj;
-	buf = btab;
-    }
-
-    if (wrote_header == 0) {
-	mode = MPMY_WRONLY|MPMY_CREAT|MPMY_TRUNC|MPMY_MULTI;
-    } else {
-	mode = MPMY_WRONLY|MPMY_APPEND|MPMY_MULTI;
-    }
-    retried = 0;
- retry:
-    myfd = MPMY_Fopen(filename, mode);
-    if( myfd == NULL ){
-	SeriousWarning("MPMY_Fopen(%s, 0x%x) returns NULL, errno=%d\n",
-		       filename, mode, errno);
-	goto outahere;
-    }
-
-    i = MPMY_Fwrite(buf, 1, len, myfd);
-    if (i != len){
-	SeriousWarning("MPMY_Fwrite(btab, len=%d) only wrote %d, errno=%d\n", 
-	      len, i, errno);
-	SeriousWarning("\"%s\" is probably corrupt!\n", filename);
-    }
-    ok = (i==len);
-    /* Should there be an MPMY_LAND and MPMY_LOR ? */
-    allok = 0;
-    MPMY_Combine(&ok, &allok, 1, MPMY_INT, MPMY_BAND);
-    Msgf(("ok=%d, allok=%d\n", ok, allok));
-    if( !allok ){
-	int retryable;
-#ifdef ETIMEDOUT  /* This seems to be a solaris thing */
-	retryable = !retried && (ok || errno==ETIMEDOUT);
-#else
-	retryable = 0;
-#endif
-	Msgf(("retryable (local) = %d\n", retryable));
-	MPMY_Combine(&retryable, &retryable, 1, MPMY_INT, MPMY_BAND);
-	Msgf(("retryable (global) = %d\n", retryable));
-	if( retryable ){
-	    SinglShout("Fingers crossed, we are going to retry!\n");
-	    retried = 1;		/* only retry once! */
-	    MPMY_Fclose(myfd);
-#ifdef ETIMEDOUT
-	    /* The failure mode we are trying to recover from is an
-	       NFS timeout which might go away in a few seconds.  We
-	       trust that if ETIMEDOUT exists, then sleep does too...  */
-	    SinglShout("sleep(30), maybe the timeout will go away!\n");
-	    sleep(30);
-#endif
-	    goto retry;
-	}
-    }
-    MPMY_Fclose(myfd);
- outahere:
-    Free(header_buf);
-    header_size = header_len = 0;
-    header_buf = NULL;
-    wrote_header = 0;
-    Msgf(("SDFwrite2 done\n"));
 }
 
 static void
