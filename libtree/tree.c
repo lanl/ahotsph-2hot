@@ -540,7 +540,7 @@ CofmPost(tree_t *tp, hcell *hp, hcell *daughters[])
     if (KeyGE(mink, lobound) && KeyLE(maxk, hibound)) {
 	if (hp->ptr == NULL) hp->ptr = ChnAlloc(&tp->cofmchn);
 	hp->type |= SHARED;
-	Msgf(("CoFDaugh: %s\n", hcellPrint(hp)));
+	Msg("sharedcells", ("CoFDaugh: %s\n", hcellPrint(hp)));
 	tp->CofmFromDaugh(hp, daughters);
 	for (i = 0; i < nsub; i++) {
 	    if (daughters[i] && Sub_Flags(daughters[i])) {
@@ -555,115 +555,105 @@ CofmPost(tree_t *tp, hcell *hp, hcell *daughters[])
 static void
 DoSharedCells(tree_t *tp)
 {
-    void *allbranches = NULL;
-    hcellptr root;
-    int nbytes;
-    hcell_type type;
-    Key_t key;
-    int sz;
-    void *from, *to;
+    typedef struct {Key_t lo; Key_t hi; int nbytes;} sbuf;
     int procnum = MPMY_Procnum();
-    int doc, chan, sendproc, recvbytes, ret;
-    Key_t lo, hi;
+    int doc, ret;
     MPMY_Status stat;
 
     StartTimer(&SharedCellsTm);
     /* Find the 'branches' */
-    root = Find(tp, KeyInt(1));
+    hcell *root = Find(tp, KeyInt(1));
 
     doc = ilog2(MPMY_Nproc());
-    if (MPMY_Nproc() != 1 << doc)
-      doc++;			/* for non power-of-two sizes */
-    for (chan = 0; chan < doc; chan++) {
-	int last = (chan == doc-1 && (MPMY_Nproc() != 1 << doc));
-	sendproc = procnum ^ (1 << chan);
-	Msgf(("branches sendproc is %d\n", sendproc));
+    int ispowerof2 = (MPMY_Nproc() == (1 << doc));
+    if (!ispowerof2) doc++;
+    for (int chan = 0; chan < doc; chan++) {
+	void *allbranches = NULL;
+	sbuf in = {};
+	sbuf out = {.lo = lobound, .hi = hibound};
+	int sendproc = procnum ^ (1 << chan);
+	Msg("sharedcells", ("sendproc is %d\n", sendproc));
 
 	if (sendproc < MPMY_Nproc()) {
 	    StkInitEz(&brstk);
 	    Traverse(tp, root, FindBranches, NULL);
-	
-	    nbytes = StkSz(&brstk);
-	    Msgf(("Found %d bytes of branches for channel %d\n", nbytes, chan));
+	    out.nbytes = StkSz(&brstk);
+	    Msg("sharedcells", ("Found %d bytes of branches for channel %d\n", out.nbytes, chan));
 	
 	    StartTimer(&SharedCellsWaitTm);
-	    MPMY_Shift(sendproc, &lo, sizeof(Key_t),
-		       &lobound, sizeof(Key_t), &stat);
+	    MPMY_Shift(sendproc, &in, sizeof(sbuf), &out, sizeof(sbuf), &stat);
 	    ret = MPMY_Count(&stat);
-	    if (ret != sizeof(Key_t))
-		Error("Shift failed, expected %ld got %d\n", sizeof(Key_t), ret);
-	    if (KeyLT(lo, lobound)) lobound = lo;
+	    if (ret != sizeof(sbuf))
+		Error("Shift failed, expected %ld got %d\n", sizeof(sbuf), ret);
 	    StopTimer(&SharedCellsWaitTm);
-	    
+
+	    if (KeyLT(in.lo, lobound)) lobound = in.lo;
+	    if (KeyGT(in.hi, hibound)) hibound = in.hi;
+	    Msg("sharedcells", ("bounds after channel %d: %s ", chan, PrintKey(lobound)));
+	    Msg("sharedcells", ("%s\n", PrintKey(hibound)));
+	    Msg("sharedcells", ("Receiving %d bytes of branches from channel %d\n", in.nbytes, chan));
+
 	    StartTimer(&SharedCellsCommTm);
-	    MPMY_Shift(sendproc, &hi, sizeof(Key_t),
-		       &hibound, sizeof(Key_t), &stat);
+	    allbranches = Malloc(in.nbytes);
+	    MPMY_Shift(sendproc, allbranches, in.nbytes, StkBase(&brstk), StkSz(&brstk), &stat);
 	    ret = MPMY_Count(&stat);
-	    if (ret != sizeof(Key_t))
-		Error("Shift failed, expected %ld got %d\n", sizeof(Key_t), ret);
-	    if (KeyGT(hi, hibound)) hibound = hi;
-	    Msgf(("bounds after channel %d: %s ", chan, PrintKey(lobound)));
-	    Msgf(("%s\n", PrintKey(hibound)));
-	    
-	    MPMY_Shift(sendproc, &recvbytes, sizeof(int),
-		       &nbytes, sizeof(int), &stat);
-	    ret = MPMY_Count(&stat);
-	    if (ret != sizeof(int))
-		Error("Shift failed, expected %ld got %d\n", sizeof(int), ret);
-	    Msgf(("Receiving %d bytes of branches from channel %d\n", recvbytes, chan));
-	    allbranches = Malloc(recvbytes);
-	    MPMY_Shift(sendproc, allbranches, recvbytes,
-		       StkBase(&brstk), StkSz(&brstk), &stat);
-	    ret = MPMY_Count(&stat);
-	    if (ret != recvbytes)
-		Error("Shift failed, expected %d got %d\n", recvbytes, ret);
+	    if (ret != in.nbytes)
+		Error("Shift failed, expected %d got %d\n", in.nbytes, ret);
 	    StopTimer(&SharedCellsCommTm);
 	    StkTerminate(&brstk);
 	}
 
-	if (last) {
-	    StartTimer(&SharedCellsCommTm);
-	    if (MPMY_Procnum() == 0) {
-		Msgf(("Sending %d bytes to procs with no last partner\n", recvbytes));
-		MPMY_Bcast(&hibound, sizeof(Key_t), MPMY_CHAR, 0);
-		MPMY_Bcast(&recvbytes, 1, MPMY_INT, 0);
-		MPMY_Bcast(allbranches, recvbytes, MPMY_CHAR, 0);
-	    } else {
-		Key_t hibound0;
-		int recvbytes0;
-		void *allbranches0;
-		MPMY_Bcast(&hibound0, sizeof(Key_t), MPMY_CHAR, 0);
-		MPMY_Bcast(&recvbytes0, 1, MPMY_INT, 0);
-		allbranches0 = Malloc(recvbytes0);
-		MPMY_Bcast(allbranches0, recvbytes0, MPMY_CHAR, 0);
-		if (sendproc >= MPMY_Nproc()) {
-		    Msgf(("Recv %d bytes from proc 0 for last\n", recvbytes0));
-		    hibound = hibound0;
-		    recvbytes = recvbytes0;
-		    allbranches = allbranches0;
-		} else Free(allbranches0);
+	/* Propagate data for non-power-of-two */
+	StartTimer(&SharedCellsCommTm);
+	int valproc = (MPMY_Nproc() - 1) & ~(1 << chan); /* last proc with valid data */
+	for (int subchan = 0; subchan < chan; subchan++) {
+	    int subproc = procnum ^ (1 << subchan);
+	    if (subproc >= MPMY_Nproc()) continue;
+	    Msg("sharedcells", ("valproc %d subproc %d\n", valproc, subproc));
+	    if ((subproc > valproc && procnum < valproc) || (procnum > valproc && subproc < valproc)
+		|| (procnum > valproc && subproc == valproc) || (subproc > valproc && procnum == valproc)) {
+		if (procnum < subproc) {
+		    Msg("sharedcells", ("subsend to %d\n", subproc));
+		    MPMY_send(&in, sizeof(sbuf), subproc, 111+chan);
+		    MPMY_send(allbranches, in.nbytes, subproc, 211+chan);
+		} else {
+		    out = in;
+		    Msg("sharedcells", ("subrecv from %d\n", subproc));
+		    MPMY_recvn(&in, sizeof(sbuf), subproc, 111+chan);
+		    if (KeyLT(in.lo, lobound)) lobound = in.lo;
+		    if (KeyGT(in.hi, hibound)) hibound = in.hi;
+		    Msg("sharedcells", ("bounds after subchannel %d: %s ", subchan, PrintKey(lobound)));
+		    Msg("sharedcells", ("%s\n", PrintKey(hibound)));
+		    allbranches = Realloc(allbranches, in.nbytes+out.nbytes);
+		    Msg("sharedcells", ("Receiving %d bytes of branches from subchannel %d\n", in.nbytes, subchan));
+		    MPMY_recvn(allbranches+out.nbytes, in.nbytes, subproc, 211+chan);
+		    in.nbytes += out.nbytes;
+		}
 	    }
-	    StopTimer(&SharedCellsCommTm);
+	    valproc |= (1 << subchan);
 	}
+	StopTimer(&SharedCellsCommTm);
 
-	if (sendproc < MPMY_Nproc() || last) {
+	if (in.nbytes > 0) {
 	    /* Enter them in the tree, adding empties as necessary. */
-	    AddCounter(&SharedCnt, recvbytes);
-	    StkInitWithData(&brstk, recvbytes, Realloc_f, allbranches, _STK_DEFAULT_ALIGNMENT);
-	    while(StkSz(&brstk)){
-		type = StkPopType(&brstk, hcell_type);
-		key = StkPopType(&brstk, Key_t);
-		sz = Sub_Flags_Type(type) ? tp->cofmdata_sz : tp->tbody_sz;
-		from = StkPop(&brstk, sz);
-		if( GetSource(type) == procnum )
+	    Msg("sharedcells", ("Entering %d bytes of branches\n", in.nbytes));
+	    AddCounter(&SharedCnt, in.nbytes);
+	    StkInitWithData(&brstk, in.nbytes, Realloc_f, allbranches, _STK_DEFAULT_ALIGNMENT);
+	    while (StkSz(&brstk)){
+		hcell_type type = StkPopType(&brstk, hcell_type);
+		Key_t key = StkPopType(&brstk, Key_t);
+		int sz = Sub_Flags_Type(type) ? tp->cofmdata_sz : tp->tbody_sz;
+		void *from = StkPop(&brstk, sz);
+		if (GetSource(type) == procnum)
 		    continue;
-		to = Sub_Flags_Type(type) ? ChnAlloc(&tp->cofmchn) : ChnAlloc(&tp->tbodychn);
+		void *to = Sub_Flags_Type(type) ? ChnAlloc(&tp->cofmchn) : ChnAlloc(&tp->tbodychn);
 		memcpy(to, from, sz);
 		LoadSharedNode(tp, key, type, to);
 	    }
 	    StkTerminate(&brstk);	/* Frees allbranches */
 	    Traverse(tp, root, CofmPre, CofmPost);
 	}
+	Msg_flush();
     }
     if (!root->ptr) Error("root->ptr is NULL\n");
 
@@ -672,7 +662,7 @@ DoSharedCells(tree_t *tp)
 	ChnFree(&tp->cofmchn, root->ptr);
 	root->ptr = cp;
     }
-    Msgf(("DoSharedCells done: %s\n", hcellPrint(root)));
+    Msg("sharedcells", ("DoSharedCells done: %s\n", hcellPrint(root)));
     StopTimer(&SharedCellsTm);
 }
 
