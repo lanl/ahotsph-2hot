@@ -4,4 +4,6 @@ void calculate_cartesian_moments(body *btab, int nobj, double L, float *Q, int m
 void cube_acc(const float m, const float *f, double a, double *acc);
 void cubic_acc(const float *f, float a, float *acc);
 void cubic_accd(const float *f, float a, double *accd);
+void kubic_acc(const float *f, float a, float *acc);
+void kubic_accd(const float *f, float a, double *accd);
 
