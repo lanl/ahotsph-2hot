@@ -71,7 +71,7 @@
 #define PutSource2(src,typ) (((typ)&(~SOURCEMASK)) | (((src)+1)<<SOURCEBIT))
 
 #ifndef HASH_BITS
-#define HASH_BITS 21
+#define HASH_BITS 22
 #endif
 
 /* HASH_BITS must be less than the number of bits in a word */
@@ -82,7 +82,7 @@
 /* allocate tbodies, cells, etc. be.  Larger leads to possible */
 /* fragmentation, but smaller makes malloc work harder and makes */
 /* malloc_print output somewhat unwieldy. */
-#define CHUNKSZ 8384512
+#define CHUNKSZ (8384512*4)
 
 typedef int hcell_type;	/* Try to anticipate future need for more bits */
 
@@ -219,33 +219,15 @@ Find(const tree_t *tp, Key_t key)
 
     /* Look for a match.  Don't go past the end of the chain. Remember */
     /* the 'next' that points to 'np' */
-    for(np = *(prevnext = firstp); 
-	np && KeyNEQ(np->key, key) ; 
+    for(np = *(prevnext = firstp);
+#if NK==1
+	np && np->key.k[0] != key.k[0]) ; 
+#else
+	np && (np->key.k[0] != key.k[0] || np->key.k[1] != key.k[1]); /* hot spot */
+#endif
 	np = *(prevnext = &np->next) ){}
 
-    if( np ){
-	/* Put the 'found' np at the head of the chain.  */
-	*prevnext = np->next;
-	np->next = *firstp;
-	*firstp = np;
-    }
-    return(np);
-}
-
-INLINE hcellptr
-Findx(const tree_t *tp, Key_t key)
-{
-    hcellptr *firstp = tp->htab+KeyAndInt(key, tp->hash_mask);
-    hcellptr np;
-    hcellptr *prevnext;
-
-    /* Look for a match.  Don't go past the end of the chain. Remember */
-    /* the 'next' that points to 'np' */
-    for(np = *(prevnext = firstp); 
-	np && KeyNEQ(np->key, key) ; 
-	np = *(prevnext = &np->next) ){}
-
-    if( np ){
+    if (np) {
 	/* Put the 'found' np at the head of the chain.  */
 	*prevnext = np->next;
 	np->next = *firstp;

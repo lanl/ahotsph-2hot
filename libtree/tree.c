@@ -684,7 +684,7 @@ void Traverse(tree_t *tp, hcellptr pp,
 	     childnum < nsub; 
 	     childnum++, sub_flags>>=1) {
 	    if (sub_flags & 1) {
-		daughters[childnum] = Findx(tp, KeyOrInt(key, childnum));
+		daughters[childnum] = Find(tp, KeyOrInt(key, childnum));
 		if (daughters[childnum] == NULL) 
 		    Error("Bad sub_flags for slot %d of %s\n", childnum, PrintKey(pp->key));
 	    } else {

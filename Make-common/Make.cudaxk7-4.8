@@ -11,7 +11,7 @@ LEX:=flex
 YACC:=bison -y
 
 CUDACC=nvcc
-CUDACFLAGS=-Xptxas=-v -keep -keep-dir Objfiles/$(ARCH) -use_fast_math -arch=sm_35 -I../include
+CUDACFLAGS=-Xptxas=-v -keep -keep-dir Objfiles/$(ARCH) -use_fast_math -arch=sm_35 -I../include -I$(CUDATOOLKIT_HOME)/extras/CUPTI/include
 PRELIBS += -L$(CUDATOOLKIT_HOME) -lcudart
 
 include $(treedir)/Make-common/Make.default
@@ -24,7 +24,7 @@ cppasmsrc=do_grav_sse16_ivec.S
 LOADLIBES=-lrt
 
 ifeq ($(PAROS),mpi)
-LOADLIBES:=-L$(MPICH_DIR)/lib -lmpich
-PAROSCFLAGS:=-I$(MPICH_DIR)/include
+LOADLIBES:=-L$(MPICH_DIR)/lib -lmpich -L$(PREFIX)/lib -lunwind
+PAROSCFLAGS:=-I$(MPICH_DIR)/include -I$(PREFIX)/include
 endif
 

@@ -45,13 +45,6 @@ static macv_t MACv;
 static inherit_t Inherit;
 static float Sinksz;
 
-#if NK==1
-#define KEYNEQ(key1, key2) ((key1).k[0] != (key2).k[0])
-#else
-#define KEYNEQ(key1, key2) \
-   ((key1).k[0] != (key2).k[0] || (key1).k[1] != (key2).k[1])
-#endif
-
 static ABM Abm;
 static int Abm_active;
 static ABMhndlr_t reqhndlr;
@@ -158,22 +151,25 @@ static void terminateWalk(void){
     max_pp_vec = 0;
 }
 
-static void
-findv(const tree_t *tp, const Key_t *key_vec, hcellptr *out, const int n)
+void
+findv(const tree_t * __restrict__ tp, const Key_t * __restrict__ key_vec, hcellptr * __restrict__ out, const int n)
 {
     hcellptr *firstp, *prevnext, np;
-    int i;
 
-    for (i = 0; i < n; i++) {
-	firstp = tp->htab + (key_vec[i].k[0] & tp->hash_mask);
+    for (int i = 0; i < n; i++) {
+	firstp = tp->htab + KeyAndInt(key_vec[i], tp->hash_mask);
 
 	for (np = *(prevnext = firstp);
-	     np && KEYNEQ(np->key, key_vec[i]);
+#if NK==1
+	     np && (np->key.k[0] != key_vec[i].k[0]);
+#else
+	     np && (np->key.k[0] != key_vec[i].k[0] || np->key.k[1] != key_vec[i].k[1]);
+#endif
 	     np = *(prevnext = &np->next)){}
 
 	out[i] = np;
 
-	if (np != *firstp && np) { 
+	if (np) { 
 	    *prevnext = np->next; /* this shouldn't happen if np was at top */
 	    np->next = *firstp;
 	    *firstp = np;
