@@ -57,6 +57,7 @@ int MPMY_NGather(const void *sendbuf, int count, MPMY_Datatype type,
 		 void **recvhndl, int recvproc);
 int MPMY_Bcast(void *buf, int count, MPMY_Datatype type, int sendproc);
 int MPMY_BcastTag(void *buf, int count, MPMY_Datatype type, int sendproc, int Tag0);
+int Native_MPMY_Bcast(void *buf, int count, MPMY_Datatype type, int sendproc);
 int MPMY_Alltoall(void *sendbuf, int sendcount, MPMY_Datatype sendtype, 
 		  void *recvbuf, int recvcount, MPMY_Datatype recvtype);
 int MPMY_Alltoallv(void *sendbuf, int *sendcounts, int *sendoffsets, MPMY_Datatype sendtype, 

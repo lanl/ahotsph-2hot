@@ -101,8 +101,6 @@ $(objdir)/mpmy_seq$(objsuf):
 $(objdir)/mpmy_seq$(objsuf):
 $(objdir)/mpmy_seq$(objsuf): $(treedir)/include/singlio.h
 $(objdir)/mpmy_seq$(objsuf): mpmy_generic.c
-$(objdir)/mpmy_mpi$(objsuf): /opt/cray/mpt/6.2.0/gni/mpich2-gnu/48/include/mpi.h
-$(objdir)/mpmy_mpi$(objsuf): /opt/cray/mpt/6.2.0/gni/mpich2-gnu/48/include/mpio.h
 $(objdir)/mpmy_mpi$(objsuf): $(treedir)/include/mpmy_abnormal.h $(treedir)/include/gccextensions.h
 $(objdir)/mpmy_mpi$(objsuf): $(treedir)/include/Malloc.h $(treedir)/include/error.h $(treedir)/include/chn.h
 $(objdir)/mpmy_mpi$(objsuf): $(treedir)/include/mpmy.h $(treedir)/include/timers.h

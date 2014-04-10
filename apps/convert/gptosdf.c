@@ -181,8 +181,10 @@ main(int argc, char *argv[])
 
     memset(&cosmo, 0, sizeof(cosmo));
     if (version_cosmo == 2) {
-	class_params(&cosmo, "class.ini");
+	if (MPMY_Procnum() == 0) class_params(&cosmo, "class.ini");
+	MPMY_Bcast(&cosmo, sizeof(cosmo), MPMY_CHAR, 0);
 	tbl_init(&cosmo, "cosmology.tbl");
+	cosmo.background_at_z(&cosmo, header.redshift);
     } else {
 	cosmo.Omega0 = header.Omega0+header.OmegaLambda;
 	cosmo.Omega0_m = header.Omega0;
@@ -278,7 +280,6 @@ main(int argc, char *argv[])
     }
     Fclose(fp);
 
-    cosmo.background_at_z(&cosmo, header.redshift);
     R0 = 0.5 * header.BoxSize * pos_scale / cosmo.h_100;
     nobj = Nhalo;
     gnobj += nobj;
@@ -287,7 +288,7 @@ main(int argc, char *argv[])
     nx = cbrt(gnobj);
     singlPrintf("gnobj = %ld (%.0f^3), Omega0_m = %g, Lambda = %g, h_100 = %g, R0 = %g, z = %g\n", 
 		gnobj, nx, cosmo.Omega0_m, cosmo.Omega0_lambda, cosmo.h_100, R0, 
-		cosmo.z);
+		1.0/cosmo.a-1.0);
 
     
     iter = 0;
@@ -309,7 +310,7 @@ main(int argc, char *argv[])
 	VS(btab[i].pos, *= cosmo.a);
 	/* comov kpc/Gyr */
 	VV(btab[i].vel, = vel[i].val);
-	VS(btab[i].vel, /= sqrt(1.0+cosmo.z));
+	VS(btab[i].vel, /= sqrt(1.0/cosmo.a));
 	VS(btab[i].vel, *= (one_Gyr/one_kpc));
 	if (has_m) {
 	    mass = m[i] * mass_scale / cosmo.h_100;
@@ -363,6 +364,8 @@ main(int argc, char *argv[])
     snprintf(outname, sizeof(outname), "%s.sdf", argv[1]);
     singlPrintf("Writing \"%s\"\n", outname);
 
+    double t = cosmo.t_at_a(&cosmo, cosmo.a);
+
     SDFwrite64(outname, gnobj,
 	       nobj, btab, sizeof(body), OUTBODYDESC,
 	       "version", SDF_INT, 2,
@@ -371,13 +374,13 @@ main(int argc, char *argv[])
 	       "units_2HOT", SDF_INT, 2,
 	       "npart", SDF_INT64, gnobj,
 	       "do_periodic", SDF_INT, 1,
-	       "redshift", SDF_DOUBLE, cosmo.z,
-	       "tpos", SDF_DOUBLE, cosmo.t,
-	       "tvel", SDF_DOUBLE, cosmo.t,
-	       "H", SDF_DOUBLE, cosmo.H,
-	       "conf_distance", SDF_DOUBLE, cosmo.conf_distance,
-	       "growthfac", SDF_DOUBLE, cosmo.growthfac,
-	       "ic_growthfac", SDF_DOUBLE, cosmo.growthfac,
+	       "redshift", SDF_DOUBLE, 1.0/cosmo.a-1.0,
+	       "tpos", SDF_DOUBLE, t,
+	       "tvel", SDF_DOUBLE, t,
+	       "H", SDF_DOUBLE, cosmo.H_at_t(&cosmo, t),
+	       "conf_distance", SDF_DOUBLE, cosmo.conformal_distance_at_t(&cosmo, t),
+	       "growthfac", SDF_DOUBLE, cosmo.growthfac_at_t(&cosmo, t),
+	       "ic_growthfac", SDF_DOUBLE, cosmo.growthfac_at_t(&cosmo, t),
 	       "ic_Nmesh", SDF_INT, (int)nx,
 	       "CICAlpha", SDF_DOUBLE, CICAlpha,
 	       "CICAlpha_v", SDF_DOUBLE, CICAlpha_v,
@@ -402,7 +405,7 @@ main(int argc, char *argv[])
 	       "w0_fld", SDF_DOUBLE, cosmo.w0_fld,
 	       "wa_fld", SDF_DOUBLE, cosmo.wa_fld,
 	       "h_100", SDF_DOUBLE, cosmo.h_100,
-	       "hubble", SDF_DOUBLE, cosmo.H,
+	       "hubble", SDF_DOUBLE, cosmo.H_at_t(&cosmo, t),
 	       "mtot", SDF_DOUBLE, mtot,
 	       "Gnewt", SDF_DOUBLE, cosmo.Gnewt,
 	       NULL);

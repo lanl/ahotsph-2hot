@@ -20,7 +20,6 @@ struct class_s {
     struct background ba;       /* for cosmological background */
     struct thermo th;           /* for thermodynamics */
     struct perturbs pt;         /* for source functions */
-    struct bessels bs;          /* for bessel functions */
     struct transfers tr;        /* for transfer functions */
     struct primordial pm;       /* for primordial spectra */
     struct spectra sp;          /* for output spectra */
@@ -46,7 +45,7 @@ class_params(cosmology *c, char *class_ini)
 
     p->ba.background_verbose = -1; /* shut off commentary */
 
-    class_fail(input_init(&fc, &p->pr, &p->ba, &p->th, &p->pt, &p->bs, &p->tr, 
+    class_fail(input_init(&fc, &p->pr, &p->ba, &p->th, &p->pt, &p->tr, 
 			  &p->pm, &p->sp, &p->nl, &p->le, &p->op, errmsg), 
 	       errmsg, errmsg);
     

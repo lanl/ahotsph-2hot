@@ -254,6 +254,37 @@ Native_MPMY_Alltoallv(void *sendbuf, int *sendcounts, int *sendoffsets, MPMY_Dat
     return MPMY_SUCCESS;
 }
 
+int 
+Native_MPMY_Bcast(void *buf, int count, MPMY_Datatype type, int sendproc)
+{
+    MPI_Datatype st;
+
+    switch (type){
+    case MPMY_FLOAT:
+	st = MPI_FLOAT;
+	break;
+    case MPMY_DOUBLE:
+	st = MPI_DOUBLE;
+	break;
+    case MPMY_INT:
+	st = MPI_INT;
+	break;
+    case MPMY_CHAR:
+	st = MPI_CHAR;
+	break;
+    case MPMY_SHORT:
+	st = MPI_SHORT;
+	break;
+    case MPMY_LONG:
+	st = MPI_LONG;
+	break;
+    default:
+	Error("No type match in allgather\n");
+    }
+    MPI_Bcast(buf, count, st, MPI_COMM_WORLD);
+    return MPMY_SUCCESS;
+}
+
 int
 Native_MPMY_Allgather(void *sendbuf, int sendcount, MPMY_Datatype type, void *recvbuf)
 {
@@ -368,7 +399,7 @@ MPMY_Wtime(void)
     return MPI_Wtime();
 }
 
-#ifdef XK6
+#ifdef USE_PBS
 #include <stdlib.h>
 #include <time.h>
 
@@ -393,8 +424,9 @@ MPMY_JobRemaining(void)
     }
     return walltime_end - start;
 }
+#endif
 
-#else
+#ifdef USE_SLURM
 #include <slurm/slurm.h>
 
 #define HAVE_MPMY_JOBREMAINING

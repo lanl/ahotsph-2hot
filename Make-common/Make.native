@@ -4,9 +4,9 @@ defaultCC:=gcc
 
 CC_SPECIFIC:=-g -Wall -std=c99 -D_XOPEN_SOURCE=500 -gdwarf-3 -fsanitize=address -fno-omit-frame-pointer
 ARCH_SPECIFIC:=-march=native -mprefer-avx128 -DXK6 -DSTK_FORCE_ALIGNMENT=4 -D_FILE_OFFSET_BITS=64 -DUSE_SYSTEM_MALLOC -DUSE_MPIIO -DUSE_HWCLOCK -DPROCS_PER_NODE=16
-OPTIMIZE=-O2
-AGGRESSIVE_OPT=-Ofast
-LDFLAGS=-g -fsanitize=address
+OPTIMIZE=-Og
+AGGRESSIVE_OPT=-O2
+LDFLAGS:=-g -fsanitize=address
 LEX:=flex
 YACC:=bison -y
 
