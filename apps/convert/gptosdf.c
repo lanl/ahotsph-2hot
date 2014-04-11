@@ -24,7 +24,6 @@
 #endif
 
 typedef struct {
-    float mass;			/* mass of body */
     float pos[NDIM];		/* position of body */
     float vel[NDIM];		/* velocity of body */
 #ifdef SAVE_ACC
@@ -41,7 +40,6 @@ typedef struct {
 #ifdef SAVE_ACC
 #define OUTBODYDESC \
 "struct {\n\
-    float mass;			/* mass of body */\n\
     float x, y, z;		/* position of body */\n\
     float vx, vy, vz;		/* velocity of body */\n\
     float ax, ay, az;\n\
@@ -51,7 +49,6 @@ typedef struct {
 #else
 #define OUTBODYDESC \
 "struct {\n\
-    float mass;			/* mass of body */\n\
     float x, y, z;		/* position of body */\n\
     float vx, vy, vz;		/* velocity of body */\n\
     int64_t ident;		/* unique identifier */\n\
@@ -215,6 +212,7 @@ main(int argc, char *argv[])
 	fileleft -= Nhalo * sizeof(int); /* id */
     }
     if (has_m) fileleft -= Nhalo * sizeof(float); /* mass */
+    if (has_m) Error("This version does not support variable particle mass\n");
     if (fileleft/Nhalo < 4) {
 	singlPrintf("No pot or acc in file\n");	
     } else {
@@ -315,7 +313,7 @@ main(int argc, char *argv[])
 	if (has_m) {
 	    mass = m[i] * mass_scale / cosmo.h_100;
 	}
-	btab[i].mass = mass;
+	/* btab[i].mass = mass; */
 	total_mass += mass;
 	if (longid) {
 	    btab[i].ident = lid[i];
@@ -373,6 +371,7 @@ main(int argc, char *argv[])
 	       "version_cosmo", SDF_INT, version_cosmo,
 	       "units_2HOT", SDF_INT, 2,
 	       "npart", SDF_INT64, gnobj,
+	       "particle_mass", SDF_FLOAT, mass,
 	       "do_periodic", SDF_INT, 1,
 	       "redshift", SDF_DOUBLE, 1.0/cosmo.a-1.0,
 	       "tpos", SDF_DOUBLE, t,

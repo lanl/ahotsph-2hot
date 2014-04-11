@@ -1,7 +1,7 @@
 TREEHOME=../..
 ##### Application-specific stuff goes here
 treedir=$(TREEHOME)
-POSTLIBS=-L$(HOT_CLASS) -lclass
+POSTLIBS=-L$(HOT_CLASS) -lclass_nomp
 
 src=$(prog).c
 programname=$(prog)

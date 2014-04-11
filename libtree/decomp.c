@@ -226,8 +226,8 @@ SetupDecomp(sortresult_t *decompp,
     StopTimer(&DecompCommTm);
     StopTimer(&DecompTm);
     Msgf(("SetupDecomp done\n"));
-    int p = MPMY_Procnum();
-    Msg_do("decomptab[%d] %s %ld\n", p, PrintKey(decomptab[p]), decomptab[p].k[NK-1]);
+    Msgf(("decomptab[%d] %s %ld\n", 
+	  MPMY_Procnum(), PrintKey(decomptab[MPMY_Procnum()]), decomptab[MPMY_Procnum()].k[NK-1]));
 }
 
 int

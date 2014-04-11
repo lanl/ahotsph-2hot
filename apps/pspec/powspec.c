@@ -415,7 +415,6 @@ main(int argc, char **argv)
     int write_modes, write_modes_complex, write_rho;
     double rmin[NDIM], rmax[NDIM], rsize;
     float xmin, xmax;
-    int i;
     int Nmesh = 32;
     ptrdiff_t Nw;
     Timer_t FFTTm;
@@ -477,12 +476,19 @@ main(int argc, char **argv)
 		   "z", offsetof(body, pos[2]), &zconf,
 		   NULL);
     if (read_nfiles) MPMY_Nfileio(0);
-    if( massconf==0 || xconf==0 || yconf==0 || zconf==0 ){
-	SinglError("Could not find %s %s %s %s in data file!\n",
-		   (massconf==0)? "mass" : "",
+    if (xconf==0 || yconf==0 || zconf==0) {
+	SinglError("Could not find %s %s %s in data file!\n",
 		   (xconf==0)? "x" : "",
 		   (yconf==0)? "y" : "",
 		   (zconf==0)? "z" : "");
+    }
+    if (massconf == 0) {
+	float particle_mass;
+	SinglWarning("No \"mass\" in file, assigning from particle_mass in header\n");
+	SDFgetfloatOrDie(sdfp, "particle_mass", &particle_mass);
+	for (int i = 0; i < nobj; i++) {
+	    btab[i].mass = particle_mass;
+	}
     }
     SDFgetfloatOrDefault(sdfp, "R0",  &R0, 0.5f);
     SDFgetfloatOrDefault(sdfp, "Rz",  &R0, R0);
@@ -507,7 +513,7 @@ main(int argc, char **argv)
     singlPrintf("%.0f Mbytes per proc\n", 
 		sizeof(fftwf_complex)*total_local_size/(1024.0*1024.0));
     d = Malloc(sizeof(fftwf_complex) * total_local_size);
-    for (i = 0; i < total_local_size; i++) {
+    for (int i = 0; i < total_local_size; i++) {
       d[i] = 0.0 + 0.0I;
     }
 
@@ -632,7 +638,7 @@ main(int argc, char **argv)
 		argv[2], Nmesh, fold_factor, nsamples, 1.0/nsamples, powspec_version);
 	fprintf(outfile, "# L0Mpch=%g redshift=%g h_100=%g growthfac=%g ic_growthfac=%g\n", 
 		R0*2.0*h_100/1000.0, redshift, h_100, growthfac, ic_growthfac);
-	for (i = 0; i < (Nmesh/2)*BIN_MULTIPLIER; i++) {
+	for (int i = 0; i < (Nmesh/2)*BIN_MULTIPLIER; i++) {
 	    if (counts[i] >= 1) {
 		fprintf(outfile, "%5d %14.08g %14.08g %14.08g %9d\n", 
 			i * fold_factor, 

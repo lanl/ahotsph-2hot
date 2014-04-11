@@ -144,6 +144,7 @@ SeriousWarning(const char *mesg, ...)
 	return;
     }
     va_start(alist, mesg);
+    /* These should be put together so they are written atomically */
     fprintf(stderr, "WARNING: Node %d ", MPMY_Procnum());
     vfprintf(stderr, mesg, alist);
     fflush(stderr);

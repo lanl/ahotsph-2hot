@@ -281,7 +281,7 @@ Native_MPMY_Bcast(void *buf, int count, MPMY_Datatype type, int sendproc)
     default:
 	Error("No type match in allgather\n");
     }
-    MPI_Bcast(buf, count, st, MPI_COMM_WORLD);
+    MPI_Bcast(buf, count, st, sendproc, MPI_COMM_WORLD);
     return MPMY_SUCCESS;
 }
 
@@ -399,7 +399,7 @@ MPMY_Wtime(void)
     return MPI_Wtime();
 }
 
-#ifdef USE_PBS
+#if defined(USE_PBS) || defined(XK6)
 #include <stdlib.h>
 #include <time.h>
 
