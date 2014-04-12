@@ -51,10 +51,9 @@
 #define KIDSHERE	(1<<(2+MAXNSUB))
 #define REQUESTED (1<<(3+MAXNSUB))
 #define SHARED (1<<(4+MAXNSUB))
-#define LOCKED (1<<(5+MAXNSUB))
 /* This says how many bits are used above.  It controls where the */
 /* subflags go.  It should be one more than the last #define above...*/
-#define NTYPEBITS 6
+#define NTYPEBITS 5
 
 #define TreeDataOK(type) ((!(type&NONLOCAL))||(type&DATAHERE))
 #define TreeKidsOK(type) ((!(type&NONLOCAL))||(type&KIDSHERE))
@@ -62,7 +61,7 @@
 #define TreeLocal(type) (!(type&NONLOCAL))
 
 /* We offset by one to distinguish a source of zero from an unset source  */
-#define MAXDOC 15
+#define MAXDOC 18
 #define MAXSRCBITS (MAXDOC+1)
 #define SOURCEBIT (NTYPEBITS+MAXNSUB)
 #define SOURCEMASK (((1<<MAXSRCBITS)-1)<<SOURCEBIT)
