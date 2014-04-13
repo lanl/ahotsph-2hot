@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <fcntl.h>		/* for open */
 #include <unistd.h>		/* for close */
+#include <limits.h>
+#include <openssl/sha.h>
 #include "SDF.h"
 #include "SDFwrite.h"
 #include "Malloc.h"
@@ -165,8 +167,23 @@ SDFwrite_alist64(const char *filename, int mode, int64_t gnobj, int64_t nobj,
     header_size = BUF_INC;
     header_buf = Malloc(header_size);
 
+    struct md_s {
+	unsigned int len;
+	unsigned char hash[SHA_DIGEST_LENGTH];
+    } __attribute__ ((packed)) md;
+    struct md_s *mdtab = NULL;
+    if (MPMY_Procnum() == 0) {
+	mdtab = Malloc(MPMY_Nproc() * sizeof(struct md_s));
+    }
+    if (nobj * bsize >= UINT_MAX) Error("int overflow\n");
+    md.len = nobj * bsize;
+    SHA1(btab, md.len, md.hash);
+    MPMY_Gather(&md, SHA_DIGEST_LENGTH + sizeof(md.len), MPMY_CHAR, mdtab, 0);
+
     if (MPMY_Procnum() == 0 && wrote_header == 0) {
-	outstr ("# SDF\n");
+	outstr("# SDF\n");
+	outstr("int header_len = XXXXX;\n"); /* fill this in once we know */
+	int header_print_offset = header_len - 7;
 	sprintf(line, "parameter byteorder = 0x%x;\n", 
 		SDFcpubyteorder()); outstr(line); 
 	while( (name = va_arg(alist, char *)) ){
@@ -208,6 +225,12 @@ SDFwrite_alist64(const char *filename, int mode, int64_t gnobj, int64_t nobj,
 		break;
 	    }
 	}
+	sprintf(line, "int sha1_chunks = %d;\n", MPMY_Nproc()); outstr(line);
+	sprintf(line, "struct {\n"); outstr(line);
+	sprintf(line, "    unsigned int sha1_len;\n"); outstr(line);
+	sprintf(line, "    unsigned char sha1[%d];\n}", SHA_DIGEST_LENGTH); outstr(line);
+	sprintf(line, "[%d];\n", MPMY_Nproc()); outstr(line);
+	    
 	if( bodydesc ){
 	    outstr(bodydesc);
 	    if( gnobj > 0 ) {
@@ -235,11 +258,15 @@ SDFwrite_alist64(const char *filename, int mode, int64_t gnobj, int64_t nobj,
 	line[pad] = '\n';
 	line[pad+1] = '\0';
 	outstr(line);
+	sprintf(line, "%5d", header_len);
+	strncpy(header_buf+header_print_offset, line, 5);
 	/* Avoid separate write for header due to paragon limitations */
 	/* It's only memory, after all */
-	len = header_len+(size_t)bsize*nobj;
+	len = header_len + MPMY_Nproc()*sizeof(struct md_s) + (size_t)bsize*nobj;
 	buf = header_buf = Realloc(header_buf, len);
-	memcpy(buf+header_len, btab, (size_t)bsize*nobj);
+	memcpy(buf+header_len, mdtab, MPMY_Nproc() * sizeof(struct md_s));
+	memcpy(buf+header_len+MPMY_Nproc()*sizeof(struct md_s), btab, (size_t)bsize*nobj);
+	Free(mdtab);
     } else {
 	len = (size_t)bsize*nobj;
 	buf = btab;

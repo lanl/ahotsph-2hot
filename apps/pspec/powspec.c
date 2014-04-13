@@ -438,10 +438,12 @@ main(int argc, char **argv)
     MPMY_Init(&argc, &argv);
     fftwf_mpi_init();
 
+#if 0
     char msgfile[256];
     sprintf(msgfile, "msgs/msg.%d", MPMY_Procnum());
     MsgdirInit(msgfile);
     Msg_turnon("mpmy_mpi.c,mpmy_mpiio.c");
+#endif
 
     EnableWCTimer(&FFTTm, "FFT Time");
     if (argc != 3) {

@@ -89,8 +89,8 @@ Key_t OutIdentKey(const body *bp)
 #if NK == 2
     tmp.k[1] = 0;
 #endif
-    /* Decomp ignores the last 21 bits of the Key */
-    return KeyLshift(tmp,21);
+    /* Decomp ignores the last 30 bits of the Key */
+    return KeyLshift(tmp,30);
 }
 
 /* Convert gadget multiple file format */
@@ -130,6 +130,13 @@ main(int argc, char *argv[])
 
     MPMY_Init(&argc, &argv);
     singlPrintf("Running %s\n", argv[0]);
+
+#if 0
+    char msgfile[256];
+    sprintf(msgfile, "msgs/msg.%d", MPMY_Procnum());
+    MsgdirInit(msgfile);
+    Msg_turnon("decomp.c,pqsort.c,mpmy_mpiio.c");
+#endif
 
     if (argc < 3 || argc > 4) {
 	fprintf(stderr, "usage: %s filename_base_pos [nfiles] [longid]\n", argv[0]);
@@ -320,8 +327,9 @@ main(int argc, char *argv[])
 	} else {
 	    btab[i].ident = id[i];
 	}
-	if (btab[i].ident <= 0 || btab[i].ident >= gnobj) {
-	    Warning("Proc %d particle %d has zero ident\n", MPMY_Procnum(), i);
+	/* non power-of-two Morton IDs have offset */
+	if (btab[i].ident <= 0 /* || btab[i].ident >= gnobj */) {
+	    Warning("Proc %d particle %d has ident %ld\n", MPMY_Procnum(), i, btab[i].ident);
 	}
 #ifdef SAVE_ACC
 	if (has_acc) {
