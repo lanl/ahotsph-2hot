@@ -5,7 +5,7 @@
 # You can further modify these values in the Make.$(ARCH) files
 
 ifndef defaultPAROS
-defaultPAROS:=mpi
+defaultPAROS:=seq
 endif
 
 ifndef defaultCC

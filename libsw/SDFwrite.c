@@ -181,7 +181,7 @@ SDFwrite_alist64(const char *filename, int mode, int64_t gnobj, int64_t nobj,
     MPMY_Gather(&md, SHA_DIGEST_LENGTH + sizeof(md.len), MPMY_CHAR, mdtab, 0);
 
     if (MPMY_Procnum() == 0 && wrote_header == 0) {
-	outstr("# SDF\n");
+	outstr("# SDF 1.0\n");
 	outstr("int header_len = XXXXX;\n"); /* fill this in once we know */
 	int header_print_offset = header_len - 7;
 	sprintf(line, "parameter byteorder = 0x%x;\n", 
