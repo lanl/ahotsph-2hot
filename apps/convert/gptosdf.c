@@ -135,7 +135,7 @@ main(int argc, char *argv[])
     char msgfile[256];
     sprintf(msgfile, "msgs/msg.%d", MPMY_Procnum());
     MsgdirInit(msgfile);
-    Msg_turnon("decomp.c,pqsort.c,mpmy_mpiio.c");
+    Msg_turnon("SDFwrite.c,decomp.c,pqsort.c,mpmy_mpiio.c");
 #endif
 
     if (argc < 3 || argc > 4) {
@@ -360,12 +360,14 @@ main(int argc, char *argv[])
 	Error("total_mass is %lg, mtot from Omega0_m is %lg\n", total_mass, mtot);
     }
 
+#if 0
     pqsortsetup_order(&outputsort, btab, nobj,
 		      sizeof(body), 0.1, 1, Realloc_f);
     btab = pqsort(&outputsort,
 		  (pq_wgtproto)UnityCost, 
 		  (pq_keyproto)OutIdentKey);
     nobj = outputsort.nobj;
+#endif
 
     snprintf(outname, sizeof(outname), "%s.sdf", argv[1]);
     singlPrintf("Writing \"%s\"\n", outname);

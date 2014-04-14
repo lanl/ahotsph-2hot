@@ -17,7 +17,7 @@ asmsrc=do_grav_sse64_noswiz.s do_grav_sse64_noswiz_eps.s do_grav_sse64_nr.s
 cppasmsrc=do_grav_sse16_ivec.S
 
 ifeq ($(PAROS),mpi)
-LOADLIBES:=-L$(MPICH_DIR)/lib -lmpich -L$(PREFIX)/lib
-PAROSCFLAGS:=-I$(MPICH_DIR)/include -I$(PREFIX)/include
+LOADLIBES:=-L$(MPICH_DIR)/lib -lmpich
+PAROSCFLAGS:=-I$(MPICH_DIR)/include
 endif
 

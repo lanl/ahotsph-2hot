@@ -4,7 +4,7 @@
 incdir=$(treedir)/include
 objdir=Objfiles/$(ARCH)
 libdir=$(treedir)/Objfiles/$(ARCH)
-override CFLAGS:=-I$(incdir) $(CFLAGS) $(EXTRACFLAGS)
+override CFLAGS:=-I$(incdir) -I$(PREFIX)/include $(CFLAGS) $(EXTRACFLAGS)
 override LDFLAGS:=$(LDFLAGS) $(EXTRALDFLAGS)
 ifndef tarname
 tarname:=$(programname)
@@ -29,7 +29,7 @@ endif
 # If we're going to the trouble to list out the full directory names
 # in LIBDEPENDS, there's not much point in making the linker figure them
 # out (possibly erroneously) again with -L... -l...
-LOADLIBES_:=$(PRELIBS) $(LIBDEPENDS) -L$(libdir) -lunwind -lssl -lm $(POSTLIBS) $(LOADLIBES)
+LOADLIBES_:=$(PRELIBS) $(LIBDEPENDS) -L$(libdir) -L$(PREFIX)/lib -lunwind -lssl -lcrypto -ldl -lm $(POSTLIBS) $(LOADLIBES)
 
 ifdef programname
 bin:=$(programname).$(ARCH)$(PAROSsuf)

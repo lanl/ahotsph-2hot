@@ -34,11 +34,7 @@
 #define NFILES 4096
 
 /* MPI only allows 2GB buffer sizes, and MPI_Get_Count uses an int */
-#ifdef XK6
-#define MAXIOSIZE (1024*1024*1024)
-#else
 #define MAXIOSIZE (256*1024*1024)
-#endif
 #define SLOTS 8
 
 static struct _File{
@@ -185,8 +181,8 @@ MPMY_Fread(void *ptr, size_t size, size_t nitems, MPMYFile *Fp)
 	MPI_Get_count(&status, MPI_CHAR, &cnt);
     } else {
 	MPI_Offset mpi_offset;
-	size_t left, *sizes;
-	int i;
+	size_t left, *sizes, maxnread = 0;
+	int i, read_cycles;
 	assert(sizeof(size_t) == MPMY_Datasize[MPMY_LONG]);
 	sizes = Malloc(sizeof(size_t)*MPMY_Nproc());
 	/* Use scan instead? */
@@ -196,22 +192,26 @@ MPMY_Fread(void *ptr, size_t size, size_t nitems, MPMYFile *Fp)
 	for (i = 0; i < MPMY_Procnum(); i++) {
 	    mpi_offset += sizes[i];
 	}
-	Msgf(("My offset in MPMY_Fread is %lld\n", mpi_offset));
+	for (i = 0; i < MPMY_Nproc(); i++) {
+	    if (sizes[i] > maxnread) maxnread = sizes[i];
+	}
 	Free(sizes);
 	left = nread;
-	while (left > 0) {
+	read_cycles = 1 + (maxnread-1)/MAXIOSIZE;
+	Msgf(("My offset in MPMY_Fread is %lld\n", mpi_offset));
+	Msgf(("%d read cycles\n", read_cycles));
+	while (read_cycles--) {
 	    nread = (left < MAXIOSIZE) ? left : MAXIOSIZE;
 	    Msgf(("read %ld at %lld\n", nread, mpi_offset));
-	    Msg_flush();
 #ifdef XK6
 	    MPI_File_read_at_all(fp->fd, mpi_offset, (void *)p, nread, MPI_CHAR, &status);
 #else
-	    MPI_File_read_at(fp->fd, mpi_offset, (void *)p, nread, MPI_CHAR, &status);
+	    if (nread) MPI_File_read_at(fp->fd, mpi_offset, (void *)p, nread, MPI_CHAR, &status);
 #endif
 	    left -= nread;
 	    p += nread;
 	    mpi_offset += nread;
-	    MPI_Get_count(&status, MPI_CHAR, &cnt);
+	    if (nread) MPI_Get_count(&status, MPI_CHAR, &cnt);
 	}
     }
     return cnt/size;
@@ -239,9 +239,8 @@ MPMY_Fwrite(const void *ptr, size_t size, size_t nitems, MPMYFile *Fp)
 				 cnt, nwrite);
     } else {
 	MPI_Offset mpi_offset;
-	size_t left, *sizes;
-	int i;
-	int at_least_once = 1; 	/* for write_at_all to be synchronous for small writes */
+	size_t left, *sizes, maxnwrite = 0;
+	int i, write_cycles;
 	assert(sizeof(size_t) == MPMY_Datasize[MPMY_LONG]);
 	sizes = Malloc(sizeof(size_t)*MPMY_Nproc());
 	Native_MPMY_Allgather(&nwrite, 1, MPMY_LONG, sizes);
@@ -250,13 +249,17 @@ MPMY_Fwrite(const void *ptr, size_t size, size_t nitems, MPMYFile *Fp)
 	for (i = 0; i < MPMY_Procnum(); i++) {
 	    mpi_offset += sizes[i];
 	}
-	Msgf(("My offset in MPMY_Fwrite is %lld\n", mpi_offset));
+	for (i = 0; i < MPMY_Nproc(); i++) {
+	    if (sizes[i] > maxnwrite) maxnwrite = sizes[i];
+	}
 	Free(sizes);
 	left = nwrite;
-	while (left > 0 || at_least_once) {
+	write_cycles = 1 + (maxnwrite-1)/MAXIOSIZE;
+	Msgf(("My offset in MPMY_Fwrite is %lld\n", mpi_offset));
+	Msgf(("%d write cycles\n", write_cycles));
+	while (write_cycles--) {
 	    nwrite = (left < MAXIOSIZE) ? left : MAXIOSIZE;
 	    Msgf(("write %ld at %lld\n", nwrite, mpi_offset));
-	    Msg_flush();
 	    if (fp->async) {
 		if (nwrite == MAXIOSIZE) Error("Async writes not yet supported for chunks larger than MAXIOSIZE\n");
 		MPI_File_iwrite_at(fp->fd, mpi_offset, (void *)p, nwrite, MPI_CHAR, &fp->request);
@@ -271,8 +274,7 @@ MPMY_Fwrite(const void *ptr, size_t size, size_t nitems, MPMYFile *Fp)
 	    left -= nwrite;
 	    p += nwrite;
 	    mpi_offset += nwrite;
-	    at_least_once = 0;
-	    if (!fp->async) {
+	    if (!fp->async && nwrite) {
 		MPI_Get_count(&status, MPI_CHAR, &cnt);
 		if (cnt != nwrite) Error("MPMY_Fwrite has a problem, wrote %d of %ld\n",
 					 cnt, nwrite);
