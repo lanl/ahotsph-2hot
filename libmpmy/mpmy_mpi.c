@@ -286,6 +286,94 @@ Native_MPMY_Bcast(void *buf, int count, MPMY_Datatype type, int sendproc)
 }
 
 int
+Native_MPMY_Gather(const void *sendbuf, int sendcount, MPMY_Datatype type, void *recvbuf, int recvproc)
+{
+    MPI_Datatype st, rt;
+    int recvcount = sendcount;
+
+    switch (type){
+    case MPMY_FLOAT:
+	st = MPI_FLOAT;
+	break;
+    case MPMY_DOUBLE:
+	st = MPI_DOUBLE;
+	break;
+    case MPMY_INT:
+	st = MPI_INT;
+	break;
+    case MPMY_CHAR:
+	st = MPI_CHAR;
+	break;
+    case MPMY_SHORT:
+	st = MPI_SHORT;
+	break;
+    case MPMY_LONG:
+	st = MPI_LONG;
+	break;
+    default:
+	Error("No type match in allgather\n");
+    }
+    rt = st;
+    MPI_Gather(sendbuf, sendcount, st, 
+		  recvbuf, recvcount, rt, recvproc, MPI_COMM_WORLD);
+    return MPMY_SUCCESS;
+}
+
+int
+Native_MPMY_NGather(const void *sendbuf, int sendcount, MPMY_Datatype type, 
+		    void **recvhndl,  int recvproc)
+{
+    MPI_Datatype st, rt;
+
+    switch (type){
+    case MPMY_FLOAT:
+	st = MPI_FLOAT;
+	break;
+    case MPMY_DOUBLE:
+	st = MPI_DOUBLE;
+	break;
+    case MPMY_INT:
+	st = MPI_INT;
+	break;
+    case MPMY_CHAR:
+	st = MPI_CHAR;
+	break;
+    case MPMY_SHORT:
+	st = MPI_SHORT;
+	break;
+    case MPMY_LONG:
+	st = MPI_LONG;
+	break;
+    default:
+	Error("No type match in Ngather\n");
+    }
+    rt = st;
+    int total_rcount, *rcounts = NULL, *roffsets = NULL;
+    if (MPMY_Procnum() == recvproc) {
+	rcounts = Malloc(MPMY_Nproc() * sizeof(int));
+	roffsets = Malloc(MPMY_Nproc() * sizeof(int));
+    }
+
+    MPI_Gather(&sendcount, 1, MPI_INT, rcounts, 1, MPI_INT, recvproc, MPI_COMM_WORLD);
+    if (MPMY_Procnum() == recvproc) {
+	total_rcount = rcounts[0];
+	roffsets[0] = 0;
+	for (int i = 1; i < MPMY_Nproc(); i++) {
+	    roffsets[i] = roffsets[i-1] + rcounts[i-1];
+	    total_rcount += rcounts[i];
+	}
+	*recvhndl = Malloc(total_rcount * MPMY_Datasize[type]);
+    }
+    MPI_Gatherv(sendbuf, sendcount, st, 
+		*recvhndl, rcounts, roffsets, rt, recvproc, MPI_COMM_WORLD);
+    if (MPMY_Procnum() == recvproc) {
+	Free(roffsets);
+	Free(rcounts);
+    }
+    return MPMY_SUCCESS;
+}
+
+int
 Native_MPMY_Allgather(void *sendbuf, int sendcount, MPMY_Datatype type, void *recvbuf)
 {
     MPI_Datatype st, rt;
@@ -352,6 +440,68 @@ Native_MPMY_Allgatherv(void *sendbuf, int sendcount, MPMY_Datatype type, void *r
 		   recvbuf, rcounts, roffsets, rt, MPI_COMM_WORLD);
     return MPMY_SUCCESS;
 }
+
+int
+Native_MPMY_Combine(const void *sendbuf, void *recvbuf, int count, MPMY_Datatype type, MPMY_Op mpmy_op)
+{
+    MPI_Datatype st;
+    MPI_Op op;
+
+    switch (type) {
+    case MPMY_FLOAT:
+	st = MPI_FLOAT;
+	break;
+    case MPMY_DOUBLE:
+	st = MPI_DOUBLE;
+	break;
+    case MPMY_INT:
+	st = MPI_INT;
+	break;
+    case MPMY_CHAR:
+	st = MPI_CHAR;
+	break;
+    case MPMY_SHORT:
+	st = MPI_SHORT;
+	break;
+    case MPMY_LONG:
+	st = MPI_LONG;
+	break;
+    default:
+	Error("No type match in combine\n");
+    }
+    switch (mpmy_op) {
+    case MPMY_SUM:
+	op = MPI_SUM;
+	break;
+    case MPMY_PROD:
+	op = MPI_PROD;
+	break;
+    case MPMY_MAX:
+	op = MPI_MAX;
+	break;
+    case MPMY_MIN:
+	op = MPI_MIN;
+	break;
+#ifdef BIT_OPS
+    case MPMY_BAND:
+	op = MPI_BAND;
+	break;
+    case MPMY_BOR:
+	op = MPI_BOR;
+	break;
+    case MPMY_BXOR:
+	Error("Not supported\n");
+	break;
+#endif
+    default:
+	Error("No op match in combine\n");
+    }
+    if (sendbuf == recvbuf) sendbuf = MPI_IN_PLACE;
+    MPI_Allreduce(sendbuf, recvbuf, count,
+                  st, op, MPI_COMM_WORLD);
+    return MPMY_SUCCESS;
+}
+
 
 
 #define HAVE_MPMY_SYNC
@@ -422,7 +572,7 @@ MPMY_JobRemaining(void)
 	if (pbs_walltime) walltime_end = start + atoi(pbs_walltime);
 	else walltime_end = start + 24*3600;
     }
-    return walltime_end - start;
+    return walltime_end - time(NULL);
 }
 #endif
 

@@ -2,6 +2,7 @@
 /* SetupDecomp() figures out a way to assign every item to a processor */
 /* The assignments are available by using DestDecomp() */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include "Assert.h"
 #include "key.h"
@@ -27,7 +28,6 @@ Timer_t DecompCommTm;
 static Key_t decomptab[MAXNPROC];
 static int save_decomp;
 static Key_t (*getkey_s)(const void *);
-static float (*weight_s)(const void *);
 #ifdef SHOW_WGTS
 static float *decomp_wgt;
 #endif
@@ -73,8 +73,8 @@ SaveDecomp19(void)
 void
 SetDecomp19(void *ptr)
 {
-    if (ptr == 0) return;
     save_decomp = SET;
+    if (ptr == 0) return;	/* use existing decomptab */
     memcpy(decomptab, ptr, MPMY_Nproc() * sizeof(Key_t));
 }
 
@@ -85,13 +85,26 @@ ClearDecomp19(void *ptr)
 }
 
 static void
+keyminf(const void *a, const void *b, void *ret)
+{
+    if (KeyLT(*(Key_t *)a, *(Key_t *)b)) *(Key_t *)ret = *(Key_t *)a;
+    else *(Key_t *)ret = *(Key_t *)b;
+}
+
+static void
+keymaxf(const void *a, const void *b, void *ret)
+{
+    if (KeyGT(*(Key_t *)a, *(Key_t *)b)) *(Key_t *)ret = *(Key_t *)a;
+    else *(Key_t *)ret = *(Key_t *)b;
+}
+
+static void
 SetupDecompStatic(sortresult_t *decompp, 
 		  Key_t (*getkey)(const void *))
 {
-    Key_t tmp;
-    unsigned int i;
-    
-    getkey_s = getkey;
+    unsigned int size = decompp->size;
+    unsigned int nobj = decompp->nobj;
+    char *data = decompp->data;
     
     Msgf(("SetupDecomp: starting in mode %d\n", save_decomp));    
     if (save_decomp == SET) {
@@ -99,19 +112,134 @@ SetupDecompStatic(sortresult_t *decompp,
 	return;
     }
     StartTimer(&DecompTm);
-    tmp = KeyLshift(KeyInt(1), TOPBIT);
-    for (i = 0; i < MPMY_Nproc()-1; i++) {
-	decomptab[i] = KeyOr(tmp, KeyLshift(KeyInt(i+1), TOPBIT-ilog2(MPMY_Nproc())));
+
+    Key_t keymax = KeyInt(0);
+    Key_t keymin = KeyNot(KeyInt(0));
+    for (char *b = data; b < data + nobj * size; b += size) {
+	Key_t tmp = getkey(b);
+	if (KeyGT(tmp, keymax)) keymax = tmp;
+	if (KeyLT(tmp, keymin)) keymin = tmp;
     }
-    decomptab[MPMY_Nproc()-1] = KeyOr(tmp, KeySub(tmp, KeyInt(1)));
+    Msgf(("key bounds %s ", PrintKey(keymin)));
+    Msgf(("%s\n", PrintKey(keymax)));
+
+    MPMY_Comm_request req;
+    MPMY_ICombine_Init(&req);
+    MPMY_ICombine_func(&keymin, &keymin, sizeof(Key_t), keyminf, req);
+    MPMY_ICombine_func(&keymax, &keymax, sizeof(Key_t), keymaxf, req);
+    MPMY_ICombine_Wait(req);
+
+    Msgf(("global key bounds %s ", PrintKey(keymin)));
+    Msgf(("%s\n", PrintKey(keymax)));
+
+    int shift = 63;
+    keymin = KeyRshift(keymin, shift);
+    keymax = KeyAdd(KeyRshift(keymax, shift), KeyInt(1));
+    Msgf(("shifted key bounds %s ", PrintKey(keymin)));
+    Msgf(("%s\n", PrintKey(keymax)));
+
+    Key_t domain = KeySub(keymax, keymin);
+    Msgf(("domain %s\n", PrintKey(domain)));
+
+    /* NK == 2 specific */
+    for (int i = 0; i < MPMY_Nproc()-1; i++) {
+	decomptab[i] = KeyInt((domain.k[0]/MPMY_Nproc()) * (i + 1));
+	decomptab[i] = KeyLshift(KeyAdd(keymin, decomptab[i]), shift);
+    }
+    Key_t tmp = KeyLshift(KeyInt(1), TOPBIT);
+    tmp = KeyOr(tmp, KeySub(tmp, KeyInt(1)));
+    decomptab[MPMY_Nproc()-1] = tmp;
+    for (int i = 0; i < MPMY_Nproc(); i++) {
+	Msgf(("[%5d] %s\n", i, PrintKey(decomptab[i])));
+    }
     assert(MPMY_Nproc() <= MAXNPROC);
     StopTimer(&DecompTm);
     Msgf(("SetupDecomp done\n"));
+    Msg_do("decomptab[%d] %s %ld\n", 
+	   MPMY_Procnum(), PrintKey(decomptab[MPMY_Procnum()]), decomptab[MPMY_Procnum()].k[NK-1]);
 }
 
 void
 SetupDecomp(sortresult_t *decompp, 
 	    float (*weight)(const void *), Key_t (*getkey)(const void *))
+{
+    getkey_s = getkey;		/* needed by DestDecomp() */
+
+    if (!weight) {
+	SetupDecompStatic(decompp, getkey);
+	return;
+    }
+
+    Msgf(("SetupDecomp: starting in mode %d\n", save_decomp));    
+    if (save_decomp == SET) {
+	Msgf(("SetupDecomp: save decomp is set, returning\n"));
+	return;
+    }
+    StartTimer(&DecompTm);
+
+    int radixBits = 18;
+    int shift = TOPBIT-radixBits;
+    unsigned int radix = 1 << radixBits;
+    unsigned int mask = radix - 1;
+    double *keyden = Calloc(radix, sizeof(double));
+
+    unsigned int size = decompp->size;
+    unsigned int nobj = decompp->nobj;
+    char *data = decompp->data;
+    int counter = 0;
+    Msgf(("%s\n", PrintKey(getkey(data))));
+    for (char *b = data; b < data + nobj * size; b += size) {
+	keyden[KeyAndInt(KeyRshift(getkey(b), shift), mask)] += weight(b);
+	if (counter++ % 100000 == 0) Msgf(("%s\n", PrintKey(KeyRshift(getkey(b), shift))));
+    }
+    StartTimer(&DecompCommTm);
+    Native_MPMY_Combine(keyden, keyden, radix, MPMY_DOUBLE, MPMY_SUM);
+    StopTimer(&DecompCommTm);
+
+#if 1
+    if (MPMY_Procnum() == 0) {
+	FILE *fp = fopen("decomp.txt", "w");
+	for (int i = 1; i < radix; i++) {
+	    fprintf(fp, "%d %g\n", i, keyden[i]);
+	}
+	fclose(fp);
+    }
+#endif
+
+    for (int i = 1; i < radix; i++) keyden[i] += keyden[i-1];
+    double fac = MPMY_Nproc() / keyden[mask];
+    for (int i = 1; i < radix; i <<= 1) {
+	Msgf(("%d %g\n", i, fac * keyden[i]));
+    }
+
+    int j = 0;
+    Key_t base = KeyLshift(KeyInt(1), TOPBIT);
+    for (int i = 0; i < MPMY_Nproc()-1; i++) {
+	while (fac * keyden[j] < i + 1) j++;
+	if ((j & 077) == 077) j++;
+	if ((j & 077) == 001) j--;
+	decomptab[i] = KeyOr(KeyLshift(KeyInt(j), shift), base);
+	Msgf(("[%5d] %s\n", i, PrintKey(decomptab[i])));
+    }
+    Key_t tmp = KeyLshift(KeyInt(1), TOPBIT);
+    tmp = KeyOr(tmp, KeySub(tmp, KeyInt(1)));
+    decomptab[MPMY_Nproc()-1] = tmp;
+    Msgf(("[%5d] %s\n", MPMY_Nproc()-1, PrintKey(decomptab[MPMY_Nproc()-1])));
+
+    Free(keyden);
+    assert(MPMY_Nproc() < MAXNPROC);
+
+    StopTimer(&DecompTm);
+    Msgf(("SetupDecomp done\n"));
+    Msg_do("decomptab[%d] %s %ld\n", 
+	    MPMY_Procnum(), PrintKey(decomptab[MPMY_Procnum()]), decomptab[MPMY_Procnum()].k[NK-1]);
+    Msg_flush();
+}
+
+
+void
+SetupDecomp1(sortresult_t *decompp, 
+	     float (*weight)(const void *), Key_t (*getkey)(const void *))
 {
     char *b;
     unsigned int size = decompp->size;
@@ -128,13 +256,12 @@ SetupDecomp(sortresult_t *decompp,
     } *keydata, *kn;
     unsigned int i;
     
+    getkey_s = getkey;
+
     if (!weight) {
 	SetupDecompStatic(decompp, getkey);
 	return;
     }
-
-    getkey_s = getkey;
-    weight_s = weight;
 
     Msgf(("SetupDecomp: starting in mode %d\n", save_decomp));    
     if (save_decomp == SET) {
@@ -226,8 +353,8 @@ SetupDecomp(sortresult_t *decompp,
     StopTimer(&DecompCommTm);
     StopTimer(&DecompTm);
     Msgf(("SetupDecomp done\n"));
-    Msgf(("decomptab[%d] %s %ld\n", 
-	  MPMY_Procnum(), PrintKey(decomptab[MPMY_Procnum()]), decomptab[MPMY_Procnum()].k[NK-1]));
+    Msg_do("decomptab[%d] %s %ld\n", 
+	    MPMY_Procnum(), PrintKey(decomptab[MPMY_Procnum()]), decomptab[MPMY_Procnum()].k[NK-1]);
 }
 
 int
@@ -260,7 +387,7 @@ DestDecomp(void *b)
     assert (i >= 0 && i < MPMY_Nproc());
     assert (KeyLE(key, decomptab[i]) && (!i || KeyGT(key, decomptab[i-1])));
 #ifdef SHOW_WGTS
-    decomp_wgt[i] += weight_s(b);
+    decomp_wgt[i] += weight(b);
 #endif
     return i;
 }

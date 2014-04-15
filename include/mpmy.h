@@ -57,13 +57,16 @@ int MPMY_NGather(const void *sendbuf, int count, MPMY_Datatype type,
 		 void **recvhndl, int recvproc);
 int MPMY_Bcast(void *buf, int count, MPMY_Datatype type, int sendproc);
 int MPMY_BcastTag(void *buf, int count, MPMY_Datatype type, int sendproc, int Tag0);
-int Native_MPMY_Bcast(void *buf, int count, MPMY_Datatype type, int sendproc);
 int MPMY_Alltoall(void *sendbuf, int sendcount, MPMY_Datatype sendtype, 
 		  void *recvbuf, int recvcount, MPMY_Datatype recvtype);
 int MPMY_Alltoallv(void *sendbuf, int *sendcounts, int *sendoffsets, MPMY_Datatype sendtype, 
 		   void *recvbuf, int *recvcounts, int *recvoffsets, MPMY_Datatype recvtype);
 int MPMY_Alltoallv_simple(void *sendbuf, int *sendcounts, int *sendoffsets, MPMY_Datatype sendtype, 
 			  void *recvbuf, int *recvcounts, int *recvoffsets, MPMY_Datatype recvtype);
+int Native_MPMY_Bcast(void *buf, int count, MPMY_Datatype type, int sendproc);
+int Native_MPMY_Gather(const void *sendbuf, int sendcount, MPMY_Datatype type, void *recvbuf, int recvproc);
+int Native_MPMY_NGather(const void *sendbuf, int sendcount, MPMY_Datatype type, 
+			void **recvhndl,  int recvproc);
 int Native_MPMY_Allgather(void *sendbuf, int sendcount, MPMY_Datatype type, void *recvbuf);
 int Native_MPMY_Allgatherv(void *sendbuf, int sendcount, MPMY_Datatype type, void *recvbuf,
 			   int *rcounts, int *roffsets);
@@ -71,6 +74,7 @@ int Native_MPMY_Alltoall(void *sendbuf, int sendcount, MPMY_Datatype sendtype,
 			 void *recvbuf, int recvcount, MPMY_Datatype recvtype);
 int Native_MPMY_Alltoallv(void *sendbuf, int *sendcounts, int *sendoffsets, MPMY_Datatype sendtype, 
 			  void *recvbuf, int *recvcounts, int *recvoffsets, MPMY_Datatype recvtype);
+int Native_MPMY_Combine(const void *sendbuf, void *recvbuf, int count, MPMY_Datatype type, MPMY_Op mpmy_op);
 
 /*
    A NULL stat argument is allowed, indicating that you aren't interested in
