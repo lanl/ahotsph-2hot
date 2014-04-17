@@ -7,11 +7,23 @@ appexcludes=
 libname=libtree
 
 src:= \
-tree.c pqsort.c traverse.c walk.c decomp.c image.c
+tree.c pqsort.c traverse.c walk.c decomp.c image.c version.c
 
 include $(treedir)/Make-common/Make.$(ARCH)
 
 include $(treedir)/Make-common/Make.generic
+
+.PHONY: version.proto
+version.proto:
+	@echo char version_2HOT\[\] = \"`git describe --tags --dirty`\"\; > version.proto
+	@echo char arch_2HOT\[\] = \"`printenv ARCH`\"\; >> version.proto
+	@echo char compiled_date_2HOT\[\] = __DATE__\; >> version.proto
+	@echo char compiled_time_2HOT\[\] = __TIME__\; >> version.proto
+	@echo char compiler_2HOT\[\] = __VERSION__\; >> version.proto
+
+version.c: version.proto
+	@cmp -s $< $@ || cp -p $< $@
+
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 

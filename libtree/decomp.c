@@ -177,7 +177,7 @@ SetupDecomp(sortresult_t *decompp,
     }
     StartTimer(&DecompTm);
 
-    int radixBits = 18;
+    int radixBits = 24;
     int shift = TOPBIT-radixBits;
     unsigned int radix = 1 << radixBits;
     unsigned int mask = radix - 1;
@@ -196,9 +196,13 @@ SetupDecomp(sortresult_t *decompp,
     Native_MPMY_Combine(keyden, keyden, radix, MPMY_DOUBLE, MPMY_SUM);
     StopTimer(&DecompCommTm);
 
-#if 1
+#if 0
+    #include <time.h>
     if (MPMY_Procnum() == 0) {
-	FILE *fp = fopen("decomp.txt", "w");
+	char name[256];
+	sprintf(name, "decomp_%ld.txt", time(NULL));
+	FILE *fp = fopen(name, "w");
+	fprintf(fp, "# %d procs\n", MPMY_Nproc());
 	for (int i = 1; i < radix; i++) {
 	    fprintf(fp, "%d %g\n", i, keyden[i]);
 	}
