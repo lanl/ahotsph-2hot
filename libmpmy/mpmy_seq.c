@@ -231,6 +231,13 @@ Native_MPMY_Allgatherv(void *sendbuf, int sendcount, MPMY_Datatype type, void *r
     return MPMY_SUCCESS;
 }
 
+int
+Native_MPMY_Combine(const void *sendbuf, void *recvbuf, int count, MPMY_Datatype type, MPMY_Op mpmy_op)
+{
+    memcpy(recvbuf, sendbuf, count*MPMY_Datasize[type]);
+    return MPMY_SUCCESS;
+}
+
 
 
 int MPMY_Init(int *argcp, char ***argvp){
