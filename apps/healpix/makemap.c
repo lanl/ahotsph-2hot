@@ -97,6 +97,7 @@ main(int argc, char *argv[])
 	    sum += count[i];
 	    if (count[i] > 0.0) n += 1.0;
 	}
+	printf("sum is %g\n", sum);
 	double mean = sum/n;	/* mean of nonzero pixels */
 	for (int i = 0; i < npix; i++) signal[i] = count[i];
 	Free(count);
