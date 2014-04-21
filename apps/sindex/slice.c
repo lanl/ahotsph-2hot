@@ -115,7 +115,7 @@ main(int argc, char *argv[])
     body *btab = mm2 + offset;
 
     /* Make an image slice */
-    int res = 1024;
+    int res = 2048;
     float *image = calloc(res * res, sizeof(float));
     if (!image) Error("calloc failed\n");
 
@@ -127,16 +127,16 @@ main(int argc, char *argv[])
     for (int i = 0; i < idx_len; i++) {
 	Key_t key = KeyOr(placeholder, KeyInt(idx[i].index));
 	CellCorner(key, corner, &size);
-	if (corner[0] >= 0.0 && corner[0] < size && /* slice at x == 0+ */
-	    corner[1] >= 0.0 && corner[1] < 32.0 * size &&
-	    corner[2] >= 0.0 && corner[2] < 32.0 * size) {
+	if (corner[0] >= 0.0 && corner[0] < 4.0 * size && /* slice at x == 0+ */
+	    corner[1] >= 0.0 && corner[1] < 64.0 * size &&
+	    corner[2] >= 0.0 && corner[2] < 64.0 * size) {
 	    if (++nblocks % 1000 == 0) {
 		printf(".");
 		fflush(stdout);
 	    }
 	    for (body *p = &btab[idx[i].base]; p < &btab[idx[i].base+idx[i].len]; p++) {
-		int iy = 32*(p->pos[1]-0.0)/(32.0*size);
-		int iz = 32*(p->pos[2]-0.0)/(32.0*size);
+		int iy = res*(p->pos[1]-0.0)/(64.0*size);
+		int iz = res*(p->pos[2]-0.0)/(64.0*size);
 		if (iy >= 0 && iy < res && iz >= 0 && iz < res)
 		    image[res*iz + iy] += particle_mass;
 	    }
