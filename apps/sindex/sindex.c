@@ -46,6 +46,7 @@ main(int argc, char *argv[])
     }
     char *infile = argv[1];
     if (argc == 3) level = atoi(argv[2]);
+    if (level > 10) Error("level too large for int32 index\n");
 
     SDF *sdf = SDFopen(NULL, infile);
     if (!sdf) Error("SDFopen %s failed\n", infile);
@@ -110,9 +111,10 @@ main(int argc, char *argv[])
     Stk stk;
     StkInitEz(&stk);
 
-    fprintf(fp, "# index base len octal_key\n");
+    fprintf(fp, "# base len index octal_key\n");
     fprintf(fp, "# level=%d\n", level);
 
+    int nlines = 0;
     /* Termination condition really is <=, since next proc didn't know it started at beginning */
     for (int64_t i = start; i <= end; /* NULL */) {
 	int64_t i0 = i;
@@ -130,9 +132,12 @@ main(int argc, char *argv[])
 		/* Skip first one (started in the middle) the proc before us will do it */
 		if (!is_partial) {
 		    idx_t idx = {.base = i0, .len = i-i0, .index = this_cell.k[0] & mask};
+		    if (i-i0 >= (1LL<<32)) Error("cell len too large for int32\n");
 		    StkPushData(&stk, &idx, sizeof(idx_t));
-		    if (text_output) 
+		    if (text_output) {
 			fprintf(fp, "%12ld %6ld %8ld %s\n", i0, i-i0, this_cell.k[0] & mask, PrintKey(GetKeyFast(&btab[i0])));
+			if (++nlines % 1000) fflush(fp);
+		    }
 		} else is_partial = 0;
 		break;
 	    } else {

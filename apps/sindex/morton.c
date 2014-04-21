@@ -27,7 +27,33 @@ FixRsizeExact(float *rmin, float *rmax)
     Rsize = d;
     VV(Rmin, = -0.5f*d + center);
     return Rsize;
-}    
+}
+
+void 
+CellCorner(Key_t key, float *corner, float *size)
+{
+    unsigned int icorner[NDIM];
+    unsigned int iscale = 1;
+    float factor;
+    int i;
+
+    VS(icorner, = 0);
+    while (KeyGT(key, KeyInt(1))) {
+	for (i = 0; i < NDIM; i++) {
+	    if (KeyAndInt(key, (1<<i)))
+		icorner[i] |= iscale;
+	}
+	key = KeyRshift(key, NDIM);
+	iscale <<= 1;
+    }
+    /* Now scale it back to "physical" units */
+    factor = Rsize/iscale;
+    VVV(corner, = Rmin, +factor*icorner);
+    if (size) {
+	*size = factor;
+    }
+}
+
 
 /* for i in range(256): */
 /*     print '%d, ' % (i&1 | (i>>1&1)<<3 | (i>>2&1)<<6 | (i>>3&1)<<9 | (i>>4&1)<<12 | (i>>5&1)<<15 | (i>>6&1)<<18 | (i>>7&1)<<21) */

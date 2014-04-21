@@ -13,5 +13,6 @@ typedef struct  {
 } __attribute__ ((packed)) body;
 
 float FixRsizeExact(float *rmin, float *rmax);
+void CellCorner(Key_t key, float *corner, float *size);
 Key_t GetKeyFast(const body *p);
 
