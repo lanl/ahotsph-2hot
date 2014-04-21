@@ -13,10 +13,29 @@
 #include "mpmy.h"
 #include "singlio.h"
 #include "error.h"
+#include "gc.h"			/* for ilog2 */
+#include "stk.h"
+#include "SDFwrite.h"
+
+/* This is only valid at levels in the tree with less than 4G particles in each cell */
+/* and less than 4G cells at that level */
+typedef struct {
+    int64_t base;
+    uint32_t len;
+    uint32_t index;
+} idx_t;
+
+#define OUTIDX \
+"struct {\n\
+    int64_t base;		/* offset of first object in cell */\n\
+    unsigned int len;		/* number of objects in this cell */\n\
+    unsigned int index;		/* cell morton index */\n\
+}"
 
 int
 main(int argc, char *argv[])
 {
+    int text_output = 1;
     int level = 3;
 
     MPMY_Init(&argc, &argv);
@@ -43,15 +62,23 @@ main(int argc, char *argv[])
     VV(rmin, = -a*R);
     VV(rmax, = a*R);
 
-    /* expand root for non-power-of-two */
-    VS(rmin, *= (1.0 + 0.6)); 
-    VS(rmax, *= (1.0 + 0.6));
+    int ic_Nmesh = 0;
+    if (!SDFgetint(sdf, "ic_Nmesh", &ic_Nmesh)) {
+	/* expand root for non-power-of-two */
+	double expand_root = 0.0;
+	int f2 = 1<<(ilog2(ic_Nmesh-1)+1);
+	if (f2 != ic_Nmesh) expand_root = (double)f2/ic_Nmesh - 1.0;
+	VS(rmin, *= (1.0 + expand_root)); 
+	VS(rmax, *= (1.0 + expand_root));
+    }
 
     FixRsizeExact(rmin, rmax);
 
     int64_t offset = SDFfileoffset("x", sdf);
     int64_t stride = SDFfilestride("x", sdf);
     int64_t len = SDFnrecs("x", sdf);
+
+    SDFclose(sdf);
 
     assert(stride == sizeof(body));
     assert(len == gnobj);
@@ -66,11 +93,28 @@ main(int argc, char *argv[])
 
     body *btab = mm + offset;
 
-    singlPrintf("# index base len octal_key\n");
-    singlPrintf("# level=%d\n", level);
-
     int64_t mask = (1LL<<(level*NDIM))-1;
-    for (int64_t i = 0; i < gnobj; /* NULL */) {
+    int procnum = MPMY_Procnum();
+    int nproc = MPMY_Nproc();
+    int64_t start = procnum * gnobj / nproc;
+    int64_t end = (procnum == nproc-1) ? gnobj-1 : (procnum+1) * gnobj / nproc;
+    int is_partial = (procnum) ? 1 : 0;
+
+    FILE *fp = stdout;
+    if (nproc > 1) {
+	char filename[256];
+	sprintf(filename, "index/%s_index.%04d", argv[1], procnum);
+	fp = fopen(filename, "w");
+	if (!fp) Error("fopen %s failed, %s\n", filename, strerror(errno));
+    }
+    Stk stk;
+    StkInitEz(&stk);
+
+    fprintf(fp, "# index base len octal_key\n");
+    fprintf(fp, "# level=%d\n", level);
+
+    /* Termination condition really is <=, since next proc didn't know it started at beginning */
+    for (int64_t i = start; i <= end; /* NULL */) {
 	int64_t i0 = i;
 	Key_t this_cell = KeyRshift(GetKeyFast(&btab[i0]), NDIM*(BITS_PER_DIM-level));
 	while (1) {
@@ -83,15 +127,36 @@ main(int argc, char *argv[])
 		if (KeyEQ(next_cell, KeyRshift(GetKeyFast(&btab[j]), NDIM*(BITS_PER_DIM-level)))) count++;
 	    }
 	    if (count >= 8) {
-		singlPrintf("%8ld %12ld %12ld %s\n", this_cell.k[0] & mask, i0, i-i0, PrintKey(GetKeyFast(&btab[i0])));
+		/* Skip first one (started in the middle) the proc before us will do it */
+		if (!is_partial) {
+		    idx_t idx = {.base = i0, .len = i-i0, .index = this_cell.k[0] & mask};
+		    StkPushData(&stk, &idx, sizeof(idx_t));
+		    if (text_output) 
+			fprintf(fp, "%12ld %6ld %8ld %s\n", i0, i-i0, this_cell.k[0] & mask, PrintKey(GetKeyFast(&btab[i0])));
+		} else is_partial = 0;
 		break;
 	    } else {
 		i++;
 	    }
 	}
     }
+    int64_t gnout, nout;
+    nout = StkSz(&stk)/sizeof(idx_t);
+    MPMY_Combine(&nout, &gnout, 1, MPMY_INT64, MPMY_SUM);
 
-    SDFclose(sdf);
+    char outname[256];
+    sprintf(outname, "%s.idx", argv[1]);
+
+    SDFwrite64(outname, gnout, 
+	       nout, StkBase(&stk), sizeof(idx_t), OUTIDX,
+	       "filename", SDF_STRING, argv[1],
+	       "level", SDF_INT, level,
+	       "x_min", SDF_DOUBLE, rmin[0],
+	       "y_min", SDF_DOUBLE, rmin[1],
+	       "z_min", SDF_DOUBLE, rmin[2],
+	       "rsize", SDF_DOUBLE, rmax[2]-rmin[2],
+	       "version", SDF_INT, 1);
+
     MPMY_Finalize();
     exit(0);
 }
