@@ -102,7 +102,7 @@ main(int argc, char *argv[])
 		   "ident", offsetof(body, ident), &identconf,
 		   NULL);
 
-    if (massconf==0 || xconf==0 || yconf==0 || zconf==0) {
+    if (xconf==0 || yconf==0 || zconf==0) {
       SinglError("Could not find %s %s %s %s in data file!\n",
 		 (massconf==0)? "mass" : "",
 		 (xconf==0)? "x" : "",
@@ -111,6 +111,13 @@ main(int argc, char *argv[])
     }
     if (vxconf != vyconf || vxconf != vzconf) {
       SinglError("Missing velocity components!\n");
+    }
+    if (massconf == 0) {
+	float particle_mass;
+	SDFgetfloatOrDie(sdfp, "particle_mass", &particle_mass);
+	for (i = 0; i < nobj; i++) {
+	    btab[i].mass = particle_mass;
+	}
     }
 
     a = 1.0/(1.0+redshift);

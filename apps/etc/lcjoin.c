@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <math.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -188,8 +189,7 @@ int
 main(int argc, char *argv[])
 {
     int nfiles;
-    char *filename, sdfhdr[256], outbase[256];;
-    FILE *fp;
+    char *filelist, sdfhdr[256], outbase[256];
     struct stat sb;
     SDF *sdfp;
     int64_t gnobj, nobj;
@@ -199,13 +199,12 @@ main(int argc, char *argv[])
     float epsilon_scaled;
     double lc_origin[NDIM] = {};
     body *btab = NULL;
-    int nargs = 6;
     int version, fileversion_2HOT, units_2HOT;
 
     MPMY_Init(&argc, &argv);
 
-    if (argc <= nargs) {
-	fprintf(stderr, "usage: %s outnamebase file.hdr lc_x lc_y lc_z files...\n", argv[0]);
+    if (argc != 8) {
+	fprintf(stderr, "usage: %s outnamebase file.hdr lc_x lc_y lc_z filenames nfiles\n", argv[0]);
 	exit(1);
     }
     singlPrintf("Welcome to the machine\n");
@@ -214,9 +213,20 @@ main(int argc, char *argv[])
     lc_origin[0] = atof(argv[3]);
     lc_origin[1] = atof(argv[4]);
     lc_origin[2] = atof(argv[5]);
-    /* nargs */
+    filelist = argv[6];
+    nfiles = atoi(argv[7]);
 
-    nfiles = argc-nargs;
+    FILE *fp = fopen(filelist, "r");
+    if (!fp) Error("fopen %s failed\n", filelist);
+    char filename[nfiles][256];
+    for (int i = 0; i < nfiles; i++) {
+	if (!fgets(filename[i], 256, fp)) Error("fgets failed\n");
+	/* strip carriage returns */
+	char *cr = index(filename[i], '\n');
+	if (cr) *cr = '\0';
+
+    }
+
     singlPrintf("Reading %d files on %d procs\n", nfiles, MPMY_Nproc());
 
     if (!(sdfp = SDFopen(NULL, sdfhdr))) {
@@ -238,11 +248,10 @@ main(int argc, char *argv[])
 
     gnobj = nobj = 0;
     btab = Malloc(sizeof(body)); /* so SDFwrite behaves if nobj is zero */
-    for (int i = nargs; i < argc; i++) {
+    for (int i = 0; i < nfiles; i++) {
 	if (i % MPMY_Nproc() == MPMY_Procnum()) {
-	    filename = argv[i];
-	    printf("%d reading %s\n", MPMY_Procnum(), filename);
-	    Fopen(fp, filename, "r");
+	    printf("%d reading %s\n", MPMY_Procnum(), filename[i]);
+	    Fopen(fp, filename[i], "r");
 	    if (fstat(fileno(fp), &sb) == -1) Error("stat failed");
 	    if (sb.st_size % sizeof(body)) 
 		Error("File does not end on record boundary\n");
@@ -256,23 +265,26 @@ main(int argc, char *argv[])
     nobj = gnobj;
     MPMY_Combine(&nobj, &gnobj, 1, MPMY_INT64, MPMY_SUM);
 
-    singlPrintf("Sorting %ld particles by r,theta,phi\n", gnobj);
-    const float rtp_min[NDIM] = {0.0, 0.0, -M_PI};
-    const float rtp_max[NDIM] = {R0, 2.0*M_PI, M_PI};
-    FixRsizeExact(rtp_min, rtp_max);
+
+    singlPrintf("Sorting %ld particles by xyz\n", gnobj);
+    float rmin[NDIM], rmax[NDIM];
+    VS(rmin, = -R0*1.01);
+    VS(rmax, = R0*1.01);
+    FixRsizeExact(rmin, rmax);
 
     sortresult_t outputsort;
     pqsortsetup_order(&outputsort, btab, nobj,
 		      sizeof(body), 0.1, 1, Realloc_f);
     btab = pqsort(&outputsort,
 		  (pq_wgtproto)UnityCost, 
-		  (pq_keyproto)GetKeySphericalFast);
+		  (pq_keyproto)GetKeyFast);
     nobj = outputsort.nobj;
 
     MPMY_Combine(&nobj, &gnobj, 1, MPMY_INT64, MPMY_SUM);
 
     char outname[256];
-    sprintf(outname, "%s_rtp.sdf", outbase);
+#if 0				/* TEMPORARY */
+    sprintf(outname, "%s_xyz.sdf", outbase);
     singlPrintf("Writing \"%s\"\n", outname);
 
     SDFwrite64(outname, gnobj,
@@ -284,7 +296,7 @@ main(int argc, char *argv[])
 	       "version_2HOT", SDF_INT, fileversion_2HOT,
 	       "units_2HOT", SDF_INT, units_2HOT,
 	       "light_cone", SDF_INT, 1,
-	       "sorted_rtp", SDF_INT, 1,
+	       "sorted_xyz", SDF_INT, 1,
 	       "light_cone_x0", SDF_DOUBLE, lc_origin[0],
 	       "light_cone_y0", SDF_DOUBLE, lc_origin[1],
 	       "light_cone_z0", SDF_DOUBLE, lc_origin[2],
@@ -300,24 +312,23 @@ main(int argc, char *argv[])
 	       "compiled_date_2HOT", SDF_STRING, compiled_date_2HOT,
 	       "compiled_time_2HOT", SDF_STRING, compiled_time_2HOT,
 	       NULL);
+#endif
 
-
-    singlPrintf("Sorting %ld particles by xyz\n", gnobj);
-    float rmin[NDIM], rmax[NDIM];
-    VS(rmin, = -R0);
-    VS(rmax, = R0);
-    FixRsizeExact(rmin, rmax);
+    singlPrintf("Sorting %ld particles by r,theta,phi\n", gnobj);
+    const float rtp_min[NDIM] = {0.0, 0.0, -M_PI};
+    const float rtp_max[NDIM] = {R0*1.01, 2.0*M_PI, M_PI};
+    FixRsizeExact(rtp_min, rtp_max);
 
     pqsortsetup_order(&outputsort, btab, nobj,
 		      sizeof(body), 0.1, 1, Realloc_f);
     btab = pqsort(&outputsort,
 		  (pq_wgtproto)UnityCost, 
-		  (pq_keyproto)GetKeyFast);
+		  (pq_keyproto)GetKeySphericalFast);
     nobj = outputsort.nobj;
 
     MPMY_Combine(&nobj, &gnobj, 1, MPMY_INT64, MPMY_SUM);
 
-    sprintf(outname, "%s_xyz.sdf", outbase);
+    sprintf(outname, "%s_rtp.sdf", outbase);
     singlPrintf("Writing \"%s\"\n", outname);
 
     SDFwrite64(outname, gnobj,
@@ -329,7 +340,7 @@ main(int argc, char *argv[])
 	       "version_2HOT", SDF_INT, fileversion_2HOT,
 	       "units_2HOT", SDF_INT, units_2HOT,
 	       "light_cone", SDF_INT, 1,
-	       "sorted_xyz", SDF_INT, 1,
+	       "sorted_rtp", SDF_INT, 1,
 	       "light_cone_x0", SDF_DOUBLE, lc_origin[0],
 	       "light_cone_y0", SDF_DOUBLE, lc_origin[1],
 	       "light_cone_z0", SDF_DOUBLE, lc_origin[2],
