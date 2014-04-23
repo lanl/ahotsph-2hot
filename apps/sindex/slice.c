@@ -115,7 +115,7 @@ main(int argc, char *argv[])
     body *btab = mm2 + offset;
 
     /* Make an image slice */
-    int res = 2048;
+    int res = 20480;
     float *image = calloc(res * res, sizeof(float));
     if (!image) Error("calloc failed\n");
 
@@ -124,25 +124,32 @@ main(int argc, char *argv[])
     Key_t placeholder = KeyLshift(KeyInt(1), level*NDIM);
     CellCorner(placeholder, corner, &size);
     printf("level %d cell size is %g\n", level, size);
+#if 0
+    float min[NDIM] = {0.0, 0.0, 0.0};
+    float max[NDIM] = {4.0*size, 64.0*size, 64.0*size};
+#else
+    float min[NDIM] = {8.0*size, -a*R[1], -a*R[2]};
+    float max[NDIM] = {12.0*size, a*R[1], a*R[2]};
+#endif
     for (int i = 0; i < idx_len; i++) {
 	Key_t key = KeyOr(placeholder, KeyInt(idx[i].index));
 	CellCorner(key, corner, &size);
-	if (corner[0] >= 0.0 && corner[0] < 4.0 * size && /* slice at x == 0+ */
-	    corner[1] >= 0.0 && corner[1] < 64.0 * size &&
-	    corner[2] >= 0.0 && corner[2] < 64.0 * size) {
+	if (corner[0] >= min[0] && corner[0] < max[0] &&
+	    corner[1] >= min[1] && corner[1] < max[1] &&
+	    corner[2] >= min[2] && corner[2] < max[2]) {
 	    if (++nblocks % 1000 == 0) {
 		printf(".");
 		fflush(stdout);
 	    }
 	    for (body *p = &btab[idx[i].base]; p < &btab[idx[i].base+idx[i].len]; p++) {
-		int iy = res*(p->pos[1]-0.0)/(64.0*size);
-		int iz = res*(p->pos[2]-0.0)/(64.0*size);
+		int iy = res*(p->pos[1]-min[1])/(max[1]-min[1]);
+		int iz = res*(p->pos[2]-min[2])/(max[2]-min[2]);
 		if (iy >= 0 && iy < res && iz >= 0 && iz < res)
 		    image[res*iz + iy] += particle_mass;
 	    }
 	}
     }
-    FILE *fp = fopen("slice.float32", "w");
+    FILE *fp = fopen("slice1.float32", "w");
     if (!fp) Error("fopen failed, %s\n", strerror(errno));
     fwrite(image, sizeof(float), res * res, fp);
     fclose(fp);
