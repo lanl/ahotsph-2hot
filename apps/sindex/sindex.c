@@ -35,7 +35,7 @@ typedef struct {
 int
 main(int argc, char *argv[])
 {
-    int text_output = 1;
+    int text_output = 0;
     int level = 3;
 
     MPMY_Init(&argc, &argv);
@@ -102,7 +102,7 @@ main(int argc, char *argv[])
     int is_partial = (procnum) ? 1 : 0;
 
     FILE *fp = stdout;
-    if (nproc > 1) {
+    if (nproc > 1 && text_output) {
 	char filename[256];
 	sprintf(filename, "index/%s_index.%04d", argv[1], procnum);
 	fp = fopen(filename, "w");
@@ -111,8 +111,10 @@ main(int argc, char *argv[])
     Stk stk;
     StkInitEz(&stk);
 
-    fprintf(fp, "# base len index octal_key\n");
-    fprintf(fp, "# level=%d\n", level);
+    if (text_output) {
+	fprintf(fp, "# base len index octal_key\n");
+	fprintf(fp, "# level=%d\n", level);
+    }
 
     int nlines = 0;
     /* Termination condition really is <=, since next proc didn't know it started at beginning */

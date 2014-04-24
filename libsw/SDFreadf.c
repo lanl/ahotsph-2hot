@@ -47,12 +47,12 @@ SDF *SDFreadf(char *hdr, char *name, void **btabp, int *gnobjp, int *nobjp,
 	/* the real loop over arguments below... */
 	va_start(ap, stride);
 	names[0] = va_arg(ap, char *);
-	gnobj = SDFnrecs(names[0], sdfp);
+	gnobj = SDFnrecs(names[1], sdfp);
 	va_end(ap);
 	if( MPMY_Procnum() == 0 ){
 	    SinglShout("%s does not have an \"npart\".\n", name);
 	    SinglShout("Guessing npart=%d from SDFnrecs(., %s)\n", 
-		       gnobj, names[0]);
+		       gnobj, names[1]);
 	}
     }
     
@@ -121,16 +121,11 @@ SDF *SDFreadf64(char *hdr, char *name, void **btabp, int64_t *gnobjp, int *nobjp
     VerifySX(sdfp = SDFopen(hdr, name),SinglShout("%s", SDFerrstring));
     
     if( SDFgetint64(sdfp, "npart", &gnobj) ){
-	/* Hopefully calling va_start and va_end in here won't disturb */
-	/* the real loop over arguments below... */
-	va_start(ap, stride);
-	names[0] = va_arg(ap, char *);
-	gnobj = SDFnrecs(names[0], sdfp);
-	va_end(ap);
+	gnobj = SDFnrecs("x", sdfp);
 	if( MPMY_Procnum() == 0 ){
 	    SinglShout("%s does not have an \"npart\".\n", name);
 	    SinglShout("Guessing npart=%ld from SDFnrecs(., %s)\n", 
-		       gnobj, names[0]);
+		       gnobj, "x");
 	}
     }
     

@@ -103,12 +103,13 @@ SDF *SDFread(SDF *csdfp, void **btabp, int *gnobjp, int *nobjp,
 	/* the real loop over arguments below... */
 	va_start(ap, stride);
 	names[0] = va_arg(ap, char *);
-	gnobj = SDFnrecs(names[0], sdfp);
+	names[1] = va_arg(ap, char *);
+	gnobj = SDFnrecs(names[1], sdfp);
 	va_end(ap);
 	if( MPMY_Procnum() == 0 ){
 	    SinglShout("%s does not have an \"%s\".\n", name, SDFread_npart);
 	    SinglShout("Guessing %s=%d from SDFnrecs(., %s)\n", 
-		       SDFread_npart, gnobj, names[0]);
+		       SDFread_npart, gnobj, names[1]);
 	}
     }
     
@@ -231,17 +232,19 @@ SDF *SDFread64(SDF *csdfp, void **btabp, int64_t *gnobjp, int *nobjp,
 	/* Hopefully calling va_start and va_end in here won't disturb */
 	/* the real loop over arguments below... */
 	va_start(ap, stride);
+	/* names[0] is usually mass, which may or may not be present */
 	names[0] = va_arg(ap, char *);
-	gnobj = SDFnrecs(names[0], sdfp);
+	names[1] = va_arg(ap, char *);
+	gnobj = SDFnrecs(names[1], sdfp);
 	va_end(ap);
 	if( MPMY_Procnum() == 0 ){
 	    SinglShout("%s does not have an \"%s\".\n", name, SDFread_npart);
 #if __WORDSIZE==64
 	    SinglShout("Guessing %s=%ld from SDFnrecs(., %s)\n", 
-		       SDFread_npart, gnobj, names[0]);
+		       SDFread_npart, gnobj, names[1]);
 #else
 	    SinglShout("Guessing %s=%lld from SDFnrecs(., %s)\n", 
-		       SDFread_npart, gnobj, names[0]);
+		       SDFread_npart, gnobj, names[1]);
 #endif
 	}
     }

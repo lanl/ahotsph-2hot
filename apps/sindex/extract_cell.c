@@ -1,4 +1,4 @@
-/* "Buffered block" cube which covers a specified region with an added spatial buffer */
+/* Extract cell with no overlap region */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -118,12 +118,17 @@ main(int argc, char *argv[])
     FILE *fp = fopen(outfile, "w");
     if (!fp) Error("fopen failed, %s\n", strerror(errno));
 
+    int64_t nout = 0;
+    int64_t first = -1;
     for (int i = 0; i < idx_len; i++) {
 	if (idx[i].index >> NDIM*(level-cell_level) == index) {
 	    if (fwrite(&btab[idx[i].base], sizeof(body), idx[i].len, fp) != idx[i].len)
 		Error("fwrite failed, %s\n", strerror(errno));
+	    if (first == -1) first = idx[i].base;
+	    nout += idx[i].len;
 	}
     }
+    fprintf(stderr, "slice(%ld, %ld)\n", first, first+nout);
     fclose(fp);
     exit(0);
 }

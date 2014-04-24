@@ -2,5 +2,11 @@
 Objfiles
 *.amd6100
 *.amd6100-mpi
+*.xk7
+*.xk7-mpi
+*.i7
+*.i7-mpi
+*.native
+*.native-mpi
 version.proto
 version.c
