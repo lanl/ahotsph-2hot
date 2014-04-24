@@ -115,12 +115,12 @@ main(int argc, char *argv[])
     body *btab = mm2 + offset;
 
     /* Make an image slice */
-    int64_t res = 4*20480;
+    int64_t res = 2560;
     float *image = calloc(res * res, sizeof(float));
     if (!image) Error("calloc failed\n");
 
     int nblocks = 0;
-    float corner[NDIM], size;
+    float corner[NDIM], center[NDIM], size;
     Key_t placeholder = KeyLshift(KeyInt(1), level*NDIM);
     CellCorner(placeholder, corner, &size);
     printf("level %d cell size is %g\n", level, size);
@@ -128,15 +128,17 @@ main(int argc, char *argv[])
     float min[NDIM] = {0.0, 0.0, 0.0};
     float max[NDIM] = {4.0*size, 64.0*size, 64.0*size};
 #else
-    float min[NDIM] = {16.0*size, -a*R[1], -a*R[2]};
-    float max[NDIM] = {32.0*size, a*R[1], a*R[2]};
+    float min[NDIM] = {0.0*size, -a*R[1], -a*R[2]};
+    float max[NDIM] = {1.0*size, a*R[1], a*R[2]};
 #endif
+    printf("Expect %.0f**2 blocks per layer\n", (max[2]-min[2])/size);
     for (int i = 0; i < idx_len; i++) {
 	Key_t key = KeyOr(placeholder, KeyInt(idx[i].index));
 	CellCorner(key, corner, &size);
-	if (corner[0] >= min[0] && corner[0] < max[0] &&
-	    corner[1] >= min[1] && corner[1] < max[1] &&
-	    corner[2] >= min[2] && corner[2] < max[2]) {
+	VV(center, = 0.5f*size + corner);
+	if (center[0] >= min[0] && center[0] < max[0] &&
+	    center[1] >= min[1] && center[1] < max[1] &&
+	    center[2] >= min[2] && center[2] < max[2]) {
 	    if (++nblocks % 1000 == 0) {
 		printf(".%d", nblocks/1000);
 		fflush(stdout);
@@ -149,8 +151,10 @@ main(int argc, char *argv[])
 	    }
 	}
     }
-    FILE *fp = fopen("slice2.float32", "w");
-    if (!fp) Error("fopen failed, %s\n", strerror(errno));
+    char outname[256];
+    sprintf(outname, "%s_slice0.float32", infile);
+    FILE *fp = fopen(outname, "w");
+    if (!fp) Error("fopen %s failed, %s\n", outname, strerror(errno));
     fwrite(image, sizeof(float), res * res, fp);
     fclose(fp);
     printf("\nDone.\n");
