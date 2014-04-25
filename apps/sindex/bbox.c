@@ -17,6 +17,19 @@
 #include "stk.h"
 #include "SDFwrite.h"
 
+/* 
+msw@eos-ext1:~/scratch/chunk_halos> ~/2HOT/apps/sindex/bbox.i7 ds14_a_170000_1.0000 5 070000
+[0, 581343.19],
+[0, 581343.19],
+[0, 581343.19],
+
+msw@eos-ext1:~/scratch/chunk_halos> ~/2HOT/apps/sindex/bbox.i7 ds14_a_1077700_1.0000 6 077700
+lseek on 3 returns 489881655, errno is 0
+[-1162686.5, -872014.88],
+[-1162686.5, -872014.88],
+[-1162686.5, -872014.88],
+*/
+
 int
 main(int argc, char *argv[])
 {
