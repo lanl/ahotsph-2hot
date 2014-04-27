@@ -12,7 +12,8 @@ typedef struct  {
     int64_t ident;		/* unique identifier */
 } __attribute__ ((packed)) body;
 
-float FixRsizeExact(float *rmin, float *rmax);
-void CellCorner(Key_t key, float *corner, float *size);
+void FixRsizeExact(const float rmin[NDIM], const float rmax[NDIM]);
+void CellCorner(Key_t key, float corner[NDIM], float size[NDIM]);
 Key_t GetKeyFast(const body *p);
+Key_t GetKeySphericalFast(const body *p);
 

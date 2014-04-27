@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <math.h>
 #include "assert.h"
 #include "body.h"
 #include "vop.h"
@@ -44,36 +45,44 @@ main(int argc, char *argv[])
     SDF *sdf = SDFopen(NULL, infile);
     if (!sdf) Error("SDFopen %s failed\n", infile);
 
-    float a, R[NDIM], rmin[NDIM], rmax[NDIM], particle_mass;
-    SDFgetfloatOrDie(sdf, "Rx",  &R[0]);
-    SDFgetfloatOrDie(sdf, "Ry",  &R[1]);
-    SDFgetfloatOrDie(sdf, "Rz",  &R[2]);
-    SDFgetfloatOrDie(sdf, "a",  &a);
-    SDFgetfloatOrDie(sdf, "particle_mass",  &particle_mass);
-    
-    VV(rmin, = -a*R);
-    VV(rmax, = a*R);
+    int sorted_rtp = 0;
+    SDFgetint(sdf, "sorted_rtp", &sorted_rtp);
 
-    int ic_Nmesh = 0;
-    if (!SDFgetint(sdf, "ic_Nmesh", &ic_Nmesh)) {
-	/* expand root for non-power-of-two */
-	double expand_root = 0.0;
-	int f2 = 1<<(ilog2(ic_Nmesh-1)+1);
-	if (f2 != ic_Nmesh) expand_root = (double)f2/ic_Nmesh - 1.0;
-	VS(rmin, *= (1.0 + expand_root)); 
-	VS(rmax, *= (1.0 + expand_root));
+    if (sorted_rtp) {
+	float R0;
+	SDFgetfloatOrDie(sdf, "R0",  &R0);
+	float rtp_min[NDIM] = {0.0, 0.0, -M_PI};
+	float rtp_max[NDIM] = {R0*1.01, 2.0*M_PI, M_PI};
+	FixRsizeExact(rtp_min, rtp_max);
+    } else {
+	float a, R[NDIM], rmin[NDIM], rmax[NDIM];
+	SDFgetfloatOrDie(sdf, "Rx",  &R[0]);
+	SDFgetfloatOrDie(sdf, "Ry",  &R[1]);
+	SDFgetfloatOrDie(sdf, "Rz",  &R[2]);
+	SDFgetfloatOrDie(sdf, "a",  &a);
+	VV(rmin, = -a*R);
+	VV(rmax, = a*R);
+
+	int ic_Nmesh = 0;
+	if (!SDFgetint(sdf, "ic_Nmesh", &ic_Nmesh)) {
+	    /* expand root for non-power-of-two */
+	    double expand_root = 0.0;
+	    int f2 = 1<<(ilog2(ic_Nmesh-1)+1);
+	    if (f2 != ic_Nmesh) expand_root = (double)f2/ic_Nmesh - 1.0;
+	    VS(rmin, *= (1.0 + expand_root)); 
+	    VS(rmax, *= (1.0 + expand_root));
+	}
+	FixRsizeExact(rmin, rmax);
     }
     SDFclose(sdf);
 
-    FixRsizeExact(rmin, rmax);
-
-    float corner[NDIM], size;
+    float corner[NDIM], size[NDIM];
     Key_t placeholder = KeyLshift(KeyInt(1), level*NDIM);
     Key_t key = KeyOr(placeholder, KeyInt(index));
-    CellCorner(key, corner, &size);
-    printf("[%.8g, %.8g],\n", corner[0], corner[0]+size);
-    printf("[%.8g, %.8g],\n", corner[1], corner[1]+size);
-    printf("[%.8g, %.8g],\n", corner[2], corner[2]+size);
+    CellCorner(key, corner, size);
+    printf("[%.8g, %.8g],\n", corner[0], corner[0]+size[0]);
+    printf("[%.8g, %.8g],\n", corner[1], corner[1]+size[1]);
+    printf("[%.8g, %.8g],\n", corner[2], corner[2]+size[2]);
 
     exit(0);
 }

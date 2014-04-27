@@ -1,40 +1,33 @@
+#include <math.h>
 #include <float.h>		/* for FLT_EPSILON */
 #include "body.h"
 #include "key.h"
 #include "vop.h"
+#include "error.h"
 
-static float Rmin[NDIM], Rsize;
-static float keyfactor;
+static float Rmin[NDIM], Rsize[NDIM];
+static float keyfactor[NDIM];
 
-float 
-FixRsizeExact(float *rmin, float *rmax)
+void
+FixRsizeExact(const float rmin[NDIM], const float rmax[NDIM])
 {
-    float d;
     float size[NDIM];
     float center[NDIM];
 
-    VVV( size, = rmax, - rmin );
-    VVVS( center, = LPAREN rmax, + rmin, RPAREN*0.5f );
-    d = size[0];
-#if NDIM > 1
-    if( d < size[1] ) d = size[1];
-#if NDIM > 2
-    if( d < size[2] ) d = size[2];
-#endif
-#endif
-    d *= (1.0f + 4.0f*FLT_EPSILON); /* affects CellCorner */
-    keyfactor = (1LL<<BITS_PER_DIM)/d;
-    Rsize = d;
-    VV(Rmin, = -0.5f*d + center);
-    return Rsize;
+    VVV(size, = rmax, - rmin);
+    VVVS(center, = LPAREN rmax, + rmin, RPAREN*0.5f);
+    VS(size, *= (1.0f + 4.0f*FLT_EPSILON));
+    VV(keyfactor, = (1LL<<BITS_PER_DIM)/size);
+    VV(Rsize, = size);
+    VVV(Rmin, = -0.5f*size, + center);
 }
 
 void 
-CellCorner(Key_t key, float *corner, float *size)
+CellCorner(Key_t key, float corner[NDIM], float size[NDIM])
 {
     unsigned int icorner[NDIM];
     unsigned int iscale = 1;
-    float factor;
+    float factor[NDIM];
     int i;
 
     VS(icorner, = 0);
@@ -47,10 +40,10 @@ CellCorner(Key_t key, float *corner, float *size)
 	iscale <<= 1;
     }
     /* Now scale it back to "physical" units */
-    factor = Rsize/iscale;
-    VVV(corner, = Rmin, +factor*icorner);
+    VV(factor, = (1.0f/iscale)*Rsize);
+    VVVV(corner, = Rmin, + factor, * icorner);
     if (size) {
-	*size = factor;
+	VV(size, = factor);
     }
 }
 
@@ -98,9 +91,9 @@ Key_t GetKeyFast(const body *p)
     uint32_t k0, k1, k2, k3;
     Key_t key = {{0, 1<<29}};
 
-    xp0 = keyfactor * (p->pos[0] - Rmin[0]);
-    xp1 = keyfactor * (p->pos[1] - Rmin[1]);
-    xp2 = keyfactor * (p->pos[2] - Rmin[2]);
+    xp0 = keyfactor[0] * (p->pos[0] - Rmin[0]);
+    xp1 = keyfactor[1] * (p->pos[1] - Rmin[1]);
+    xp2 = keyfactor[2] * (p->pos[2] - Rmin[2]);
 
     k0 = morton[xp0 & 0xff] | morton[xp1 & 0xff] << 1 | morton[xp2 & 0xff] << 2;
     k1 = morton[xp0 >> 8 & 0xff] | morton[xp1 >> 8 & 0xff] << 1 | morton[xp2 >> 8 & 0xff] << 2;
@@ -115,4 +108,42 @@ Key_t GetKeyFast(const body *p)
     key.k[1] |= k3 << 8 | k2 >> 16;
 
     return(key);
+}
+
+Key_t GetKeySphericalFast(const body *p)
+{
+    uint32_t xp0, xp1, xp2;
+    uint32_t k0, k1, k2, k3;
+    Key_t key = {{0, 1<<29}};
+
+    float r = sqrtf(Dot(p->pos, p->pos));
+    float theta = acosf(p->pos[2]/r);
+    float phi = atan2f(p->pos[1], p->pos[0]);
+
+    if (r < Rmin[0] || r >= Rmin[0]+Rsize[0]) Error("r %g limits %g %g\n", r, Rmin[0], Rmin[0]+Rsize[0]);
+    if (theta < Rmin[1] || theta >= Rmin[1]+Rsize[1]) Error("theta %g limits %g %g\n", theta, Rmin[1], Rmin[1]+Rsize[1]);
+    if (phi < Rmin[2] || phi >= Rmin[2]+Rsize[2]) Error("phi %g limits %g %g\n", phi, Rmin[2], Rmin[2]+Rsize[2]);
+
+    xp0 = keyfactor[0] * (r - Rmin[0]);
+    xp1 = keyfactor[1] * (theta - Rmin[1]);
+    xp2 = keyfactor[2] * (phi - Rmin[2]);
+
+    k0 = morton[xp0 & 0xff] | morton[xp1 & 0xff] << 1 | morton[xp2 & 0xff] << 2;
+    k1 = morton[xp0 >> 8 & 0xff] | morton[xp1 >> 8 & 0xff] << 1 | morton[xp2 >> 8 & 0xff] << 2;
+    k2 = morton[xp0 >> 16 & 0xff] | morton[xp1 >> 16 & 0xff] << 1 | morton[xp2 >> 16 & 0xff] << 2;
+    k3 = morton[xp0 >> 24 & 0xff] | morton[xp1 >> 24 & 0xff] << 1 | morton[xp2 >> 24 & 0xff] << 2;
+
+    key.k[0] = (k2 & 0xffff);
+    key.k[0] <<= 24;
+    key.k[0] |= k1;
+    key.k[0] <<= 24;
+    key.k[0] |= k0;
+    key.k[1] |= k3 << 8 | k2 >> 16;
+
+    return(key);
+}
+
+float UnityCost(const void *ptr) /* load balance cost for *ptr */
+{
+    return 1.0;
 }
