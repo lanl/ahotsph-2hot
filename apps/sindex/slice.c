@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <math.h>
 #include "assert.h"
 #include "body.h"
 #include "vop.h"
@@ -76,27 +77,49 @@ main(int argc, char *argv[])
     int64_t gnobj;
     if (SDFgetint64(sdf, "npart", &gnobj)) Error("SDFget npart failed\n");
 
-    float a, R[NDIM], rmin[NDIM], rmax[NDIM], particle_mass;
-    SDFgetfloatOrDie(sdf, "Rx",  &R[0]);
-    SDFgetfloatOrDie(sdf, "Ry",  &R[1]);
-    SDFgetfloatOrDie(sdf, "Rz",  &R[2]);
-    SDFgetfloatOrDie(sdf, "a",  &a);
-    SDFgetfloatOrDie(sdf, "particle_mass",  &particle_mass);
-    
-    VV(rmin, = -a*R);
-    VV(rmax, = a*R);
+    int sorted_rtp = 0;
+    SDFgetint(sdf, "sorted_rtp", &sorted_rtp);
+    int sorted_xyz = 0;
+    SDFgetint(sdf, "sorted_xyz", &sorted_xyz);
+    float particle_mass = 1.0f;
+    SDFgetfloat(sdf, "particle_mass",  &particle_mass);
 
-    int ic_Nmesh = 0;
-    if (!SDFgetint(sdf, "ic_Nmesh", &ic_Nmesh)) {
-	/* expand root for non-power-of-two */
-	double expand_root = 0.0;
-	int f2 = 1<<(ilog2(ic_Nmesh-1)+1);
-	if (f2 != ic_Nmesh) expand_root = (double)f2/ic_Nmesh - 1.0;
-	VS(rmin, *= (1.0 + expand_root)); 
-	VS(rmax, *= (1.0 + expand_root));
+    float rmin[NDIM], rmax[NDIM];
+    if (sorted_rtp) {
+	float R0;
+	SDFgetfloatOrDie(sdf, "R0",  &R0);
+	float rtp_min[NDIM] = {0.0, 0.0, -M_PI};
+	float rtp_max[NDIM] = {R0*1.01, 2.0*M_PI, M_PI};
+	FixRsizeExact(rtp_min, rtp_max);
+	VV(rmin, = rtp_min);
+	VV(rmax, = rtp_max);
+    } else if (sorted_xyz) {
+	float R0;
+	SDFgetfloatOrDie(sdf, "R0",  &R0);
+	VS(rmin, = -R0*1.01);	/* must match lcjoin */
+	VS(rmax, =  R0*1.01);
+	FixRsizeExact(rmin, rmax);
+    } else {
+	float R[NDIM];
+	float a = 1.0;
+	SDFgetfloat(sdf, "a",  &a);
+	SDFgetfloatOrDie(sdf, "Rx",  &R[0]);
+	SDFgetfloatOrDie(sdf, "Ry",  &R[1]);
+	SDFgetfloatOrDie(sdf, "Rz",  &R[2]);
+	VV(rmin, = -a*R);
+	VV(rmax, =  a*R);
+
+	int ic_Nmesh = 0;
+	if (!SDFgetint(sdf, "ic_Nmesh", &ic_Nmesh)) {
+	    /* expand root for non-power-of-two */
+	    double expand_root = 0.0;
+	    int f2 = 1<<(ilog2(ic_Nmesh-1)+1);
+	    if (f2 != ic_Nmesh) expand_root = (double)f2/ic_Nmesh - 1.0;
+	    VS(rmin, *= (1.0 + expand_root)); 
+	    VS(rmax, *= (1.0 + expand_root));
+	}
+	FixRsizeExact(rmin, rmax);
     }
-
-    FixRsizeExact(rmin, rmax);
 
     offset = SDFfileoffset("x", sdf);
     stride = SDFfilestride("x", sdf);
@@ -115,11 +138,12 @@ main(int argc, char *argv[])
     body *btab = mm2 + offset;
 
     /* Make an image slice */
-    int64_t res = 2560;
+    int64_t res = 20480;
     float *image = calloc(res * res, sizeof(float));
     if (!image) Error("calloc failed\n");
 
     int nblocks = 0;
+    int nlayers = 4;
     float corner[NDIM], center[NDIM], size;
     Key_t placeholder = KeyLshift(KeyInt(1), level*NDIM);
     CellCorner(placeholder, corner, &size);
@@ -128,10 +152,10 @@ main(int argc, char *argv[])
     float min[NDIM] = {0.0, 0.0, 0.0};
     float max[NDIM] = {4.0*size, 64.0*size, 64.0*size};
 #else
-    float min[NDIM] = {0.0*size, -a*R[1], -a*R[2]};
-    float max[NDIM] = {1.0*size, a*R[1], a*R[2]};
+    float min[NDIM] = {-(nlayers/2)*size, rmin[1], rmin[2]};
+    float max[NDIM] = { (nlayers/2)*size, rmax[1], rmax[2]};
 #endif
-    printf("Expect %.0f**2 blocks per layer\n", (max[2]-min[2])/size);
+    printf("Expect %.0f**2 blocks per layer, %d layers\n", (max[2]-min[2])/size, nlayers);
     for (int i = 0; i < idx_len; i++) {
 	Key_t key = KeyOr(placeholder, KeyInt(idx[i].index));
 	CellCorner(key, corner, &size);
@@ -152,7 +176,7 @@ main(int argc, char *argv[])
 	}
     }
     char outname[256];
-    sprintf(outname, "%s_slice0.float32", infile);
+    sprintf(outname, "%s_slice0_%ld.float32", infile, res);
     FILE *fp = fopen(outname, "w");
     if (!fp) Error("fopen %s failed, %s\n", outname, strerror(errno));
     fwrite(image, sizeof(float), res * res, fp);

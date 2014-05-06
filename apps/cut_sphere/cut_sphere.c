@@ -48,9 +48,8 @@ ReadData(char *name, body **btab, int64_t *gnobj, int *nobj)
 		     "vz", offsetof(body, vel[2]), &vzconf,
 		     "ident", offsetof(body, ident), &identconf,
 		     NULL);
-    if (massconf==0 || xconf==0 || yconf==0 || zconf==0) {
-	SinglError("Could not find %s %s %s %s in data file!\n",
-		   (massconf==0)? "mass" : "",
+    if (xconf==0 || yconf==0 || zconf==0) {
+	SinglError("Could not find %s %s %s in data file!\n",
 		   (xconf==0)? "x" : "",
 		   (yconf==0)? "y" : "",
 		   (zconf==0)? "z" : "");
@@ -60,6 +59,13 @@ ReadData(char *name, body **btab, int64_t *gnobj, int *nobj)
     }
     if (identconf == 0) {
 	SinglError("No \"ident\" in file.\n");
+    }
+    if (massconf == 0) {
+	float particle_mass;
+	SDFgetfloatOrDie(sdfp, "particle_mass", &particle_mass);
+	for (int i = 0; i < *nobj; i++) {
+	    (*btab)[i].mass = particle_mass;
+	}
     }
     singlPrintf("Data read, gnobj=%ld\n", *gnobj);
     
@@ -136,6 +142,7 @@ main(int argc, char **argv)
 	       "center_y", SDF_FLOAT, center[1],
 	       "center_z", SDF_FLOAT, center[2],
 	       "rmax", SDF_FLOAT, rmax,
+	       "particle_mass", SDF_FLOAT, btab[0].mass,
 	       "do_periodic", SDF_INT, 0,
 	       SDFHDR_INT("version"),
 	       SDFHDR_INT("iter"),
@@ -186,9 +193,9 @@ main(int argc, char **argv)
 	       SDFHDR_INT("checkpoint"),
 	       SDFHDR_DOUBLE("ke"),
 	       SDFHDR_DOUBLE("pe"),
-	       SDFHDR_STRING("compiled_version"),
-	       SDFHDR_STRING("compiled_date"),
-	       SDFHDR_STRING("compiled_time"),
+	       SDFHDR_STRING("compiled_version_2HOT"),
+	       SDFHDR_STRING("compiled_date_2HOT"),
+	       SDFHDR_STRING("compiled_time_2HOT"),
 	       NULL);
     SDFclose(sdfp);
 
