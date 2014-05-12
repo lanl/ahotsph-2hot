@@ -19,13 +19,16 @@ class HOT(object):
         self.placeholder <<= self.keybits
         self.domain_width = bbox[:,1] - bbox[:,0]
         self.domain_width *= 1.0 + 4.0 * np.finfo(bbox.dtype).eps
+        self.cell_width = np.outer(self.domain_width, 2.0 ** -np.arange(0, self.bits_per_dim)).T
         self.keyfactor = (np.ones(1, dtype=self.keytype) << self.bits_per_dim) / self.domain_width
+        self.inv_keyfactor = 1.0 / self.keyfactor
         self.lokey = self.placeholder
         self.hikey = self.placeholder | self.placeholder-1
         self.node = np.dtype([('sbits', np.uint8), # sub-bits, True if daughter exists
+                              ('level', np.uint8),
                               ('base', np.uint32),
                               ('len', np.uint32),
-                              ('bbox', np.float32, (self.ndim,2))])
+                              ('icorner', np.uint32, (3))])
         self.morton_table = np.zeros((256), dtype=np.uint32)
         for i in range(256):
             self.morton_table[i] = i&1 | (i>>1&1)<<3 | (i>>2&1)<<6 | (i>>3&1)<<9 | (i>>4&1)<<12 | (i>>5&1)<<15 | (i>>6&1)<<18 | (i>>7&1)<<21
@@ -47,6 +50,7 @@ class HOT(object):
         key <<= 24
         key |= m[ii[0] & 0xff] | m[ii[1] & 0xff] << 1 | m[ii[2] & 0xff] << 2
         key |= self.placeholder[0]
+        self.icorner = ii.T
         return key
 
     def inv_getkey(self, key_):
@@ -61,7 +65,12 @@ class HOT(object):
             width <<= 1
         return corner, width
 
-    def key_bbox(self, key):
+    def key_bbox(self, key, bbox):
+        """Bounding box using precomputed icorner and width (bbox preallocated)"""
+        bbox[:,0] = self.bbox[:,0] + self.inv_keyfactor * tree[key]['icorner']
+        bbox[:,1] = bbox[:,0] + self.cell_width[tree[key]['level']]
+
+    def key_bbox2(self, key):
         """Bounding box from Morton key"""
         icorner, iwidth = self.inv_getkey(key)
         bbox = np.empty((3,2), np.float32)
@@ -82,20 +91,21 @@ class HOT(object):
         """keybits - clz(), tree root at zero"""
         lev = 0
         # numpy does not currently support shift on 64-bit scalar ints
+        key = np.array([key])
         if key > self.keytype(0xffffffff): 
-            key /= self.keytype(2**32)
+            key >>= 32
             lev += 32
         if key > self.keytype(0xffff): 
-            key /= self.keytype(2**16)
+            key >>= 16
             lev += 16
         if key > self.keytype(0xff): 
-            key /= self.keytype(2**8)
+            key >>= 8
             lev += 8
         if key > self.keytype(0xf): 
-            key /= self.keytype(2**4)
+            key >>= 4
             lev += 4
         if key > self.keytype(0x3): 
-            key /= self.keytype(2**2)
+            key >>= 2
             lev += 2
         if key > self.keytype(0x1): 
             lev += 1
@@ -112,6 +122,7 @@ class HOT(object):
         x = x[idx]
         self.x = x
         self.keys = keys[idx]
+        self.icorner = self.icorner[idx]
         del keys
         del idx
         i0 = 0
@@ -139,13 +150,17 @@ class HOT(object):
 
     def make_cell(self, i0, i1, clev):
         """make subcells within cell starting at i0, ending before i1"""
+        level = self.bits_per_dim - clev/self.ndim
+        level_mask = ~np.uint32((1 << clev/self.ndim) - 1)
         cell = 0
         cdx = self.cellidx(i0, i1, clev)
         while cell < i1-i0 and cdx[cell] ^ cdx[0] < self.nsub:
             n = 0
             while cell+n < i1-i0 and cdx[cell] == cdx[cell+n]: n += 1
-            k = self.keys[i0+cell:i0+cell+1] >> clev
-            self.tree[k[0]] = np.array((0, i0+cell, n, self.key_bbox(k)), dtype=self.node)
+            s = slice(i0+cell, i0+cell+1)
+            k = self.keys[s] >> clev
+            ii = self.icorner[s] & level_mask
+            self.tree[k[0]] = np.array((0, level, i0+cell, n, ii), dtype=self.node)
             cell += n
             if n > self.cell_maxn: self.cell_maxn = n # keep some statistics
             if n < self.cell_minn: self.cell_minn = n
@@ -159,7 +174,9 @@ class HOT(object):
             if k[0] in self.tree:
                 self.tree[k[0]]['len'] += cell
             else:
-                self.tree[k[0]] = np.array((255, i0, cell, self.key_bbox(k)), dtype=self.node)
+                level = self.bits_per_dim-lev/self.ndim
+                ii = self.icorner[i0:i0+1] & ~np.uint32((1 << lev/self.ndim) - 1)
+                self.tree[k[0]] = np.array((255, level, i0, cell, ii), dtype=self.node)
 
     def bbox_overlap(self, a, b):
         """Test if any part of box a is inside box b"""
@@ -168,17 +185,32 @@ class HOT(object):
             ((a[1,0] >= b[1,0] and a[1,0] < b[1,1]) or (a[1,1] >= b[1,0] and a[1,1] < b[1,1])) and
             ((a[2,0] >= b[2,0] and a[2,0] < b[2,1]) or (a[2,1] >= b[2,0] and a[2,1] < b[2,1])))
 
-    def find_nbrs(self, bbox):
+    def sphere_overlap(self, a, pos, r2):
+        """Test if any part of box a is inside sphere"""
+        center = 0.5 * (a[:,0] + a[:,1])
+        dr = center-pos
+        dr2 = np.dot(dr, dr)
+        w = (a[:,1]-a[:,0])
+        w2 = np.dot(w, w)
+        return dr2 < w2 + r2
+
+    def find_nbrs(self, pos, r):
+        bbox = np.empty((3,2), np.float32)
+        bbox[:,0] = pos-r
+        bbox[:,1] = pos+r
+        r2 = r**2
         nodes = np.ones(1, dtype=self.keytype)
         newnodes = []
         nbrlist = []
+        abox = np.empty((3,2), np.float32)
         while len(nodes):
             for cell in nodes:
                 seq = np.arange(self.nsub)
                 sbits = (1 << seq) & tree[cell]['sbits']
                 subcell = (np.array([cell]) << self.ndim) | seq.astype(self.keytype)
                 for i,k in enumerate(subcell):
-                    if sbits[i] and self.bbox_overlap(tree[k]['bbox'], bbox):
+                    self.key_bbox(k, abox)
+                    if sbits[i] and self.bbox_overlap(abox, bbox): # and self.sphere_overlap(abox, pos, r2):
                         if tree[k]['sbits']: # no daughters implies it is terminal
                             newnodes.append(k)
                         else:
@@ -190,7 +222,7 @@ class HOT(object):
 if __name__ == "__main__":
     from time import *
 
-    npart = 1e6
+    npart = 10e6
     ot = HOT()
 
     np.random.seed(0)
@@ -199,28 +231,28 @@ if __name__ == "__main__":
     t0 = time()
     tree = ot.make_tree(x)
     x = ot.x                    # Morton ordered
-    print tree[1]['len'], ot.cell_minn, ot.cell_maxn, len(x)/np.float32(ot.ncells)
+    print tree[1]['len'], 'particles'
     print 'build time:', time()-t0
     
-    rmax = 0.05
-    rmax2 = rmax**2
-    bbox = np.array([[0.5-rmax]*3, [0.5+rmax]*3], dtype=np.float32).T
+    r = 0.05
+    pos = np.array([0.5, 0.5, 0.5], dtype=np.float32)
 
     t0 = time()
-    nbrs = ot.find_nbrs(bbox)
+    nbrs = ot.find_nbrs(pos, r)
     sum = 0
     for k in nbrs:
         sum += tree[k]['len']
 
     print 'found %d overlaps, %d particles' % (len(nbrs), sum)
-    print 'search time:', time()-t0
+    print 'find nbrs time:', time()-t0
 
-    r0 = np.array([0.5, 0.5, 0.5], dtype=np.float32)
+    t0 = time()
     snbrs = 0
     for k in nbrs:
         xx = x[tree[k]['base']:tree[k]['base']+tree[k]['len']]
-        dr = xx-r0
+        dr = xx-pos
         r2 = np.sum(dr*dr,axis=1)
-        snbrs += len(r2[r2<rmax2])
+        snbrs += len(r2[r2 < r**2])
 
     print '%d particles within search radius' % snbrs
+    print 'search time:', time()-t0
