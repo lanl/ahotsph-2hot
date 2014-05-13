@@ -147,6 +147,7 @@ class HOT(object):
                 level = self.bits_per_dim-lev/self.ndim
                 ii = self.icorner[i0] & ~np.uint32((1 << lev/self.ndim) - 1)
                 self.tree[k] = np.array((255, level, i0, cell, ii), dtype=self.node)
+                print 'enter', k
 
     def bbox_overlap(self, a, b):
         """Test if any part of box a is inside box b"""
@@ -234,7 +235,7 @@ def n_in_cell(a):
 if __name__ == "__main__":
     from time import *
 
-    npart = 1e7
+    npart = 1e6
     ot = HOT()
 
     np.random.seed(0)

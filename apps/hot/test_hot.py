@@ -1,10 +1,11 @@
+#/usr/bin/env python
 import numpy as np
 import chot
 
 if __name__ == "__main__":
     from time import *
 
-    npart = 1e7
+    npart = 1e6
     ot = chot.HOT()
 
     np.random.seed(0)
