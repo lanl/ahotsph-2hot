@@ -67,8 +67,8 @@ class HOT(object):
 
     def key_bbox(self, key, bbox):
         """Bounding box using precomputed icorner and width (bbox preallocated)"""
-        bbox[:,0] = self.bbox[:,0] + self.inv_keyfactor * tree[key]['icorner']
-        bbox[:,1] = bbox[:,0] + self.cell_width[tree[key]['level']]
+        bbox[:,0] = self.bbox[:,0] + self.inv_keyfactor * self.tree[key]['icorner']
+        bbox[:,1] = bbox[:,0] + self.cell_width[self.tree[key]['level']]
 
     def key_bbox2(self, key):
         """Bounding box from Morton key"""
@@ -150,7 +150,9 @@ class HOT(object):
 
     def bbox_overlap(self, a, b):
         """Test if any part of box a is inside box b"""
-        return np.all(((a[:,0] >= b[:,0]) & (a[:,0] < b[:,1])) | ((a[:,1] >= b[:,0]) & (a[:,1] < b[:,1])))
+        return np.all(((a[:,0] >= b[:,0]) & (a[:,0]  < b[:,1])) | 
+                      ((a[:,1] >= b[:,0]) & (a[:,1]  < b[:,1])) |
+                      ((a[:,0] <= b[:,0]) & (a[:,1] >= b[:,1])))
 
     def sphere_overlap(self, a, pos, r2):
         """Test if any part of box a is inside sphere"""
@@ -175,10 +177,10 @@ class HOT(object):
                 seq = np.arange(self.nsub)
                 subcells = (np.array([cell]) << self.ndim) | seq.astype(self.keytype)
                 for k in subcells:
-                    if k not in tree: continue
+                    if k not in self.tree: continue
                     self.key_bbox(k, abox)
                     if self.bbox_overlap(abox, bbox): # and self.sphere_overlap(abox, pos, r2):
-                        if tree[k]['sbits']: # no daughters implies it is terminal
+                        if self.tree[k]['sbits']: # no daughters implies it is terminal
                             newnodes.append(k)
                         else:
                             nbrlist.append(k)
@@ -245,7 +247,7 @@ if __name__ == "__main__":
     print 'build time:', time()-t0
     
     r = 0.05
-    pos = np.array([0.5, 0.5, 0.5], dtype=np.float32)
+    pos = np.array([0.6, 0.6, 0.6], dtype=np.float32)
 
     t0 = time()
     nbrs = ot.find_nbrs(pos, r)
