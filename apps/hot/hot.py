@@ -87,43 +87,17 @@ class HOT(object):
         """Number of 1 bits in key""" # Hamming weight
         return bin(key).count('1')
 
-    def level(self, key):
-        """keybits - clz(), tree root at zero"""
-        lev = 0
-        # numpy does not currently support shift on 64-bit scalar ints
-        key = np.array([key])
-        if key > self.keytype(0xffffffff): 
-            key >>= 32
-            lev += 32
-        if key > self.keytype(0xffff): 
-            key >>= 16
-            lev += 16
-        if key > self.keytype(0xff): 
-            key >>= 8
-            lev += 8
-        if key > self.keytype(0xf): 
-            key >>= 4
-            lev += 4
-        if key > self.keytype(0x3): 
-            key >>= 2
-            lev += 2
-        if key > self.keytype(0x1): 
-            lev += 1
-        return lev
-
     def keybits(self, x):
         """Print bitstring"""
         return [bin(k)[2:] for k in self.getkey(x)]
 
     def make_tree(self, x):
         """Build tree"""
-        keys = self.getkey(x)
-        idx = np.argsort(keys)
-        x = x[idx]
-        self.x = x
-        self.keys = keys[idx]
+        self.keys = self.getkey(x)
+        idx = np.argsort(self.keys)
+        self.keys = self.keys[idx]
         self.icorner = self.icorner[idx]
-        del keys
+        self.x = x[idx]
         del idx
         i0 = 0
         i0max = len(x)
@@ -134,56 +108,49 @@ class HOT(object):
         while i0 < i0max:
             i1 = i0 + self.ccut
             if i1 < i0max:
-                clev = self.level(self.keys[i1-1] - self.keys[i0]) - self.ndim
+                clev = keylevel(self.keys[i1-1] - self.keys[i0]) - self.ndim
             else:
-                clev = self.level(self.hikey - self.keys[i0])
+                clev = keylevel(self.hikey - self.keys[i0])
                 i1 = i0max
             clev -= clev % self.ndim
             cell = self.make_cell(i0, i1, clev)
             self.update_parents(cell, i0, clev)
             i0 += cell
+        del self.keys
+        del self.icorner
         return self.tree
-
-    def cellidx(self, i0, i1, clev):
-        """subcell indices"""
-        return np.uint8((self.keys[i0:i1] >> clev) & 0x3f)
 
     def make_cell(self, i0, i1, clev):
         """make subcells within cell starting at i0, ending before i1"""
         level = self.bits_per_dim - clev/self.ndim
         level_mask = ~np.uint32((1 << clev/self.ndim) - 1)
+        cdx = cellidx(self.keys[i0:i1], clev)
         cell = 0
-        cdx = self.cellidx(i0, i1, clev)
         while cell < i1-i0 and cdx[cell] ^ cdx[0] < self.nsub:
-            n = 0
-            while cell+n < i1-i0 and cdx[cell] == cdx[cell+n]: n += 1
-            s = slice(i0+cell, i0+cell+1)
-            k = self.keys[s] >> clev
-            ii = self.icorner[s] & level_mask
-            self.tree[k[0]] = np.array((0, level, i0+cell, n, ii), dtype=self.node)
-            cell += n
+            n = n_in_cell(cdx[cell:])
+            k = (self.keys[i0+cell:i0+cell+1] >> clev)[0]
+            ii = self.icorner[i0+cell] & level_mask
+            self.tree[k] = np.array((0, level, i0+cell, n, ii), dtype=self.node)
             if n > self.cell_maxn: self.cell_maxn = n # keep some statistics
             if n < self.cell_minn: self.cell_minn = n
             self.ncells += 1
+            cell += n
         return cell
 
     def update_parents(self, cell, i0, clev):
         """Create/update parent cells"""
         for lev in range(clev+self.ndim, self.keybits+1, self.ndim):
-            k = self.keys[i0:i0+1] >> lev
-            if k[0] in self.tree:
-                self.tree[k[0]]['len'] += cell
+            k = (self.keys[i0:i0+1] >> lev)[0]
+            if k in self.tree:
+                self.tree[k]['len'] += cell
             else:
                 level = self.bits_per_dim-lev/self.ndim
-                ii = self.icorner[i0:i0+1] & ~np.uint32((1 << lev/self.ndim) - 1)
-                self.tree[k[0]] = np.array((255, level, i0, cell, ii), dtype=self.node)
+                ii = self.icorner[i0] & ~np.uint32((1 << lev/self.ndim) - 1)
+                self.tree[k] = np.array((255, level, i0, cell, ii), dtype=self.node)
 
     def bbox_overlap(self, a, b):
         """Test if any part of box a is inside box b"""
-        return (
-            ((a[0,0] >= b[0,0] and a[0,0] < b[0,1]) or (a[0,1] >= b[0,0] and a[0,1] < b[0,1])) and
-            ((a[1,0] >= b[1,0] and a[1,0] < b[1,1]) or (a[1,1] >= b[1,0] and a[1,1] < b[1,1])) and
-            ((a[2,0] >= b[2,0] and a[2,0] < b[2,1]) or (a[2,1] >= b[2,0] and a[2,1] < b[2,1])))
+        return np.all(((a[:,0] >= b[:,0]) & (a[:,0] < b[:,1])) | ((a[:,1] >= b[:,0]) & (a[:,1] < b[:,1])))
 
     def sphere_overlap(self, a, pos, r2):
         """Test if any part of box a is inside sphere"""
@@ -206,11 +173,11 @@ class HOT(object):
         while len(nodes):
             for cell in nodes:
                 seq = np.arange(self.nsub)
-                sbits = (1 << seq) & tree[cell]['sbits']
-                subcell = (np.array([cell]) << self.ndim) | seq.astype(self.keytype)
-                for i,k in enumerate(subcell):
+                subcells = (np.array([cell]) << self.ndim) | seq.astype(self.keytype)
+                for k in subcells:
+                    if k not in tree: continue
                     self.key_bbox(k, abox)
-                    if sbits[i] and self.bbox_overlap(abox, bbox): # and self.sphere_overlap(abox, pos, r2):
+                    if self.bbox_overlap(abox, bbox): # and self.sphere_overlap(abox, pos, r2):
                         if tree[k]['sbits']: # no daughters implies it is terminal
                             newnodes.append(k)
                         else:
@@ -219,10 +186,53 @@ class HOT(object):
             newnodes = []
         return nbrlist
 
+def keylevel(key):
+    """keybits - clz(), tree root at zero"""
+    lev = 0
+    # numpy does not currently support shift on 64-bit scalar ints
+    key = np.array([key])
+    if key > np.uint64(0xffffffff): 
+        key >>= 32
+        lev += 32
+    if key > np.uint64(0xffff): 
+        key >>= 16
+        lev += 16
+    if key > np.uint64(0xff): 
+        key >>= 8
+        lev += 8
+    if key > np.uint64(0xf): 
+        key >>= 4
+        lev += 4
+    if key > np.uint64(0x3): 
+        key >>= 2
+        lev += 2
+    if key > np.uint64(0x1): 
+        lev += 1
+    return lev
+
+def cellidx(keys, clev):
+    """subcell indices"""
+    return np.uint8((keys >> clev) & 0x3f)
+
+def n_in_cell(a):
+    """bisection search to find count of identical vals"""
+    lo = 0
+    hi = len(a)
+    mid = hi >> 1
+    while lo < hi:    
+        val = a[mid]
+        if val == a[0]:
+            lo = mid+1
+        else: 
+            hi = mid
+        mid = (lo+hi) >> 1
+    return hi
+
+
 if __name__ == "__main__":
     from time import *
 
-    npart = 10e6
+    npart = 1e7
     ot = HOT()
 
     np.random.seed(0)
@@ -251,8 +261,16 @@ if __name__ == "__main__":
     for k in nbrs:
         xx = x[tree[k]['base']:tree[k]['base']+tree[k]['len']]
         dr = xx-pos
-        r2 = np.sum(dr*dr,axis=1)
-        snbrs += len(r2[r2 < r**2])
+        dr2 = np.sum(dr*dr, axis=1)
+        snbrs += np.sum(dr2 <= r**2)
+
+    print '%d particles within search radius' % snbrs
+    print 'search time:', time()-t0
+
+    t0 = time()
+    dr = x-pos
+    dr2 = np.sum(dr*dr,axis=1)
+    snbrs = np.sum(dr2 <= r**2)
 
     print '%d particles within search radius' % snbrs
     print 'search time:', time()-t0
