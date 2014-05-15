@@ -21,7 +21,9 @@ class HOT(object):
         self.ccut = 512         # max nodes in next-to-leaf cell
         self.placeholder <<= self.keybits
         self.domain_width = bbox[:,1] - bbox[:,0]
-        self.domain_width *= 1.0 + 4.0 * np.finfo(bbox.dtype).eps
+        self.domain_width += 4.0 * np.finfo(bbox.dtype).eps * self.domain_width
+        self.bbox[:,0] -= 2.0 * np.finfo(bbox.dtype).eps * self.domain_width
+        self.bbox[:,1] += 2.0 * np.finfo(bbox.dtype).eps * self.domain_width
         self.cell_width = np.outer(self.domain_width, 2.0 ** -np.arange(0, self.bits_per_dim)).T
         self.keyfactor = (np.ones(1, dtype=self.keytype) << self.bits_per_dim) / self.domain_width
         self.inv_keyfactor = 1.0 / self.keyfactor
@@ -82,6 +84,7 @@ class HOT(object):
         cdef np.uint32_t i0max = x.shape[0]
         cdef int ndim = self.ndim
         cdef int clev, cell
+        cdef np.uint64_t k
         self.keys = self.getkey(x)
         idx = np.argsort(self.keys)
         self.keys = self.keys[idx]
@@ -97,6 +100,10 @@ class HOT(object):
                 clev = keylevel(self.hikey - self.keys[i0])
                 i1 = i0max
             clev -= clev % ndim
+            # don't go up over cell we just finished
+            k = self.keys[i0]
+            while (k >> clev) in self.tree:
+                clev -= ndim
             cell = self.make_cell(i0, i1, clev)
             self.update_parents(cell, i0, clev)
             i0 += cell
@@ -177,6 +184,23 @@ class HOT(object):
             nodes = np.array(newnodes, dtype=np.uint64)
             newnodes = []
         return nbrlist
+
+    def check_find(self, start=0):
+        cdef int i
+        cdef np.uint64_t k
+        for i,x in enumerate(self.x[start:]):
+            if (i % 100) == 0: print i
+            nbrs = self.find_nbrs(x, self.domain_width * 1e-7)
+            ok = False
+            for k in nbrs:
+                node = self.tree[k]
+                for p in self.x[node['base']:node['base']+node['len']]:
+                    if np.array_equal(p, x):
+                        ok = True
+                        break
+            if not ok:
+                raise 'ERROR, could not find x[%d]' % i
+
 
 cdef keylevel(np.uint64_t key):
     """keybits - clz(), tree root at zero"""

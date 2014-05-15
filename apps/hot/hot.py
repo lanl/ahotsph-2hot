@@ -18,7 +18,9 @@ class HOT(object):
         self.ccut = 512         # max nodes in next-to-leaf cell
         self.placeholder <<= self.keybits
         self.domain_width = bbox[:,1] - bbox[:,0]
-        self.domain_width *= 1.0 + 4.0 * np.finfo(bbox.dtype).eps
+        self.domain_width += 4.0 * np.finfo(bbox.dtype).eps * self.domain_width
+        self.bbox[:,0] -= 2.0 * np.finfo(bbox.dtype).eps * self.domain_width
+        self.bbox[:,1] += 2.0 * np.finfo(bbox.dtype).eps * self.domain_width
         self.cell_width = np.outer(self.domain_width, 2.0 ** -np.arange(0, self.bits_per_dim)).T
         self.keyfactor = (np.ones(1, dtype=self.keytype) << self.bits_per_dim) / self.domain_width
         self.inv_keyfactor = 1.0 / self.keyfactor
@@ -113,11 +115,14 @@ class HOT(object):
                 clev = keylevel(self.hikey - self.keys[i0])
                 i1 = i0max
             clev -= clev % self.ndim
+            while (self.keys[i0:i0+1] >> clev)[0] in self.tree:
+                clev -= self.ndim
             cell = self.make_cell(i0, i1, clev)
             self.update_parents(cell, i0, clev)
             i0 += cell
         del self.keys
         del self.icorner
+        print 'tree cell_minn: %d cell_maxn: %d avg: %.3f' % (self.cell_minn, self.cell_maxn, len(self.x)/self.ncells)
         return self.tree
 
     def make_cell(self, i0, i1, clev):
@@ -147,7 +152,6 @@ class HOT(object):
                 level = self.bits_per_dim-lev/self.ndim
                 ii = self.icorner[i0] & ~np.uint32((1 << lev/self.ndim) - 1)
                 self.tree[k] = np.array((255, level, i0, cell, ii), dtype=self.node)
-                print 'enter', k
 
     def bbox_overlap(self, a, b):
         """Test if any part of box a is inside box b"""
@@ -169,25 +173,62 @@ class HOT(object):
         bbox[:,0] = pos-r
         bbox[:,1] = pos+r
         r2 = r**2
-        nodes = np.ones(1, dtype=self.keytype)
+        nodes = np.array([8], dtype=self.keytype)
         newnodes = []
         nbrlist = []
         abox = np.empty((3,2), np.float32)
-        while len(nodes):
+        while nodes.shape[0]:
             for cell in nodes:
-                seq = np.arange(self.nsub)
-                subcells = (np.array([cell]) << self.ndim) | seq.astype(self.keytype)
-                for k in subcells:
+                for i in range(self.nsub):
+                    k = (np.array([cell]) | i)[0]
                     if k not in self.tree: continue
                     self.key_bbox(k, abox)
                     if self.bbox_overlap(abox, bbox): # and self.sphere_overlap(abox, pos, r2):
                         if self.tree[k]['sbits']: # no daughters implies it is terminal
-                            newnodes.append(k)
+                            newnodes.append((np.array([k]) << self.ndim)[0])
                         else:
                             nbrlist.append(k)
-            nodes = np.array(newnodes)
+            nodes = np.array(newnodes, dtype=self.keytype)
             newnodes = []
         return nbrlist
+
+    def check_bbox(self):
+        nodes = np.array([8], dtype=self.keytype)
+        newnodes = []
+        abox = np.empty((3,2), np.float32)
+        while nodes.shape[0]:
+            for cell in nodes:
+                for i in range(self.nsub):
+                    k = (np.array([cell]) | i)[0]
+                    if k not in self.tree: continue
+                    if self.tree[k]['sbits']: # no daughters implies it is terminal
+                        newnodes.append((np.array([k]) << self.ndim)[0])
+                    else:
+                        self.key_bbox(k, abox)
+                        node = self.tree[k]
+                        for p in self.x[node['base']:node['base']+node['len']]:
+                            if p[0] < abox[0,0] or p[0] > abox[0,1] or \
+                               p[1] < abox[1,0] or p[1] > abox[1,1] or \
+                               p[2] < abox[2,0] or p[2] > abox[2,1]:
+                                print 'Bad bbox', k, node, p, abox
+                                import pdb; pdb.set_trace()
+            nodes = np.array(newnodes, dtype=self.keytype)
+            newnodes = []
+
+    def check_find(self, start=0):
+        for i,x in enumerate(self.x[start:]):
+            if (i % 100) == 0: print i
+            nbrs = self.find_nbrs(x, self.domain_width * 1e-7)
+            ok = False
+            for k in nbrs:
+                node = self.tree[k]
+                for p in self.x[node['base']:node['base']+node['len']]:
+                    if np.array_equal(p, x):
+                        ok = True
+                        break
+            if not ok:
+                print 'ERROR, could not find x[%d]' % i
+                import pdb; pdb.set_trace()
 
 def keylevel(key):
     """keybits - clz(), tree root at zero"""
@@ -235,7 +276,7 @@ def n_in_cell(a):
 if __name__ == "__main__":
     from time import *
 
-    npart = 1e6
+    npart = 1e7
     ot = HOT()
 
     np.random.seed(0)
