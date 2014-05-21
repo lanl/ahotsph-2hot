@@ -100,7 +100,7 @@ class HOT(object):
         self.keys = self.keys[idx]
         self.icorner = self.icorner[idx]
         self.x = x[idx]
-        del idx
+        self.idx = idx
         i0 = 0
         i0max = len(x)
         self.tree = {}
@@ -164,7 +164,7 @@ class HOT(object):
         center = 0.5 * (a[:,0] + a[:,1])
         dr = center-pos
         dr2 = np.dot(dr, dr)
-        w = (a[:,1]-a[:,0])
+        w = 0.5 * (a[:,1] - a[:,0])
         w2 = np.dot(w, w)
         return dr2 < w2 + r2
 
@@ -183,7 +183,7 @@ class HOT(object):
                     k = (np.array([cell]) | i)[0]
                     if k not in self.tree: continue
                     self.key_bbox(k, abox)
-                    if self.bbox_overlap(abox, bbox): # and self.sphere_overlap(abox, pos, r2):
+                    if self.bbox_overlap(abox, bbox) and self.sphere_overlap(abox, pos, r2):
                         if self.tree[k]['sbits']: # no daughters implies it is terminal
                             newnodes.append((np.array([k]) << self.ndim)[0])
                         else:

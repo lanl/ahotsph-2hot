@@ -268,8 +268,9 @@ main(int argc, char *argv[])
     fprintf(outfp, "# r*h(Mpc) mass*h/1e10 sigma_tophat sigma_gaussian ln(1/sigma) f_PS f_ST f_Jenkins f_LANL f_Bhat f_Reed f_Tinker ds_dm xi\n");
     fflush(outfp);
 
+    gsl_set_error_handler_off();
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(1000);
-    double s2, err, ftol = 1e-7;
+    double s2, err, ftol = 2e-7;
     gsl_function fn, fng, fnx;
     fn.function = &sigma_tophat;
     fn.params = &Sigma_tophat_r;
@@ -313,8 +314,10 @@ main(int argc, char *argv[])
 	    ds_dm = -(mass_tophat_r/sigma)*(sigmaplus-sigmaminus)/(massplus-massminus);
 
 	    Sigma_tophat_r = pow(10., decade) * pow(10., e/1000.0 + 0.000309);
-	    if (gsl_integration_qag(&fn, min_k, max_k, 0.0, ftol, 1000, 3, w, &s2, &err)) 
-		Error("gsl_integration_failed\n");
+	    if (gsl_integration_qag(&fn, min_k, max_k, 0.0, ftol, 1000, 3, w, &s2, &err)) {
+		fprintf(stderr, "gsl_integration_failed at r=%g\n", Sigma_tophat_r);
+		continue;
+	    }
 	    sigma = sqrt(s2);
 	    Sigma_gaussian_r = Sigma_tophat_r / 3.0;
 	    Xi_r = Sigma_tophat_r;

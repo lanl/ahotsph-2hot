@@ -9,7 +9,8 @@ class HOT(object):
     """
 
     def __init__(self,
-                 bbox=np.array([[0.0]*3, [1.0]*3]).T):
+                 bbox=np.array([[0.0]*3, [1.0]*3]).T,
+                 ccut=512):
         
         self.bbox = bbox
         self.ndim = np.shape(self.bbox)[0]
@@ -18,7 +19,7 @@ class HOT(object):
         self.placeholder = np.ones(1, dtype=self.keytype) # uint128 support would be nice
         self.bits_per_dim = self.placeholder.itemsize * 8 / self.ndim
         self.keybits = self.ndim * self.bits_per_dim
-        self.ccut = 512         # max nodes in next-to-leaf cell
+        self.ccut = ccut        # max nodes in next-to-leaf cell
         self.placeholder <<= self.keybits
         self.domain_width = bbox[:,1] - bbox[:,0]
         self.domain_width += 4.0 * np.finfo(bbox.dtype).eps * self.domain_width
@@ -90,8 +91,11 @@ class HOT(object):
         self.keys = self.keys[idx]
         self.icorner = self.icorner[idx]
         self.x = x[idx]
-        del idx
+        self.idx = idx
         self.tree = {}
+        self.cell_maxn = 0
+        self.cell_minn = i0max
+        self.ncells = 0
         while i0 < i0max:
             i1 = i0 + self.ccut
             if i1 < i0max:
@@ -109,6 +113,7 @@ class HOT(object):
             i0 += cell
         del self.keys
         del self.icorner
+        print 'tree cell_minn: %d cell_maxn: %d avg: %.3f' % (self.cell_minn, self.cell_maxn, len(self.x)/self.ncells)
         return self.tree
 
     def make_cell(self, np.uint32_t i0, np.uint32_t i1, int clev):
@@ -121,6 +126,9 @@ class HOT(object):
         cdef int level = self.bits_per_dim - clev/self.ndim
         cdef np.uint32_t level_mask = ~np.uint32((1 << clev/self.ndim) - 1)
         cdef np.ndarray[np.uint8_t, ndim=1] cdx = np.empty(i1-i0, dtype=np.uint8)
+        cdef int ncells = self.ncells
+        cdef int cell_minn = self.cell_minn
+        cdef int cell_maxn = self.cell_maxn
         cdef int cell = 0
 
         for i in range(i1-i0):
@@ -132,6 +140,12 @@ class HOT(object):
             ii = self.icorner[i0+cell] & level_mask
             self.tree[k] = np.array((0, level, i0+cell, n, ii), dtype=self.node)
             cell += n
+            if n > cell_maxn: cell_maxn = n # keep some statistics
+            if n < cell_minn: cell_minn = n
+            ncells += 1
+        self.ncells = ncells
+        self.cell_minn = cell_minn
+        self.cell_maxn = cell_maxn
         return cell
 
     def update_parents(self, int cell, np.uint32_t i0, int clev):
@@ -150,33 +164,23 @@ class HOT(object):
                 ii = self.icorner[i0] & ~np.uint32((1 << lev/self.ndim) - 1)
                 self.tree[k] = np.array((255, level, i0, cell, ii), dtype=self.node)
 
-    def sphere_overlap(self, a, pos, r2):
-        """Test if any part of box a is inside sphere"""
-        center = 0.5 * (a[:,0] + a[:,1])
-        dr = center-pos
-        dr2 = np.dot(dr, dr)
-        w = (a[:,1]-a[:,0])
-        w2 = np.dot(w, w)
-        return dr2 < w2 + r2
-
-    def find_nbrs(self, pos, r):
+    def find_nbrs(self, np.ndarray[np.float32_t, ndim=1] pos, float r):
         cdef int i
         cdef np.uint64_t k, cell
         cdef np.ndarray[np.uint64_t, ndim=1] nodes = np.array([8], dtype=np.uint64)
-        bbox = np.empty((3,2), np.float32)
+        cdef abox = np.empty((3,2), np.float32)
+        cdef bbox = np.empty((3,2), np.float32)
         bbox[:,0] = pos-r
         bbox[:,1] = pos+r
-        r2 = r**2
         newnodes = []
         nbrlist = []
-        abox = np.empty((3,2), np.float32)
         while nodes.shape[0]:
             for cell in nodes:
                 for i in range(8):
                     k = cell | i
                     if k not in self.tree: continue
                     self.key_bbox(k, abox)
-                    if bbox_overlap(abox, bbox): # and self.sphere_overlap(abox, pos, r2):
+                    if bbox_overlap(abox, bbox) and sphere_overlap(abox, pos, r):
                         if self.tree[k]['sbits']: # no daughters implies it is terminal
                             newnodes.append(k << 3)
                         else:
@@ -237,9 +241,18 @@ cdef n_in_cell(np.ndarray[np.uint8_t, ndim=1] a):
         else: 
             hi = mid
         mid = (lo+hi) >> 1
+
     return hi
 
-cdef inline bbox_overlap(a, b):
+cdef sphere_overlap(np.ndarray[np.float32_t, ndim=2] a, np.ndarray[np.float32_t, ndim=1] pos, float r):
+    """Test if any part of box a is inside sphere"""
+    cdef np.ndarray[np.float32_t, ndim=1] center = 0.5 * (a[:,0] + a[:,1])
+    cdef np.ndarray[np.float32_t, ndim=1] dr = center-pos
+    cdef float w = 0.8660254 * (a[0,1] - a[0,0]) + r
+    cdef float dr2 = dr[0]*dr[0] + dr[1]*dr[1] + dr[2]*dr[2]
+    return dr2 <= w*w
+
+cdef bbox_overlap(np.ndarray[np.float32_t, ndim=2] a, np.ndarray[np.float32_t, ndim=2] b):
     """Test if any part of box a is inside box b"""
     return np.all(((a[:,0] >= b[:,0]) & (a[:,0]  < b[:,1])) | 
               ((a[:,1] >= b[:,0]) & (a[:,1]  < b[:,1])) |
