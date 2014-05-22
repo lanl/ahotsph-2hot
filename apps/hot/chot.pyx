@@ -1,3 +1,4 @@
+# cython: profile=False
 # cython: boundscheck=False
 # cython: wraparound=False
 import numpy as np
@@ -34,7 +35,7 @@ class HOT(object):
                               ('level', np.uint8),
                               ('base', np.uint32),
                               ('len', np.uint32),
-                              ('icorner', np.uint32, (3))])
+                              ('bbox', np.float32, (3,2))])
         self.morton_table = np.zeros((256), dtype=np.uint32)
         for i in range(256):
             self.morton_table[i] = i&1 | (i>>1&1)<<3 | (i>>2&1)<<6 | (i>>3&1)<<9 | (i>>4&1)<<12 | (i>>5&1)<<15 | (i>>6&1)<<18 | (i>>7&1)<<21
@@ -73,11 +74,6 @@ class HOT(object):
             icorner[i,2] = ii2
         self.icorner = icorner
         return kkey
-
-    def key_bbox(self, key, bbox):
-        """Bounding box using precomputed icorner and width (bbox preallocated)"""
-        bbox[:,0] = self.bbox[:,0] + self.inv_keyfactor * self.tree[key]['icorner']
-        bbox[:,1] = bbox[:,0] + self.cell_width[self.tree[key]['level']]
 
     def make_tree(self, x):
         """Build tree"""
@@ -126,6 +122,7 @@ class HOT(object):
         cdef int level = self.bits_per_dim - clev/self.ndim
         cdef np.uint32_t level_mask = ~np.uint32((1 << clev/self.ndim) - 1)
         cdef np.ndarray[np.uint8_t, ndim=1] cdx = np.empty(i1-i0, dtype=np.uint8)
+        cdef np.ndarray[np.float32_t, ndim=2] bounds = np.empty((3,2), dtype=np.float32)
         cdef int ncells = self.ncells
         cdef int cell_minn = self.cell_minn
         cdef int cell_maxn = self.cell_maxn
@@ -138,7 +135,9 @@ class HOT(object):
             n = n_in_cell(cdx[cell:])
             k = keys[i0+cell] >> clev
             ii = self.icorner[i0+cell] & level_mask
-            self.tree[k] = np.array((0, level, i0+cell, n, ii), dtype=self.node)
+            bounds[:,0] = self.bbox[:,0] + self.inv_keyfactor * ii
+            bounds[:,1] = bounds[:,0] + self.cell_width[level]
+            self.tree[k] = np.array((0, level, i0+cell, n, bounds), dtype=self.node)
             cell += n
             if n > cell_maxn: cell_maxn = n # keep some statistics
             if n < cell_minn: cell_minn = n
@@ -154,6 +153,7 @@ class HOT(object):
         cdef np.uint64_t k, key
         cdef np.ndarray[np.uint32_t, ndim=1] ii = np.empty(self.ndim, np.uint32)
         cdef np.ndarray[np.uint64_t, ndim=1] keys = self.keys
+        cdef np.ndarray[np.float32_t, ndim=2] bounds = np.empty((3,2), dtype=np.float32)
         key = keys[i0]
         for lev in range(clev+self.ndim, self.keybits+1, self.ndim):
             k = key >> lev
@@ -162,13 +162,14 @@ class HOT(object):
             else:
                 level = self.bits_per_dim-lev/self.ndim
                 ii = self.icorner[i0] & ~np.uint32((1 << lev/self.ndim) - 1)
-                self.tree[k] = np.array((255, level, i0, cell, ii), dtype=self.node)
+                bounds[:,0] = self.bbox[:,0] + self.inv_keyfactor * ii
+                bounds[:,1] = bounds[:,0] + self.cell_width[level]
+                self.tree[k] = np.array((255, level, i0, cell, bounds), dtype=self.node)
 
     def find_nbrs(self, np.ndarray[np.float32_t, ndim=1] pos, float r):
         cdef int i
         cdef np.uint64_t k, cell
         cdef np.ndarray[np.uint64_t, ndim=1] nodes = np.array([8], dtype=np.uint64)
-        cdef abox = np.empty((3,2), np.float32)
         cdef bbox = np.empty((3,2), np.float32)
         bbox[:,0] = pos-r
         bbox[:,1] = pos+r
@@ -179,7 +180,7 @@ class HOT(object):
                 for i in range(8):
                     k = cell | i
                     if k not in self.tree: continue
-                    self.key_bbox(k, abox)
+                    abox = self.tree[k]['bbox']
                     if bbox_overlap(abox, bbox) and sphere_overlap(abox, pos, r):
                         if self.tree[k]['sbits']: # no daughters implies it is terminal
                             newnodes.append(k << 3)
@@ -193,8 +194,8 @@ class HOT(object):
         cdef int i
         cdef np.uint64_t k
         for i,x in enumerate(self.x[start:]):
-            if (i % 100) == 0: print i
-            nbrs = self.find_nbrs(x, self.domain_width * 1e-7)
+            if (i % 1000) == 0: print i
+            nbrs = self.find_nbrs(x, self.domain_width[0] * 1e-7)
             ok = False
             for k in nbrs:
                 node = self.tree[k]
@@ -244,63 +245,22 @@ cdef n_in_cell(np.ndarray[np.uint8_t, ndim=1] a):
 
     return hi
 
-cdef sphere_overlap(np.ndarray[np.float32_t, ndim=2] a, np.ndarray[np.float32_t, ndim=1] pos, float r):
+cdef inline sphere_overlap(float[:, ::1] a, float[::1] pos, float r):
     """Test if any part of box a is inside sphere"""
-    cdef np.ndarray[np.float32_t, ndim=1] center = 0.5 * (a[:,0] + a[:,1])
-    cdef np.ndarray[np.float32_t, ndim=1] dr = center-pos
     cdef float w = 0.8660254 * (a[0,1] - a[0,0]) + r
-    cdef float dr2 = dr[0]*dr[0] + dr[1]*dr[1] + dr[2]*dr[2]
+    cdef float dr2 = 0.0
+    cdef float dr
+    cdef int i
+
+    for i in range(a.shape[1]):
+        dr = 0.5 * (a[i,0] + a[i,1]) - pos[i]
+        dr2 += dr*dr
+
     return dr2 <= w*w
 
-cdef bbox_overlap(np.ndarray[np.float32_t, ndim=2] a, np.ndarray[np.float32_t, ndim=2] b):
+cdef inline bbox_overlap(float[:, ::1] a, float[:, ::1] b):
     """Test if any part of box a is inside box b"""
-    return np.all(((a[:,0] >= b[:,0]) & (a[:,0]  < b[:,1])) | 
-              ((a[:,1] >= b[:,0]) & (a[:,1]  < b[:,1])) |
-              ((a[:,0] <= b[:,0]) & (a[:,1] >= b[:,1])))
-
-
-if __name__ == "__main__":
-    from time import *
-
-    npart = 1e7
-    ot = HOT()
-
-    np.random.seed(0)
-    x = np.random.rand(npart,ot.ndim).astype(np.float32)
-    
-    t0 = time()
-    tree = ot.make_tree(x)
-    x = ot.x                    # Morton ordered
-    print tree[1]['len'], 'particles'
-    print 'build time:', time()-t0
-    
-    r = 0.05
-    pos = np.array([0.6, 0.6, 0.6], dtype=np.float32)
-
-    t0 = time()
-    nbrs = ot.find_nbrs(pos, r)
-    sum = 0
-    for k in nbrs:
-        sum += tree[k]['len']
-
-    print 'found %d overlaps, %d particles' % (len(nbrs), sum)
-    print 'find nbrs time:', time()-t0
-
-    t0 = time()
-    snbrs = 0
-    for k in nbrs:
-        xx = x[tree[k]['base']:tree[k]['base']+tree[k]['len']]
-        dr = xx-pos
-        dr2 = np.sum(dr*dr, axis=1)
-        snbrs += np.sum(dr2 <= r**2)
-
-    print '%d particles within search radius' % snbrs
-    print 'search time:', time()-t0
-
-    t0 = time()
-    dr = x-pos
-    dr2 = np.sum(dr*dr,axis=1)
-    snbrs = np.sum(dr2 <= r**2)
-
-    print '%d particles within search radius' % snbrs
-    print 'search time:', time()-t0
+    cdef int i
+    for i in range(3):
+        if a[i,0] >= b[i,1] or a[i,1] < b[i,0]: return False
+    return True

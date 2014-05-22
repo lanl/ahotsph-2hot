@@ -6,7 +6,7 @@ if __name__ == "__main__":
     from time import *
 
     npart = 1e6
-    ot = chot.HOT()
+    ot = chot.HOT(ccut=512)
 
     np.random.seed(0)
     x = np.random.rand(npart,ot.ndim).astype(np.float32)
@@ -16,8 +16,14 @@ if __name__ == "__main__":
     x = ot.x                    # Morton ordered
     print tree[1]['len'], 'particles'
     print 'build time:', time()-t0
+
+    #ot.check_find()
     
     r = 0.05
+    for i in range(1000):
+        pos = np.random.rand(3).astype(np.float32)
+        nbrs = ot.find_nbrs(pos, r)
+
     pos = np.array([0.6, 0.6, 0.6], dtype=np.float32)
 
     t0 = time()
