@@ -5,16 +5,20 @@
 #include <strings.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #include <unistd.h>
-#include <float.h>
+#include <errno.h>
 #include "Malloc.h"
 #include "macr.h"
-#define NDIM 3
 #include "error.h"
 #include "mpmy.h"
 #include "Msgs.h"
 #include "singlio.h"
 #include "timers.h"
+
+#ifndef O_NOATIME
+#define O_NOATIME 0
+#endif
 
 int
 main(int argc, char *argv[])
@@ -34,12 +38,13 @@ main(int argc, char *argv[])
     nfiles = atoi(argv[3]);
 
     if (MPMY_Procnum() == 0) {
-	FILE *fp = fopen(outname, "r");
-	if (fp) {
+	int fd = open(outname, O_RDONLY|O_NOATIME);
+	if (fd != -1) {
 	    struct stat sb;
-	    if (fstat(fileno(fp), &sb) == -1) Error("stat failed");
+	    if (fstat(fd, &sb) == -1) Error("stat failed");
 	    /* Allow zero length file so we can pre-set lustre stripe info */
 	    if (sb.st_size > 0) Error("Output file exists.  Will not overwrite.\n");
+	    close(fd);
 	}
     }
 
@@ -59,10 +64,11 @@ main(int argc, char *argv[])
     for (int i = 0; i < nfiles; i++) {
 	if (i % MPMY_Nproc() == MPMY_Procnum()) {
 	    struct stat sb;
-	    Fopen(fp, filename[i], "r");
-	    if (fstat(fileno(fp), &sb) == -1) Error("stat failed");
+	    int fd = open(filename[i], O_RDONLY|O_NOATIME);
+	    if (fd == -1) Error("open %s failed, %s\n", filename[i], strerror(errno));
+	    if (fstat(fd, &sb) == -1) Error("stat failed");
 	    sizes[i] = sb.st_size;
-	    Fclose(fp);
+	    close(fd);
 	}
     }
 
@@ -81,29 +87,35 @@ main(int argc, char *argv[])
     EnableTimer(&wtm, "write");
     StartTimer(&wtm);
 
-    FILE *outfp = NULL;
+    int outfd = -1;
     char *buffer = NULL;
     for (int i = 0; i < nfiles; i++) {
 	if (i % MPMY_Nproc() == MPMY_Procnum()) {
 	    printf("%d reading %s size %ld writing at %ld\n", MPMY_Procnum(), filename[i], sizes[i], offsets[i]);
 	    int bufsz = 8*1024*1024;
 	    int64_t nbytes;
-	    if (!outfp) {
-		Fopen(outfp, outname, "w");
+	    if (outfd == -1) {
+		/* stream I/O doesn't have a mode that does what we want */
+		outfd = open(outname, O_CREAT|O_WRONLY, 0644);
+		if (outfd == -1) Error("open %s failed, %s\n", outname, strerror(errno));
 		buffer = Malloc(bufsz);
 	    }
-	    Fseek(outfp, offsets[i], SEEK_SET);
-	    Fopen(fp, filename[i], "r");
+	    int fd = open(filename[i], O_RDONLY|O_NOATIME);
+	    if (fd == -1) Error("open %s failed, %s\n", filename[i], strerror(errno));
+	    int64_t off = offsets[i];
 	    for (int64_t left = sizes[i]; left > 0; left -= nbytes) {
 		nbytes = (left > bufsz) ? bufsz : left;
-		Fread(buffer, 1, nbytes, fp);
-		Fwrite(buffer, 1, nbytes, outfp);
+		if (read(fd, buffer, nbytes) != nbytes) 
+		    Error("read failed, %s\n", strerror(errno));
+		if (pwrite(outfd, buffer, nbytes, off) != nbytes) 
+		    Error("pwrite failed, %s\n", strerror(errno));
+		off += nbytes;
 	    }
-	    Fclose(fp);
+	    close(fd);
 	}
     }
-    if (!outfp) {
-	Fclose(outfp);
+    if (outfd != -1) {
+	close(outfd);
 	Free(buffer);
     }
     MPMY_Sync();
