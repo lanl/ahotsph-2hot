@@ -52,7 +52,9 @@ main(int argc, char *argv[])
     if (!sdf) Error("SDFopen %s failed\n", infile);
 
     int64_t gnobj;
-    if (SDFgetint64(sdf, "npart", &gnobj)) Error("SDFget npart failed\n");
+    if (SDFgetint64(sdf, "npart", &gnobj)) {
+	gnobj = SDFnrecs("x", sdf);
+    }
 
     float a, R[NDIM], rmin[NDIM], rmax[NDIM];
     SDFgetfloatOrDie(sdf, "Rx",  &R[0]);

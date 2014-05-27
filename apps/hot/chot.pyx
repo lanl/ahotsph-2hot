@@ -11,7 +11,7 @@ class HOT(object):
 
     def __init__(self,
                  bbox=np.array([[0.0]*3, [1.0]*3]).T,
-                 ccut=512):
+                 ccut=512, save_idx=False):
         
         self.bbox = bbox
         self.ndim = np.shape(self.bbox)[0]
@@ -22,6 +22,7 @@ class HOT(object):
         self.keybits = self.ndim * self.bits_per_dim
         self.ccut = ccut        # max nodes in next-to-leaf cell
         self.placeholder <<= self.keybits
+        self.save_idx = save_idx   # Save argsort of keys (high memory cost)
         self.domain_width = bbox[:,1] - bbox[:,0]
         self.domain_width += 4.0 * np.finfo(bbox.dtype).eps * self.domain_width
         self.bbox[:,0] -= 2.0 * np.finfo(bbox.dtype).eps * self.domain_width
@@ -75,6 +76,18 @@ class HOT(object):
         self.icorner = icorner
         return kkey
 
+    def inv_getkey(self, np.uint64_t key):
+        cdef np.ndarray[np.uint32_t, ndim=1] corner = np.zeros(self.ndim, np.uint32)
+        cdef int width = 1
+        cdef int ndim = self.ndim
+        while key > 1:
+            if key & 1: corner[0] |= width
+            if key & 2: corner[1] |= width
+            if key & 4: corner[2] |= width
+            key >>= ndim
+            width <<= 1
+        return corner, width
+
     def make_tree(self, x):
         """Build tree"""
         cdef np.uint32_t i0 = 0
@@ -87,7 +100,10 @@ class HOT(object):
         self.keys = self.keys[idx]
         self.icorner = self.icorner[idx]
         self.x = x[idx]
-        self.idx = idx
+        if self.save_idx:
+            self.idx = idx
+        else:
+            del idx
         self.tree = {}
         self.cell_maxn = 0
         self.cell_minn = i0max

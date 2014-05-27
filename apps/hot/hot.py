@@ -183,7 +183,7 @@ class HOT(object):
                     k = (np.array([cell]) | i)[0]
                     if k not in self.tree: continue
                     self.key_bbox(k, abox)
-                    if self.bbox_overlap(abox, bbox) and self.sphere_overlap(abox, pos, r2):
+                    if self.bbox_overlap(abox, bbox): # and self.sphere_overlap(abox, pos, r2):
                         if self.tree[k]['sbits']: # no daughters implies it is terminal
                             newnodes.append((np.array([k]) << self.ndim)[0])
                         else:
@@ -276,7 +276,7 @@ def n_in_cell(a):
 if __name__ == "__main__":
     from time import *
 
-    npart = 1e7
+    npart = 1e6
     ot = HOT()
 
     np.random.seed(0)
