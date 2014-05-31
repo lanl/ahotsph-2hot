@@ -225,11 +225,13 @@ SDFwrite_alist64(const char *filename, int mode, int64_t gnobj, int64_t nobj,
 		break;
 	    }
 	}
-	sprintf(line, "int sha1_chunks = %d;\n", MPMY_Nproc()); outstr(line);
-	sprintf(line, "struct {\n"); outstr(line);
-	sprintf(line, "    unsigned int sha1_len;\n"); outstr(line);
-	sprintf(line, "    unsigned char sha1[%d];\n}", SHA_DIGEST_LENGTH); outstr(line);
-	sprintf(line, "[%d];\n", MPMY_Nproc()); outstr(line);
+	if (gnobj > 0) {
+	    sprintf(line, "int sha1_chunks = %d;\n", MPMY_Nproc()); outstr(line);
+	    sprintf(line, "struct {\n"); outstr(line);
+	    sprintf(line, "    unsigned int sha1_len;\n"); outstr(line);
+	    sprintf(line, "    unsigned char sha1[%d];\n}", SHA_DIGEST_LENGTH); outstr(line);
+	    sprintf(line, "[%d];\n", MPMY_Nproc()); outstr(line);
+	}
 	    
 	if( bodydesc ){
 	    outstr(bodydesc);
