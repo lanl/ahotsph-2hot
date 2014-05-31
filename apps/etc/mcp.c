@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <utime.h>
 #include <unistd.h>
 #include <errno.h>
 #include "Malloc.h"
@@ -59,23 +60,28 @@ main(int argc, char *argv[])
     buffer = Malloc(bufsz);
     for (int i = 0; i < nfiles; i++) {
 	if (i % MPMY_Nproc() == MPMY_Procnum()) {
-	    struct stat sb;
+	    struct stat sb, outsb;
 	    char outname[256];
 	    snprintf(outname, sizeof(outname), "%s/%s", outdir, filename[i]);
 
 	    int outfd = open(outname, O_RDONLY|O_NOATIME);
 	    if (outfd != -1) {
-		if (fstat(outfd, &sb) != -1) Error("stat failed\n");
-		if (sb.st_size > 0) Error("Output file exists.  Will not overwrite.\n");
+		if (fstat(outfd, &outsb) == -1) Error("stat failed\n");
 		close(outfd);
-	    }
-
-	    outfd = open(outname, O_CREAT|O_WRONLY, 0644);
-	    if (outfd == -1) Error("open %s failed, %s\n", outname, strerror(errno));
+	    } else outsb.st_size = 0;
 
 	    int fd = open(filename[i], O_RDONLY|O_NOATIME);
 	    if (fd == -1) Error("open %s failed, %s\n", filename[i], strerror(errno));
 	    if (fstat(fd, &sb) == -1) Error("stat failed");
+
+	    if (outsb.st_size == sb.st_size) {
+		printf("%d %s sizes %ld are same, skipping\n", MPMY_Procnum(), filename[i], sb.st_size);
+		close(fd);
+		continue;
+	    }
+
+	    outfd = open(outname, O_CREAT|O_WRONLY, 0644);
+	    if (outfd == -1) Error("open %s failed, %s\n", outname, strerror(errno));
 
 	    printf("%d reading %s size %ld\n", MPMY_Procnum(), filename[i], sb.st_size);
 
@@ -90,6 +96,8 @@ main(int argc, char *argv[])
 	    copied += sb.st_size;
 	    close(fd);
 	    close(outfd);
+	    const struct utimbuf ut = {.actime = sb.st_atime, .modtime = sb.st_mtime};
+	    utime(outname, &ut); /* set ctime to origin file */
 	}
     }
     Free(buffer);
