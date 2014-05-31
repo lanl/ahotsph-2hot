@@ -14,6 +14,6 @@ typedef struct  {
 
 void FixRsizeExact(const float rmin[NDIM], const float rmax[NDIM]);
 void CellCorner(Key_t key, float corner[NDIM], float size[NDIM]);
-Key_t GetKeyFast(const body *p);
-Key_t GetKeySphericalFast(const body *p);
+Key_t GetKeyFast(const void *p);
+Key_t GetKeySphericalFast(const void *p);
 

@@ -18,20 +18,21 @@
 #include "gc.h"			/* for ilog2 */
 #include "stk.h"
 #include "SDFwrite.h"
+#include "version_2HOT.h"
 
-/* This is only valid at levels in the tree with less than 4G particles in each cell */
-/* and less than 4G cells at that level */
+/* This is only valid at levels in the tree with less than 2G particles in each cell */
+/* and less than 2G cells at that level */
 typedef struct {
     int64_t base;
-    uint32_t len;
-    uint32_t index;
+    int32_t len;
+    int32_t index;
 } idx_t;
 
 #define OUTIDX \
 "struct {\n\
-    int64_t base;		/* offset of first object in cell */\n\
-    unsigned int len;		/* number of objects in this cell */\n\
-    unsigned int index;		/* cell morton index */\n\
+    int64_t base;	/* offset of first object in cell */\n\
+    int len;		/* number of objects in this cell */\n\
+    int index;		/* cell morton index */\n\
 }"
 
 int
@@ -41,6 +42,8 @@ main(int argc, char *argv[])
     int level = 3;
 
     MPMY_Init(&argc, &argv);
+    singlPrintf("compiled %s %s\n", __DATE__, __TIME__);
+    singlPrintf("library %s %s %s\n", version_2HOT, compiled_date_2HOT, compiled_time_2HOT);
 
     if (argc != 2 && argc != 3) {
 	singlPrintf("usage: %s infile [level]\n", argv[0]);
@@ -48,13 +51,15 @@ main(int argc, char *argv[])
     }
     char *infile = argv[1];
     if (argc == 3) level = atoi(argv[2]);
-    if (level > 11) Error("level too large for uint32_t index\n");
+    if (level > 10) Error("level too large for int32_t index\n");
 
     SDF *sdf = SDFopen(NULL, infile);
     if (!sdf) Error("SDFopen %s failed\n", infile);
 
     int64_t gnobj;
-    if (SDFgetint64(sdf, "npart", &gnobj)) Error("SDFget npart failed\n");
+    if (SDFgetint64(sdf, "npart", &gnobj)) {
+	gnobj = SDFnrecs("x", sdf);
+    }
 
     int sorted_rtp = 0;
     SDFgetint(sdf, "sorted_rtp", &sorted_rtp);
@@ -62,7 +67,7 @@ main(int argc, char *argv[])
     SDFgetint(sdf, "sorted_xyz", &sorted_xyz);
 
     float rmin[NDIM], rmax[NDIM];
-    Key_t (*getkey)(const body *p);
+    Key_t (*getkey)(const void *p);
     if (sorted_rtp) {
 	float R0;
 	SDFgetfloatOrDie(sdf, "R0",  &R0);
@@ -74,9 +79,16 @@ main(int argc, char *argv[])
 	VV(rmax, = rtp_max);
     } else if (sorted_xyz) {
 	float R0;
+	int offset_center = 0;
 	SDFgetfloatOrDie(sdf, "R0",  &R0);
-	VS(rmin, = -R0*1.01);	/* must match lcjoin */
-	VS(rmax, =  R0*1.01);
+	SDFgetint(sdf, "offset_center", &offset_center);
+	if (offset_center) {
+	    VS(rmin, = 0.0f);
+	    VS(rmax, = 2.0f * R0);
+	} else {
+	    VS(rmin, = -R0*1.01);	/* must match lcjoin */
+	    VS(rmax, =  R0*1.01);
+	}
 	FixRsizeExact(rmin, rmax);
 	getkey = GetKeyFast;
     } else {
@@ -108,7 +120,6 @@ main(int argc, char *argv[])
 
     SDFclose(sdf);
 
-    assert(stride == sizeof(body));
     assert(len == gnobj);
 
     int fd = open(infile, O_RDONLY);
@@ -119,7 +130,7 @@ main(int argc, char *argv[])
     /* If we padded the header to be a multiple of the page size,*/
     /*  we could mmap btab directly */
 
-    body *btab = mm + offset;
+    char *btab = mm + offset;
 
     int64_t mask = (1LL<<(level*NDIM))-1;
     int procnum = MPMY_Procnum();
@@ -131,7 +142,7 @@ main(int argc, char *argv[])
     FILE *fp = stdout;
     if (nproc > 1 && text_output) {
 	char filename[256];
-	sprintf(filename, "index/%s_index.%04d", argv[1], procnum);
+	sprintf(filename, "index/%s_index.%04d", infile, procnum);
 	fp = fopen(filename, "w");
 	if (!fp) Error("fopen %s failed, %s\n", filename, strerror(errno));
     }
@@ -147,24 +158,24 @@ main(int argc, char *argv[])
     /* Termination condition really is <=, since next proc didn't know it started at beginning */
     for (int64_t i = start; i <= end; /* NULL */) {
 	int64_t i0 = i;
-	Key_t this_cell = KeyRshift(getkey(&btab[i0]), NDIM*(BITS_PER_DIM-level));
+	Key_t this_cell = KeyRshift(getkey(btab+i0*stride), NDIM*(BITS_PER_DIM-level));
 	while (1) {
-	    while (KeyEQ(this_cell, KeyRshift(getkey(&btab[i]), NDIM*(BITS_PER_DIM-level)))) i++;
+	    while (KeyEQ(this_cell, KeyRshift(getkey(btab+i*stride), NDIM*(BITS_PER_DIM-level)))) i++;
 	    /* keys are sorted in file by positions on previous timestep.  Sigh. */
 	    /* If at least 8 of next 10 are not in this cell, then it's really a new cell */
 	    int count = 0;
-	    Key_t next_cell = KeyRshift(getkey(&btab[i]), NDIM*(BITS_PER_DIM-level));
+	    Key_t next_cell = KeyRshift(getkey(btab+i*stride), NDIM*(BITS_PER_DIM-level));
 	    for (int64_t j = i+1; j < i+11; j++) {
-		if (KeyEQ(next_cell, KeyRshift(getkey(&btab[j]), NDIM*(BITS_PER_DIM-level)))) count++;
+		if (KeyEQ(next_cell, KeyRshift(getkey(btab+j*stride), NDIM*(BITS_PER_DIM-level)))) count++;
 	    }
 	    if (count >= 8) {
 		/* Skip first one (started in the middle) the proc before us will do it */
 		if (!is_partial) {
 		    idx_t idx = {.base = i0, .len = i-i0, .index = this_cell.k[0] & mask};
-		    if (i-i0 >= (1LL<<33)) Error("cell len too large for uint32_t\n");
+		    if (i-i0 >= (1LL<<30)) Error("cell len too large for int32_t\n");
 		    StkPushData(&stk, &idx, sizeof(idx_t));
 		    if (text_output) {
-			fprintf(fp, "%12ld %6ld %8ld %s\n", i0, i-i0, this_cell.k[0] & mask, PrintKey(getkey(&btab[i0])));
+			fprintf(fp, "%12ld %6ld %8ld %s\n", i0, i-i0, this_cell.k[0] & mask, PrintKey(getkey(btab+i0*stride)));
 			if (++nlines % 1000) fflush(fp);
 		    }
 		} else is_partial = 0;
@@ -179,7 +190,7 @@ main(int argc, char *argv[])
     MPMY_Combine(&nout, &gnout, 1, MPMY_INT64, MPMY_SUM);
 
     char outname[256];
-    sprintf(outname, "%s.idx0_%d", argv[1], level);
+    sprintf(outname, "%s.idx0_%d", infile, level);
 
     /* stream I/O doesn't have a mode that does what we want */
     int fd2 = open(outname, O_CREAT|O_WRONLY, 0644);
@@ -203,18 +214,37 @@ main(int argc, char *argv[])
     }
     close(fd2);
 
-    sprintf(outname, "%s.idx_%d", argv[1], level);
+    /* Header for idx0 file with bounds */
+    sprintf(outname, "%s.idx0_%d.hdr", infile, level);
+
+    SDFwritehdr(outname, OUTIDX,
+		"level", SDF_INT, level,
+		"version", SDF_INT, 1,
+		"x_min", SDF_DOUBLE, rmin[0],
+		"y_min", SDF_DOUBLE, rmin[1],
+		"z_min", SDF_DOUBLE, rmin[2],
+		"x_max", SDF_DOUBLE, rmax[0],
+		"y_max", SDF_DOUBLE, rmax[1],
+		"z_max", SDF_DOUBLE, rmax[2],
+		"rsize", SDF_DOUBLE, rmax[2]-rmin[2],
+		"filename", SDF_STRING, infile);
+
+    SDFunsetwroteheader();
+
+    sprintf(outname, "%s.idx_%d", infile, level);
 
     SDFwrite64(outname, gnout, 
 	       nout, StkBase(&stk), sizeof(idx_t), OUTIDX,
-	       "filename", SDF_STRING, argv[1],
 	       "level", SDF_INT, level,
+	       "version", SDF_INT, 1,
 	       "x_min", SDF_DOUBLE, rmin[0],
 	       "y_min", SDF_DOUBLE, rmin[1],
 	       "z_min", SDF_DOUBLE, rmin[2],
+	       "x_max", SDF_DOUBLE, rmax[0],
+	       "y_max", SDF_DOUBLE, rmax[1],
+	       "z_max", SDF_DOUBLE, rmax[2],
 	       "rsize", SDF_DOUBLE, rmax[2]-rmin[2],
-	       "version", SDF_INT, 1);
-
+	       "filename", SDF_STRING, infile);
 
     MPMY_Finalize();
     exit(0);

@@ -85,8 +85,9 @@ static const uint32_t morton[256] = {
     2396673, 2396680, 2396681, 2396736, 2396737, 2396744, 2396745
 };
 
-Key_t GetKeyFast(const body *p)
+Key_t GetKeyFast(const void *pp)
 {
+    const body *p = pp;
     uint32_t xp0, xp1, xp2;
     uint32_t k0, k1, k2, k3;
     Key_t key = {{0, 1<<29}};
@@ -110,8 +111,9 @@ Key_t GetKeyFast(const body *p)
     return(key);
 }
 
-Key_t GetKeySphericalFast(const body *p)
+Key_t GetKeySphericalFast(const void *pp)
 {
+    const body *p = pp;
     uint32_t xp0, xp1, xp2;
     uint32_t k0, k1, k2, k3;
     Key_t key = {{0, 1<<29}};
