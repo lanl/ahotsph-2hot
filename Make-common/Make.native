@@ -2,11 +2,11 @@ defaultCC:=gcc
 
 # break on __asan_report_error for address santizer
 
-CC_SPECIFIC:=-g -Wall -std=c99 -D_XOPEN_SOURCE=500 -gdwarf-3 -fsanitize=address -fno-omit-frame-pointer
+CC_SPECIFIC:=-g -Wall -std=c99 -D_XOPEN_SOURCE=500 -gdwarf-3
 ARCH_SPECIFIC:=-march=native -mprefer-avx128 -DXK6 -DSTK_FORCE_ALIGNMENT=4 -D_FILE_OFFSET_BITS=64 -DUSE_SYSTEM_MALLOC -DUSE_MPIIO -DUSE_HWCLOCK -DPROCS_PER_NODE=16
 OPTIMIZE=-Og
 AGGRESSIVE_OPT=-O2
-LDFLAGS:=-g -fsanitize=address
+LDFLAGS:=-g
 LEX:=flex
 YACC:=bison -y
 
