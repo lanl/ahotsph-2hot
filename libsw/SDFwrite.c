@@ -160,6 +160,7 @@ SDFwrite_alist64(const char *filename, int mode, int64_t gnobj, int64_t nobj,
     char *buf;
     size_t len;
     int ok, allok, retried;
+    int write_sha1 = (gnobj > 0); /* Should change interface */
 
     Msgf(("In Wtdata\n"));
     header_len = 0;
@@ -225,7 +226,7 @@ SDFwrite_alist64(const char *filename, int mode, int64_t gnobj, int64_t nobj,
 		break;
 	    }
 	}
-	if (gnobj > 0) {
+	if (write_sha1) {
 	    sprintf(line, "int sha1_chunks = %d;\n", MPMY_Nproc()); outstr(line);
 	    sprintf(line, "struct {\n"); outstr(line);
 	    sprintf(line, "    unsigned int sha1_len;\n"); outstr(line);
@@ -264,10 +265,16 @@ SDFwrite_alist64(const char *filename, int mode, int64_t gnobj, int64_t nobj,
 	strncpy(header_buf+header_print_offset, line, 5);
 	/* Avoid separate write for header due to paragon limitations */
 	/* It's only memory, after all */
-	len = header_len + MPMY_Nproc()*sizeof(struct md_s) + (size_t)bsize*nobj;
-	buf = header_buf = Realloc(header_buf, len);
-	memcpy(buf+header_len, mdtab, MPMY_Nproc() * sizeof(struct md_s));
-	memcpy(buf+header_len+MPMY_Nproc()*sizeof(struct md_s), btab, (size_t)bsize*nobj);
+	if (write_sha1) {
+	    len = header_len + MPMY_Nproc()*sizeof(struct md_s) + (size_t)bsize*nobj;
+	    buf = header_buf = Realloc(header_buf, len);
+	    memcpy(buf+header_len, mdtab, MPMY_Nproc() * sizeof(struct md_s));
+	    memcpy(buf+header_len+MPMY_Nproc()*sizeof(struct md_s), btab, (size_t)bsize*nobj);
+	} else {
+	    len = header_len + (size_t)bsize*nobj;
+	    buf = header_buf = Realloc(header_buf, len);
+	    memcpy(buf+header_len, btab, (size_t)bsize*nobj);
+	}
 	Free(mdtab);
     } else {
 	len = (size_t)bsize*nobj;
