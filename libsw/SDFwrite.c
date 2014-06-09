@@ -154,6 +154,7 @@ SDFwrite_alist64(const char *filename, int mode, int64_t gnobj, int64_t nobj,
     char line[LINE_LEN];
     int ival;
     int64_t i64val;
+    float fval;
     double dval;
     char *sval;
     char *name;
@@ -173,13 +174,16 @@ SDFwrite_alist64(const char *filename, int mode, int64_t gnobj, int64_t nobj,
 	unsigned char hash[SHA_DIGEST_LENGTH];
     } __attribute__ ((packed)) md;
     struct md_s *mdtab = NULL;
-    if (MPMY_Procnum() == 0) {
-	mdtab = Malloc(MPMY_Nproc() * sizeof(struct md_s));
+
+    if (write_sha1) {
+	if (MPMY_Procnum() == 0) {
+	    mdtab = Malloc(MPMY_Nproc() * sizeof(struct md_s));
+	}
+	if (nobj * bsize >= UINT_MAX) Error("int overflow\n");
+	md.len = nobj * bsize;
+	SHA1(btab, md.len, md.hash);
+	MPMY_Gather(&md, SHA_DIGEST_LENGTH + sizeof(md.len), MPMY_CHAR, mdtab, 0);
     }
-    if (nobj * bsize >= UINT_MAX) Error("int overflow\n");
-    md.len = nobj * bsize;
-    SHA1(btab, md.len, md.hash);
-    MPMY_Gather(&md, SHA_DIGEST_LENGTH + sizeof(md.len), MPMY_CHAR, mdtab, 0);
 
     if (MPMY_Procnum() == 0 && wrote_header == 0) {
 	outstr("# SDF 1.0\n");
@@ -187,41 +191,42 @@ SDFwrite_alist64(const char *filename, int mode, int64_t gnobj, int64_t nobj,
 	int header_print_offset = header_len - 7;
 	sprintf(line, "parameter byteorder = 0x%x;\n", 
 		SDFcpubyteorder()); outstr(line); 
+	/* Need to be very careful with types sent to this function.  There is no type checking for va_args */
 	while( (name = va_arg(alist, char *)) ){
 	    Msgf(("name(%lx)=%s\n", (unsigned long int)name, name));
 	    switch( va_arg(alist, enum SDF_type_enum) ){
-	      case SDF_INT:
+	    case SDF_INT:
 		ival = va_arg(alist, int);
 		sprintf(line, "int %s = %d;\n", name, ival); outstr(line);
 		break;
-	      case SDF_INT64:
+	    case SDF_INT64:
 		i64val = va_arg(alist, int64_t);
 		sprintf(line, "int64_t %s = %ld;\n", name, i64val); outstr(line);
 		break;
-	      case SDF_FLOAT:
-		dval = va_arg(alist, double);
-		if (dval == 0.0 || (dval*dval < 1e10 && dval*dval > 1e-10)) {
-		    sprintf(line, "float %s = %.8g;\n", name, dval);
+	    case SDF_FLOAT:
+		fval = va_arg(alist, double);
+		if (fval == 0.0 || (fval*fval < 1e10 && fval*fval > 1e-10)) {
+		    sprintf(line, "float %s = %.8g;\n", name, fval);
 		} else {
-		    sprintf(line, "float %s = %.8e;\n", name, dval);
+		    sprintf(line, "float %s = %.8e;\n", name, fval);
 		}
 		outstr(line);
 		break;
-	      case SDF_DOUBLE:
+	    case SDF_DOUBLE:
 		dval = va_arg(alist, double);
 		if (dval == 0.0 || (dval*dval < 1e10 && dval*dval > 1e-10)) {
-		    sprintf(line, "double %s = %.16g;\n", name, dval); 
+		    sprintf(line, "double %s = %.16lg;\n", name, dval); 
 		} else {
-		    sprintf(line, "double %s = %.16e;\n", name, dval); 
+		    sprintf(line, "double %s = %.16le;\n", name, dval); 
 		}
 		outstr(line);
 		break;
-	      case SDF_STRING:
+	    case SDF_STRING:
 		sval = va_arg(alist, char *);
 		sprintf(line, "char %s[] = \"%s\";\n", name, sval);
 		outstr(line);
 		break;
-	      default:
+	    default:
 		Shout("Unexpected type in wtdata\n");
 		break;
 	    }
@@ -270,12 +275,12 @@ SDFwrite_alist64(const char *filename, int mode, int64_t gnobj, int64_t nobj,
 	    buf = header_buf = Realloc(header_buf, len);
 	    memcpy(buf+header_len, mdtab, MPMY_Nproc() * sizeof(struct md_s));
 	    memcpy(buf+header_len+MPMY_Nproc()*sizeof(struct md_s), btab, (size_t)bsize*nobj);
+	    Free(mdtab);
 	} else {
 	    len = header_len + (size_t)bsize*nobj;
 	    buf = header_buf = Realloc(header_buf, len);
 	    memcpy(buf+header_len, btab, (size_t)bsize*nobj);
 	}
-	Free(mdtab);
     } else {
 	len = (size_t)bsize*nobj;
 	buf = btab;
