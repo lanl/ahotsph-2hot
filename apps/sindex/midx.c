@@ -139,79 +139,153 @@ main(int argc, char *argv[])
 
     Stk stk;
     StkInitEz(&stk);
+    int need_sparse = 0;
+    int64_t nwander = 0;
     int next_index = 0;
     Key_t previous_cell = {};
+    if (is_partial) {
+	Key_t k = KeyRshift(getkey(btab+start*stride), NDIM*(BITS_PER_DIM-level));
+	next_index = (k.k[0] & mask) + 1;
+    }
     
     /* Termination condition really is <=, since next proc didn't know it started at beginning */
     for (int64_t i = start; i <= end; /* NULL */) {
 	int64_t i0 = i;
 	Key_t this_cell = KeyRshift(getkey(btab+i0*stride), NDIM*(BITS_PER_DIM-level));
-	if (!KeyGT(this_cell, previous_cell)) /* catch unsorted files or bad bounds */
+	if (KeyLE(this_cell, previous_cell) && !is_partial && !wandering_particles) /* catch unsorted files or bad bounds */
 	    Error("input file not sorted by key\n");
+	int wandered = 0;
     again:
 	while (KeyEQ(this_cell, KeyRshift(getkey(btab+i*stride), NDIM*(BITS_PER_DIM-level)))) i++;
 	if (wandering_particles) {
-	    /* keys are sorted in file by positions on previous timestep.  Sigh. */
+	    /* keys can be sorted in file by positions on previous timestep.  Sigh. */
+	    /* Roundoff error could also move particles out of their cell? */
 	    /* If at least 8 of next 10 are not in this cell, then it's really a new cell */
 	    int count = 0;
-	    Key_t next_cell = KeyRshift(getkey(btab+i*stride), NDIM*(BITS_PER_DIM-level));
-	    for (int64_t j = i+1; (j < i+11) && (j <= end); j++) {
-		if (KeyEQ(next_cell, KeyRshift(getkey(btab+j*stride), NDIM*(BITS_PER_DIM-level)))) count++;
+	    Key_t next_cell = KeyRshift(getkey(btab+(i+1)*stride), NDIM*(BITS_PER_DIM-level));
+	    for (int64_t j = i+2; (j < i+12) && (j <= end); j++) {
+		if (KeyLE(next_cell, KeyRshift(getkey(btab+j*stride), NDIM*(BITS_PER_DIM-level)))) count++;
 	    }
 	    if (count < 8 && i < end) {
 		i++;
+		wandered = 1;
 		goto again;
 	    }
 	}
+	nwander += wandered;
 	idx_t idx = {.base = i0, .len = i-i0, .index = this_cell.k[0] & mask};
 	/* Skip first one (started in the middle) the proc before us will do it */
 	if (!is_partial) {
 	    if (i-i0 >= (1LL<<30)) Error("cell len too large for int32_t\n");
-	    if (idx.index - next_index >= 1024*1024) 
-		SeriousWarning("Giant gap from %d to %d.  Need sparse file?\n", next_index, idx.index);
-	    for (int j = next_index; j < idx.index; j++) {
-		idx_t empty = {.base = i0, .len = 0, .index = j}; /* could also leave empty for sparse file */
-		StkPushData(&stk, &empty, sizeof(idx_t));
+	    if (idx.index - next_index >= 64*1024) {
+		need_sparse = 1;
+	    } else {
+		for (int j = next_index; j < idx.index; j++) {
+		    idx_t empty = {.base = i0, .len = 0, .index = j}; /* could also leave empty for sparse file */
+		    StkPushData(&stk, &empty, sizeof(idx_t));
+		}
 	    }
 	    StkPushData(&stk, &idx, sizeof(idx_t));
+	    next_index = idx.index + 1;
+	    previous_cell = this_cell;
 	} else is_partial = 0;
-	next_index = idx.index + 1;
-	previous_cell = this_cell;
     }
     close(fd);
 
     int64_t gnout, nout;
     nout = StkSz(&stk)/sizeof(idx_t);
     MPMY_Combine(&nout, &gnout, 1, MPMY_INT64, MPMY_SUM);
+    MPMY_Combine(&need_sparse, &need_sparse, 1, MPMY_INT, MPMY_SUM);
+    if (wandering_particles) MPMY_Combine(&nwander, &nwander, 1, MPMY_INT64, MPMY_SUM);
     int nindex = 1 << (NDIM*level);
-
-    /* printf("%d %ld %ld %d\n", MPMY_Procnum(), nout, gnout, nindex); */
-    if (gnout != nindex) 
-	Error("Expected %d indices, got %ld\n", nindex, gnout);
-
     char outname[256];
     sprintf(outname, "%s.midx%d", infile, level);
-    SDFwrite64(outname, gnout, 
-	       nout, StkBase(&stk), sizeof(idx_t), OUTIDX,
-	       "level", SDF_INT, level,
-		"ndim", SDF_INT, NDIM,
-		"nindex", SDF_INT, nindex,
-		"midx_version", SDF_INT, 1,
-		"x_min", SDF_FLOAT, rmin[0],
-		"y_min", SDF_FLOAT, rmin[1],
-		"z_min", SDF_FLOAT, rmin[2],
-		"x_max", SDF_FLOAT, rmax[0],
-		"y_max", SDF_FLOAT, rmax[1],
-		"z_max", SDF_FLOAT, rmax[2],
-		"length_unit", SDF_STRING, "kpc", 
-		"compiled_date_idx", SDF_STRING, __DATE__,
-		"compiled_time_idx", SDF_STRING, __TIME__,
-		"compiled_version_2HOT", SDF_STRING, version_2HOT,
-		"compiled_date_2HOT", SDF_STRING, compiled_date_2HOT,
-		"compiled_time_2HOT", SDF_STRING, compiled_time_2HOT,
-		"filename", SDF_STRING, infile,
-		NULL);
 
+    if (need_sparse) {
+	SDFwritehdr(outname, OUTIDX,
+		    "level", SDF_INT, level,
+		    "ndim", SDF_INT, NDIM,
+		    "nindex", SDF_INT, nindex,
+		    "midx_version", SDF_INT, 1,
+		    "sparse_file", SDF_INT, 1,
+		    "x_min", SDF_FLOAT, rmin[0],
+		    "y_min", SDF_FLOAT, rmin[1],
+		    "z_min", SDF_FLOAT, rmin[2],
+		    "x_max", SDF_FLOAT, rmax[0],
+		    "y_max", SDF_FLOAT, rmax[1],
+		    "z_max", SDF_FLOAT, rmax[2],
+		    "length_unit", SDF_STRING, "kpc", 
+		    "compiled_date_idx", SDF_STRING, __DATE__,
+		    "compiled_time_idx", SDF_STRING, __TIME__,
+		    "compiled_version_2HOT", SDF_STRING, version_2HOT,
+		    "compiled_date_2HOT", SDF_STRING, compiled_date_2HOT,
+		    "compiled_time_2HOT", SDF_STRING, compiled_time_2HOT,
+		    "filename", SDF_STRING, infile,
+		    NULL);
+
+	MPMY_Sync();
+	/* stream I/O doesn't have a mode that does what we want */
+	int fd2 = open(outname, O_WRONLY, 0644);
+	if (fd2 == -1) Error("open %s failed, %s\n", outname, strerror(errno));
+
+	struct stat sb;
+	if (fstat(fd2, &sb) == -1) Error("stat failed\n");
+	int64_t header_len = sb.st_size;
+
+	singlPrintf("header_len is %ld\n", header_len);
+	MPMY_Sync();	       /* get size before other procs write */
+
+	idx_t *idxarr = StkBase(&stk);
+	int64_t off = idxarr[0].index * sizeof(idx_t);
+	int64_t n = 0;
+	for (int64_t i = 0; i < nout; i += n) {
+	    /* This will result in a sparse file */
+	    off = idxarr[i].index * sizeof(idx_t);
+	    n = i;
+	    while (n < nout-1 && (idxarr[n].index + 1 == idxarr[n+1].index)) n++; /* find contiguous group */
+	    n++;
+	    n -= i;
+	    printf("%d pwrite %ld at %ld\n", MPMY_Procnum(), n * sizeof(idx_t), header_len+off);
+	    if (pwrite(fd2, &idxarr[i].base, n * sizeof(idx_t), header_len+off) != n * sizeof(idx_t))
+		Error("pwrite failed, %s\n", strerror(errno));
+	    off += n * sizeof(idx_t);
+	}
+	/* Account for empty cells at the end */
+	if (MPMY_Procnum() == MPMY_Nproc()-1 && off < nindex*sizeof(idx_t)) {
+	    int empty = 0;
+	    printf("%d final pwrite %ld at %ld\n", MPMY_Procnum(), sizeof(int), header_len+nindex*sizeof(idx_t)-sizeof(int));
+	    if (pwrite(fd2, &empty, sizeof(int), header_len+nindex*sizeof(idx_t)-sizeof(int)) != sizeof(int))
+		Error("pwrite failed, %s\n", strerror(errno));
+	}
+	close(fd2);
+    } else {
+	/* printf("%d %ld %ld %d\n", MPMY_Procnum(), nout, gnout, nindex); */
+	if (gnout != nindex) 
+	    Error("Expected %d indices, got %ld\n", nindex, gnout);
+	
+	SDFwrite64(outname, gnout, 
+		   nout, StkBase(&stk), sizeof(idx_t), OUTIDX,
+		   "level", SDF_INT, level,
+		   "ndim", SDF_INT, NDIM,
+		   "nindex", SDF_INT, nindex,
+		   "midx_version", SDF_INT, 1,
+		   "x_min", SDF_FLOAT, rmin[0],
+		   "y_min", SDF_FLOAT, rmin[1],
+		   "z_min", SDF_FLOAT, rmin[2],
+		   "x_max", SDF_FLOAT, rmax[0],
+		   "y_max", SDF_FLOAT, rmax[1],
+		   "z_max", SDF_FLOAT, rmax[2],
+		   "length_unit", SDF_STRING, "kpc", 
+		   "compiled_date_idx", SDF_STRING, __DATE__,
+		   "compiled_time_idx", SDF_STRING, __TIME__,
+		   "compiled_version_2HOT", SDF_STRING, version_2HOT,
+		   "compiled_date_2HOT", SDF_STRING, compiled_date_2HOT,
+		   "compiled_time_2HOT", SDF_STRING, compiled_time_2HOT,
+		   "filename", SDF_STRING, infile,
+		   NULL);
+    }
+    
+    if (wandering_particles) singlPrintf("Saw %ld wandering particles.\n", nwander);
     MPMY_Finalize();
     exit(0);
 }

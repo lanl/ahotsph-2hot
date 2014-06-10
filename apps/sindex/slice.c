@@ -38,11 +38,13 @@ main(int argc, char *argv[])
 {
     MPMY_Init(&argc, &argv);
 
-    if (argc != 2) {
-	singlPrintf("usage: %s file.idx\n", argv[0]);
+    if (argc != 4) {
+	singlPrintf("usage: %s file.idx res nlayers\n", argv[0]);
 	exit(1);
     }
     char *idxfile = argv[1];
+    int64_t res = atoi(argv[2]);
+    int nlayers = atoi(argv[3]);
 
     /* memmap index file to idx */
     SDF *sdfidx = SDFopen(NULL, idxfile);
@@ -138,12 +140,10 @@ main(int argc, char *argv[])
     body *btab = mm2 + offset;
 
     /* Make an image slice */
-    int64_t res = 20480;
     float *image = calloc(res * res, sizeof(float));
     if (!image) Error("calloc failed\n");
 
     int nblocks = 0;
-    int nlayers = 4;
     float corner[NDIM], center[NDIM], size;
     Key_t placeholder = KeyLshift(KeyInt(1), level*NDIM);
     CellCorner(placeholder, corner, &size);

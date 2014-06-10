@@ -26,16 +26,20 @@
 #define IDENTMASK ((1LL<<48)-1)	/* use high bits for other purposes */
 
 typedef struct {
-    float pos[NDIM];		/* position of body */
-    float vel[NDIM];		/* velocity of body */
-    int64_t ident;		/* unique identifier */
+    float pos[NDIM];
+    float vel[NDIM];
+    float mvir, m200b, m200c, m500c, m2500c;
+    float vmax, rvmax, r200b, spin, kin_to_pot;
+    int64_t id, pid;
 } __attribute__ ((packed)) body;
 
 #define OUTBODYDESC \
 "struct {\n\
-    float x, y, z;		/* position of body */\n\
-    float vx, vy, vz;		/* velocity of body */\n\
-    int64_t ident;		/* unique identifier */\n\
+    float x, y, z;\n\
+    float vx, vy, vz;\n\
+    float mvir, m200b, m200c, m500c, m2500c;\n\
+    float vmax, rvmax, r200b, spin, kin_to_pot;\n\
+    int64_t id, pid;\n\
 }"
 
 static float Rmin[NDIM], Rsize[NDIM];
@@ -181,39 +185,35 @@ float UnityCost(const void *ptr) /* load balance cost for *ptr */
     return 1.0;
 }
 
-
-/* Use mpirun -np ???? -bynode */
-
 int
 main(int argc, char *argv[])
 {
     int nfiles;
-    char *filelist, sdfhdr[256], outbase[256];
+    char *filelist, sdfhdr[256];
+    char outname[256];
     struct stat sb;
     SDF *sdfp;
     int64_t gnobj, nobj;
-    float R0;
-    double Omega0_m, Omega0_r, Omega0_lambda, Omega0_fld, h_100, H0;
+    double L0;
+    double Omega0_m, Omega0_lambda, h_100;
+    double redshift;
+    double overdensity;
+    double tpos;
     float particle_mass;
-    float epsilon_scaled;
-    double lc_origin[NDIM] = {};
+    double a;
     body *btab = NULL;
-    int version, fileversion_2HOT, units_2HOT;
 
     MPMY_Init(&argc, &argv);
 
-    if (argc != 8) {
-	fprintf(stderr, "usage: %s outnamebase file.hdr lc_x lc_y lc_z filenames nfiles\n", argv[0]);
+    if (argc != 5) {
+	fprintf(stderr, "usage: %s outname file.hdr filenames nfiles\n", argv[0]);
 	exit(1);
     }
     singlPrintf("Welcome to the machine\n");
-    strncpy(outbase, argv[1], sizeof(outbase));
+    strncpy(outname, argv[1], sizeof(outname));
     strncpy(sdfhdr, argv[2], sizeof(sdfhdr));
-    lc_origin[0] = atof(argv[3]);
-    lc_origin[1] = atof(argv[4]);
-    lc_origin[2] = atof(argv[5]);
-    filelist = argv[6];
-    nfiles = atoi(argv[7]);
+    filelist = argv[3];
+    nfiles = atoi(argv[4]);
 
     FILE *fp = fopen(filelist, "r");
     if (!fp) Error("fopen %s failed\n", filelist);
@@ -223,7 +223,6 @@ main(int argc, char *argv[])
 	/* strip carriage returns */
 	char *cr = index(filename[i], '\n');
 	if (cr) *cr = '\0';
-
     }
 
     singlPrintf("Reading %d files on %d procs\n", nfiles, MPMY_Nproc());
@@ -231,18 +230,15 @@ main(int argc, char *argv[])
     if (!(sdfp = SDFopen(NULL, sdfhdr))) {
 	Error("SDFopen failed: %s", SDFerrstring);
     }
-    SDFgetintOrDefault(sdfp, "version", &version, 2);
-    SDFgetintOrDefault(sdfp, "version_2HOT", &fileversion_2HOT, 2);
-    SDFgetintOrDefault(sdfp, "units_2HOT", &units_2HOT, 2);
-    SDFgetfloatOrDie(sdfp, "particle_mass",  &particle_mass);
-    SDFgetfloatOrDie(sdfp, "R0",  &R0);
+    SDFgetfloatOrDie(sdfp, "part_mass",  &particle_mass);
+    SDFgetdoubleOrDie(sdfp, "BOX_SIZE",  &L0);
+    SDFgetdoubleOrDie(sdfp, "SCALE_NOW",  &a);
+    SDFgetdoubleOrDie(sdfp, "redshift",  &redshift);
+    SDFgetdoubleOrDie(sdfp, "tpos",  &tpos);
+    SDFgetdoubleOrDie(sdfp, "overdensity",  &overdensity);
     SDFgetdoubleOrDie(sdfp, "Omega0_m",  &Omega0_m);
-    SDFgetdoubleOrDie(sdfp, "Omega0_r",  &Omega0_r);
     SDFgetdoubleOrDie(sdfp, "Omega0_lambda",  &Omega0_lambda);
-    SDFgetdoubleOrDie(sdfp, "Omega0_fld",  &Omega0_fld);
     SDFgetdoubleOrDie(sdfp, "h_100",  &h_100);
-    SDFgetdoubleOrDie(sdfp, "H0",  &H0);
-    SDFgetfloatOrDie(sdfp, "epsilon_scaled",  &epsilon_scaled);
     SDFclose(sdfp);
 
     gnobj = nobj = 0;
@@ -265,9 +261,8 @@ main(int argc, char *argv[])
     MPMY_Combine(&nobj, &gnobj, 1, MPMY_INT64, MPMY_SUM);
 
     singlPrintf("Sorting %ld particles by xyz\n", gnobj);
-    float rmin[NDIM], rmax[NDIM];
-    VS(rmin, = -R0*1.01);
-    VS(rmax, = R0*1.01);
+    float rmin[NDIM] = {0.0f, 0.0f, 0.0f};
+    float rmax[NDIM] = {L0, L0, L0};
     FixRsizeExact(rmin, rmax);
 
     sortresult_t outputsort;
@@ -280,42 +275,39 @@ main(int argc, char *argv[])
 
     MPMY_Combine(&nobj, &gnobj, 1, MPMY_INT64, MPMY_SUM);
 
-    char outname[256];
-
-    sprintf(outname, "%s_xyz.sdf", outbase);
     singlPrintf("Writing \"%s\"\n", outname);
 
     SDFwrite64(outname, gnobj,
 	       nobj, btab, sizeof(body), OUTBODYDESC,
-	       "npart", SDF_INT64, gnobj,
+	       "nhalo", SDF_INT64, gnobj,
 	       "particle_mass", SDF_FLOAT, particle_mass,
-	       "R0", SDF_FLOAT, R0*1.01,
-	       "version", SDF_INT, version,
-	       "version_2HOT", SDF_INT, fileversion_2HOT,
-	       "units_2HOT", SDF_INT, units_2HOT,
-	       "light_cone", SDF_INT, 1,
-	       "sorted_xyz", SDF_INT, 1,
+	       "part_mass", SDF_FLOAT, particle_mass,
+	       "BOX_SIZE", SDF_DOUBLE, L0,
+	       "L0", SDF_DOUBLE, L0,
+	       "R0", SDF_DOUBLE, 0.5 * L0,
+	       "offset_center", SDF_INT, 1,
+	       "redshift", SDF_DOUBLE, redshift,
+	       "tpos", SDF_DOUBLE, tpos,
+	       "overdensity", SDF_DOUBLE, overdensity,
+	       "SCALE_NOW", SDF_DOUBLE, a,
+	       "a", SDF_DOUBLE, a,
+	       "do_periodic", SDF_INT, 1,
 	       "x_min", SDF_FLOAT, rmin[0],
 	       "y_min", SDF_FLOAT, rmin[1],
 	       "z_min", SDF_FLOAT, rmin[2],
 	       "x_max", SDF_FLOAT, rmax[0],
 	       "y_max", SDF_FLOAT, rmax[1],
 	       "z_max", SDF_FLOAT, rmax[2],
-	       "length_unit", SDF_STRING, "kpccm", 
-	       "light_cone_x0", SDF_DOUBLE, lc_origin[0],
-	       "light_cone_y0", SDF_DOUBLE, lc_origin[1],
-	       "light_cone_z0", SDF_DOUBLE, lc_origin[2],
-	       "do_periodic", SDF_INT, 0,
 	       "Omega0_m", SDF_DOUBLE, Omega0_m,
-	       "Omega0_r", SDF_DOUBLE, Omega0_r,
 	       "Omega0_lambda", SDF_DOUBLE, Omega0_lambda,
-	       "Omega0_fld", SDF_DOUBLE, Omega0_fld,
 	       "h_100", SDF_DOUBLE, h_100,
-	       "H0", SDF_DOUBLE, H0,
-	       "epsilon_scaled", SDF_FLOAT, epsilon_scaled,
-	       "compiled_version_2HOT", SDF_STRING, version_2HOT,
-	       "compiled_date_2HOT", SDF_STRING, compiled_date_2HOT,
-	       "compiled_time_2HOT", SDF_STRING, compiled_time_2HOT,
+	       "so200b", SDF_INT, 1,
+	       "rockstar_units", SDF_INT, 1,
+	       "sorted_xyz", SDF_INT, 1,
+	       "length_unit", SDF_STRING, "Mpccm/h", 
+	       "mass_unit", SDF_STRING, "Msun/h", 
+	       "time_unit", SDF_STRING, "Gyr", 
+	       "velocity_unit", SDF_STRING, "km/s",
 	       NULL);
 
     singlPrintf("Done.\n", gnobj);
