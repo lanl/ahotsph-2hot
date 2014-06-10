@@ -2,7 +2,7 @@ TREEHOME=../../
 ##### Application-specific stuff goes here
 treedir=$(TREEHOME)
 
-prog=sindex
+prog=midx
 
 src=$(prog).c morton.c
 programname=$(prog)

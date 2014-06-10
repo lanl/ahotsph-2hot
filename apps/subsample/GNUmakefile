@@ -2,8 +2,8 @@ TREEHOME=../..
 ##### Application-specific stuff goes here
 treedir=$(TREEHOME)
 
-prog=subsample
-src=$(prog).c
+prog=subsample2
+src=$(prog).c output.c physics.c integrate.c
 programname=$(prog)
 
 ##### End of application-specific setup

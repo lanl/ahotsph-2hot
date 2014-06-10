@@ -25,7 +25,7 @@
 typedef struct {
     int64_t base;
     int32_t len;
-    int32_t index;
+    int32_t index;	     /* Get rid of this?  Alignment issues? */
 } idx_t;
 
 #define OUTIDX \
@@ -38,7 +38,6 @@ typedef struct {
 int
 main(int argc, char *argv[])
 {
-    int text_output = 0;
     int level = 3;
 
     MPMY_Init(&argc, &argv);
@@ -52,6 +51,7 @@ main(int argc, char *argv[])
     char *infile = argv[1];
     if (argc == 3) level = atoi(argv[2]);
     if (level > 10) Error("level too large for int32_t index\n");
+    singlPrintf("infile is %s\n", infile);
 
     SDF *sdf = SDFopen(NULL, infile);
     if (!sdf) Error("SDFopen %s failed\n", infile);
@@ -65,6 +65,9 @@ main(int argc, char *argv[])
     SDFgetint(sdf, "sorted_rtp", &sorted_rtp);
     int sorted_xyz = 0;
     SDFgetint(sdf, "sorted_xyz", &sorted_xyz);
+    int morton_xyz = 0;
+    SDFgetint(sdf, "morton_xyz", &morton_xyz);
+    int wandering_particles = !morton_xyz;
 
     float rmin[NDIM], rmax[NDIM];
     Key_t (*getkey)(const void *p);
@@ -78,23 +81,18 @@ main(int argc, char *argv[])
 	VV(rmin, = rtp_min);
 	VV(rmax, = rtp_max);
     } else if (sorted_xyz) {
-	float R0;
-	int offset_center = 0;
-	SDFgetfloatOrDie(sdf, "R0",  &R0);
-	SDFgetint(sdf, "offset_center", &offset_center);
-	if (offset_center) {
-	    VS(rmin, = 0.0f);
-	    VS(rmax, = 2.0f * R0);
-	} else {
-	    VS(rmin, = -R0*1.01);	/* must match lcjoin */
-	    VS(rmax, =  R0*1.01);
-	}
+	SDFgetfloatOrDie(sdf, "x_min", &rmin[0]);
+	SDFgetfloatOrDie(sdf, "y_min", &rmin[1]);
+	SDFgetfloatOrDie(sdf, "z_min", &rmin[2]);
+	SDFgetfloatOrDie(sdf, "x_max", &rmax[0]);
+	SDFgetfloatOrDie(sdf, "y_max", &rmax[1]);
+	SDFgetfloatOrDie(sdf, "z_max", &rmax[2]);
 	FixRsizeExact(rmin, rmax);
 	getkey = GetKeyFast;
     } else {
 	float R[NDIM];
-	float a = 1.0;
-	SDFgetfloat(sdf, "a",  &a);
+	double a = 1.0;
+	SDFgetdouble(sdf, "a",  &a);
 	SDFgetfloatOrDie(sdf, "Rx",  &R[0]);
 	SDFgetfloatOrDie(sdf, "Ry",  &R[1]);
 	SDFgetfloatOrDie(sdf, "Rz",  &R[2]);
@@ -139,112 +137,80 @@ main(int argc, char *argv[])
     int64_t end = (procnum == nproc-1) ? gnobj-1 : (procnum+1) * gnobj / nproc;
     int is_partial = (procnum) ? 1 : 0;
 
-    FILE *fp = stdout;
-    if (nproc > 1 && text_output) {
-	char filename[256];
-	sprintf(filename, "index/%s_index.%04d", infile, procnum);
-	fp = fopen(filename, "w");
-	if (!fp) Error("fopen %s failed, %s\n", filename, strerror(errno));
-    }
     Stk stk;
     StkInitEz(&stk);
-
-    if (text_output) {
-	fprintf(fp, "# base len index octal_key\n");
-	fprintf(fp, "# level=%d\n", level);
-    }
-
-    int nlines = 0;
+    int next_index = 0;
+    Key_t previous_cell = {};
+    
     /* Termination condition really is <=, since next proc didn't know it started at beginning */
     for (int64_t i = start; i <= end; /* NULL */) {
 	int64_t i0 = i;
 	Key_t this_cell = KeyRshift(getkey(btab+i0*stride), NDIM*(BITS_PER_DIM-level));
-	while (1) {
-	    while (KeyEQ(this_cell, KeyRshift(getkey(btab+i*stride), NDIM*(BITS_PER_DIM-level)))) i++;
+	if (!KeyGT(this_cell, previous_cell)) /* catch unsorted files or bad bounds */
+	    Error("input file not sorted by key\n");
+    again:
+	while (KeyEQ(this_cell, KeyRshift(getkey(btab+i*stride), NDIM*(BITS_PER_DIM-level)))) i++;
+	if (wandering_particles) {
 	    /* keys are sorted in file by positions on previous timestep.  Sigh. */
 	    /* If at least 8 of next 10 are not in this cell, then it's really a new cell */
 	    int count = 0;
 	    Key_t next_cell = KeyRshift(getkey(btab+i*stride), NDIM*(BITS_PER_DIM-level));
-	    for (int64_t j = i+1; j < i+11; j++) {
+	    for (int64_t j = i+1; (j < i+11) && (j <= end); j++) {
 		if (KeyEQ(next_cell, KeyRshift(getkey(btab+j*stride), NDIM*(BITS_PER_DIM-level)))) count++;
 	    }
-	    if (count >= 8) {
-		/* Skip first one (started in the middle) the proc before us will do it */
-		if (!is_partial) {
-		    idx_t idx = {.base = i0, .len = i-i0, .index = this_cell.k[0] & mask};
-		    if (i-i0 >= (1LL<<30)) Error("cell len too large for int32_t\n");
-		    StkPushData(&stk, &idx, sizeof(idx_t));
-		    if (text_output) {
-			fprintf(fp, "%12ld %6ld %8ld %s\n", i0, i-i0, this_cell.k[0] & mask, PrintKey(getkey(btab+i0*stride)));
-			if (++nlines % 1000) fflush(fp);
-		    }
-		} else is_partial = 0;
-		break;
-	    } else {
+	    if (count < 8 && i < end) {
 		i++;
+		goto again;
 	    }
 	}
+	idx_t idx = {.base = i0, .len = i-i0, .index = this_cell.k[0] & mask};
+	/* Skip first one (started in the middle) the proc before us will do it */
+	if (!is_partial) {
+	    if (i-i0 >= (1LL<<30)) Error("cell len too large for int32_t\n");
+	    if (idx.index - next_index >= 1024*1024) 
+		SeriousWarning("Giant gap from %d to %d.  Need sparse file?\n", next_index, idx.index);
+	    for (int j = next_index; j < idx.index; j++) {
+		idx_t empty = {.base = i0, .len = 0, .index = j}; /* could also leave empty for sparse file */
+		StkPushData(&stk, &empty, sizeof(idx_t));
+	    }
+	    StkPushData(&stk, &idx, sizeof(idx_t));
+	} else is_partial = 0;
+	next_index = idx.index + 1;
+	previous_cell = this_cell;
     }
+    close(fd);
+
     int64_t gnout, nout;
     nout = StkSz(&stk)/sizeof(idx_t);
     MPMY_Combine(&nout, &gnout, 1, MPMY_INT64, MPMY_SUM);
+    int nindex = 1 << (NDIM*level);
+
+    /* printf("%d %ld %ld %d\n", MPMY_Procnum(), nout, gnout, nindex); */
+    if (gnout != nindex) 
+	Error("Expected %d indices, got %ld\n", nindex, gnout);
 
     char outname[256];
-    sprintf(outname, "%s.idx0_%d", infile, level);
-
-    /* stream I/O doesn't have a mode that does what we want */
-    int fd2 = open(outname, O_CREAT|O_WRONLY, 0644);
-    if (fd2 == -1) Error("open %s failed, %s\n", outname, strerror(errno));
-    idx_t *idxarr = StkBase(&stk);
-    int64_t current_off = -1;
-    int64_t off = idxarr[0].index * sizeof(idx_t);
-    int64_t n = 0;
-    for (int64_t i = 0; i < nout; i += n) {
-	if (off != current_off) { /* This can result in a sparse file */
-	    off = idxarr[i].index * sizeof(idx_t);
-	}
-	n = i;
-	while (n < nout-1 && (idxarr[n].index + 1 == idxarr[n+1].index)) n++; /* find contiguous group */
-	n++;
-	n -= i;
-	if (pwrite(fd2, &idxarr[i].base, n * sizeof(idx_t), off) != n * sizeof(idx_t))
-	    Error("pwrite failed, %s\n", strerror(errno));
-	printf("%d pwrite %ld at %ld\n", MPMY_Procnum(), n * sizeof(idx_t), off);
-	off += n * sizeof(idx_t);
-    }
-    close(fd2);
-
-    /* Header for idx0 file with bounds */
-    sprintf(outname, "%s.idx0_%d.hdr", infile, level);
-
-    SDFwritehdr(outname, OUTIDX,
-		"level", SDF_INT, level,
-		"version", SDF_INT, 1,
-		"x_min", SDF_DOUBLE, rmin[0],
-		"y_min", SDF_DOUBLE, rmin[1],
-		"z_min", SDF_DOUBLE, rmin[2],
-		"x_max", SDF_DOUBLE, rmax[0],
-		"y_max", SDF_DOUBLE, rmax[1],
-		"z_max", SDF_DOUBLE, rmax[2],
-		"rsize", SDF_DOUBLE, rmax[2]-rmin[2],
-		"filename", SDF_STRING, infile);
-
-    SDFunsetwroteheader();
-
-    sprintf(outname, "%s.idx_%d", infile, level);
-
+    sprintf(outname, "%s.midx%d", infile, level);
     SDFwrite64(outname, gnout, 
 	       nout, StkBase(&stk), sizeof(idx_t), OUTIDX,
 	       "level", SDF_INT, level,
-	       "version", SDF_INT, 1,
-	       "x_min", SDF_DOUBLE, rmin[0],
-	       "y_min", SDF_DOUBLE, rmin[1],
-	       "z_min", SDF_DOUBLE, rmin[2],
-	       "x_max", SDF_DOUBLE, rmax[0],
-	       "y_max", SDF_DOUBLE, rmax[1],
-	       "z_max", SDF_DOUBLE, rmax[2],
-	       "rsize", SDF_DOUBLE, rmax[2]-rmin[2],
-	       "filename", SDF_STRING, infile);
+		"ndim", SDF_INT, NDIM,
+		"nindex", SDF_INT, nindex,
+		"midx_version", SDF_INT, 1,
+		"x_min", SDF_FLOAT, rmin[0],
+		"y_min", SDF_FLOAT, rmin[1],
+		"z_min", SDF_FLOAT, rmin[2],
+		"x_max", SDF_FLOAT, rmax[0],
+		"y_max", SDF_FLOAT, rmax[1],
+		"z_max", SDF_FLOAT, rmax[2],
+		"length_unit", SDF_STRING, "kpc", 
+		"compiled_date_idx", SDF_STRING, __DATE__,
+		"compiled_time_idx", SDF_STRING, __TIME__,
+		"compiled_version_2HOT", SDF_STRING, version_2HOT,
+		"compiled_date_2HOT", SDF_STRING, compiled_date_2HOT,
+		"compiled_time_2HOT", SDF_STRING, compiled_time_2HOT,
+		"filename", SDF_STRING, infile,
+		NULL);
 
     MPMY_Finalize();
     exit(0);
