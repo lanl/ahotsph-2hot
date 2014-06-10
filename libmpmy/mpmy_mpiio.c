@@ -203,7 +203,7 @@ MPMY_Fread(void *ptr, size_t size, size_t nitems, MPMYFile *Fp)
 	while (read_cycles--) {
 	    nread = (left < MAXIOSIZE) ? left : MAXIOSIZE;
 	    Msgf(("read %ld at %lld\n", nread, mpi_offset));
-#ifdef XK6
+#if 1
 	    MPI_File_read_at_all(fp->fd, mpi_offset, (void *)p, nread, MPI_CHAR, &status);
 #else
 	    if (nread) MPI_File_read_at(fp->fd, mpi_offset, (void *)p, nread, MPI_CHAR, &status);
@@ -265,7 +265,7 @@ MPMY_Fwrite(const void *ptr, size_t size, size_t nitems, MPMYFile *Fp)
 		MPI_File_iwrite_at(fp->fd, mpi_offset, (void *)p, nwrite, MPI_CHAR, &fp->request);
 		fp->async_nwrite = nwrite;
 	    } else {
-#ifdef XK6
+#if 1
 		MPI_File_write_at_all(fp->fd, mpi_offset, (void *)p, nwrite, MPI_CHAR, &status);
 #else
 		if (nwrite) MPI_File_write_at(fp->fd, mpi_offset, (void *)p, nwrite, MPI_CHAR, &status);
