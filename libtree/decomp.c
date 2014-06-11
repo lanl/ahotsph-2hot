@@ -32,6 +32,10 @@ static Key_t (*getkey_s)(const void *);
 static float *decomp_wgt;
 #endif
 
+static void SetupDecomp1(sortresult_t *decompp, 
+			 float (*weight)(const void *), Key_t (*getkey)(const void *));
+
+
 #define CLEAR 0
 #define SAVE 1
 #define SET 2
@@ -163,6 +167,12 @@ void
 SetupDecomp(sortresult_t *decompp, 
 	    float (*weight)(const void *), Key_t (*getkey)(const void *))
 {
+    if (decompp->method != 0) {
+	if (decompp->method == 1)
+	    return SetupDecomp1(decompp, weight, getkey);
+	else
+	    Error("Bad decompp->method %d\n", decompp->method);
+    }
     getkey_s = getkey;		/* needed by DestDecomp() */
 
     if (!weight) {
@@ -241,7 +251,7 @@ SetupDecomp(sortresult_t *decompp,
 }
 
 
-void
+static void
 SetupDecomp1(sortresult_t *decompp, 
 	     float (*weight)(const void *), Key_t (*getkey)(const void *))
 {

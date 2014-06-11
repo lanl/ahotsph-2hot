@@ -21,6 +21,7 @@ typedef struct {
     float median_tol;
     float loadbal_target;
     int proc_order;
+    int method;
     void *(*realloc_like)(void *, size_t);
     Key_t hikey, lokey;
 } sortresult_t;

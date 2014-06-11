@@ -62,6 +62,7 @@ void pqsortsetup_order(sortresult_t *decompp, void *bp, int nobj,
     decompp->size = size;
     decompp->median_tol = median_tol;
     decompp->proc_order = proc_order;
+    decompp->method = 0;
     decompp->loadbal_target = 1.0;  /* default to no load balance */
     decompp->realloc_like = realloc_like;
 }
