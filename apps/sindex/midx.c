@@ -67,7 +67,7 @@ main(int argc, char *argv[])
     SDFgetint(sdf, "sorted_xyz", &sorted_xyz);
     int morton_xyz = 0;
     SDFgetint(sdf, "morton_xyz", &morton_xyz);
-    int wandering_particles = !morton_xyz;
+    int wandering_particles = 1;
 
     float rmin[NDIM], rmax[NDIM];
     Key_t (*getkey)(const void *p);
@@ -156,17 +156,23 @@ main(int argc, char *argv[])
 	    Error("input file not sorted by key\n");
 	int wandered = 0;
     again:
+	if (i > 2065000 && i < 2066000) printf("a %ld %s\n", i, PrintKey(getkey(btab+i*stride)));
 	while (KeyEQ(this_cell, KeyRshift(getkey(btab+i*stride), NDIM*(BITS_PER_DIM-level)))) i++;
+	if (i > 2065000 && i < 2066000) printf("b %ld %s\n", i, PrintKey(getkey(btab+i*stride)));
 	if (wandering_particles) {
 	    /* keys can be sorted in file by positions on previous timestep.  Sigh. */
 	    /* Roundoff error could also move particles out of their cell? */
-	    /* If at least 8 of next 10 are not in this cell, then it's really a new cell */
-	    int count = 0;
-	    Key_t next_cell = KeyRshift(getkey(btab+(i+1)*stride), NDIM*(BITS_PER_DIM-level));
-	    for (int64_t j = i+2; (j < i+12) && (j <= end); j++) {
-		if (KeyLE(next_cell, KeyRshift(getkey(btab+j*stride), NDIM*(BITS_PER_DIM-level)))) count++;
+	    /* Decide if i belongs with this cell or next cell */
+	    int this_count = 0;
+	    int next_count = 0;
+	    Key_t next_cell = KeyRshift(getkey(btab+i*stride), NDIM*(BITS_PER_DIM-level));
+	    for (int64_t j = i+1; (j < i+11) && (j <= gnobj); j++) {
+		Key_t k = KeyRshift(getkey(btab+j*stride), NDIM*(BITS_PER_DIM-level));
+		if (KeyEQ(this_cell, k)) this_count++;
+		if (KeyEQ(next_cell, k)) next_count++;
 	    }
-	    if (count < 8 && i < end) {
+	    if (i > 2065000 && i < 2066000) printf("c %ld %s %d %d\n", i, PrintKey(getkey(btab+i*stride)), this_count, next_count);
+	    if (this_count >= next_count && i < gnobj) {
 		i++;
 		wandered = 1;
 		goto again;
@@ -177,7 +183,7 @@ main(int argc, char *argv[])
 	/* Skip first one (started in the middle) the proc before us will do it */
 	if (!is_partial) {
 	    if (i-i0 >= (1LL<<30)) Error("cell len too large for int32_t\n");
-	    if (idx.index - next_index >= 64*1024) {
+	    if (idx.index - next_index >= 1024*1024) {
 		need_sparse = 1;
 	    } else {
 		for (int j = next_index; j < idx.index; j++) {
@@ -191,7 +197,7 @@ main(int argc, char *argv[])
 	} else is_partial = 0;
     }
     close(fd);
-
+    
     int64_t gnout, nout;
     nout = StkSz(&stk)/sizeof(idx_t);
     MPMY_Combine(&nout, &gnout, 1, MPMY_INT64, MPMY_SUM);
@@ -200,6 +206,10 @@ main(int argc, char *argv[])
     int nindex = 1 << (NDIM*level);
     char outname[256];
     sprintf(outname, "%s.midx%d", infile, level);
+
+    idx_t *idx = StkBase(&stk);
+    printf("%d %ld %ld %ld %ld %d %ld %d\n", MPMY_Procnum(), start, end, nout,
+	   idx[0].base, idx[0].index, idx[nout-1].base+idx[nout-1].len, idx[nout-1].index);
 
     if (need_sparse) {
 	SDFwritehdr(outname, OUTIDX,
@@ -259,7 +269,6 @@ main(int argc, char *argv[])
 	}
 	close(fd2);
     } else {
-	/* printf("%d %ld %ld %d\n", MPMY_Procnum(), nout, gnout, nindex); */
 	if (gnout != nindex) 
 	    Error("Expected %d indices, got %ld\n", nindex, gnout);
 	
