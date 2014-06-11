@@ -100,7 +100,7 @@ main(int argc, char *argv[])
 	VV(rmax, =  a*R);
 
 	int ic_Nmesh = 0;
-	if (!SDFgetint(sdf, "ic_Nmesh", &ic_Nmesh)) {
+	if (!morton_xyz && !SDFgetint(sdf, "ic_Nmesh", &ic_Nmesh)) {
 	    /* expand root for non-power-of-two */
 	    double expand_root = 0.0;
 	    int f2 = 1<<(ilog2(ic_Nmesh-1)+1);
@@ -148,9 +148,6 @@ main(int argc, char *argv[])
 	next_index = (k.k[0] & mask) + 1;
     }
 
-#define DSTART 697417000000
-#define DEND   697420000000
-    
     /* Termination condition really is <=, since next proc didn't know it started at beginning */
     for (int64_t i = start; i <= end; /* NULL */) {
 	int64_t i0 = i;
@@ -159,9 +156,7 @@ main(int argc, char *argv[])
 	    Error("input file not sorted by key\n");
 	int wandered = 0;
     again:
-	/* if (i > DSTART && i < DEND) printf("a %ld %s\n", i, PrintKey(getkey(btab+i*stride))); */
 	while (KeyEQ(this_cell, KeyRshift(getkey(btab+i*stride), NDIM*(BITS_PER_DIM-level)))) i++;
-	/* if (i > DSTART && i < DEND) printf("b %ld %s\n", i-1, PrintKey(getkey(btab+(i-1)*stride))); */
 	if (wandering_particles) {
 	    /* keys can be sorted in file by positions on previous timestep.  Sigh. */
 	    /* Roundoff error could also move particles out of their cell? */
@@ -175,7 +170,6 @@ main(int argc, char *argv[])
 		if (KeyEQ(this_cell, k)) this_count++;
 		if (KeyEQ(next_cell, k)) next_count++;
 	    }
-	    /* if (i > DSTART && i < DEND) printf("c %ld %s %d %d\n", i, PrintKey(getkey(btab+i*stride)), this_count, next_count); */
 	    if ((this_count > 1 || next_count < 20) && i < gnobj) {
 		i++;
 		wandered = 1;
@@ -184,8 +178,7 @@ main(int argc, char *argv[])
 	}
 	nwander += wandered;
 	idx_t idx = {.base = i0, .len = i-i0, .index = this_cell.k[0] & mask};
-	if (i > DSTART && i < DEND) printf("d %ld %d %d\n", idx.base, idx.len, idx.index);
-	    /* Skip first one (started in the middle) the proc before us will do it */
+	/* Skip first one (started in the middle) the proc before us will do it */
 	if (!is_partial) {
 	    if (i-i0 >= (1LL<<30)) Error("cell len too large for int32_t\n");
 	    if (idx.index - next_index >= 1024*1024) {
@@ -211,10 +204,6 @@ main(int argc, char *argv[])
     int nindex = 1 << (NDIM*level);
     char outname[256];
     sprintf(outname, "%s.midx%d", infile, level);
-
-    /* idx_t *idx = StkBase(&stk);
-       printf("p %4d %9ld %9ld %9ld %9ld %9ld %7d %7d\n", MPMY_Procnum(), start, end, nout,
-       idx[0].base, idx[nout-1].base+idx[nout-1].len, idx[0].index, idx[nout-1].index); */
 
     if (need_sparse) {
 	SDFwritehdr(outname, OUTIDX,
