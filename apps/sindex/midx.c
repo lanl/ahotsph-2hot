@@ -67,7 +67,7 @@ main(int argc, char *argv[])
     SDFgetint(sdf, "sorted_xyz", &sorted_xyz);
     int morton_xyz = 0;
     SDFgetint(sdf, "morton_xyz", &morton_xyz);
-    int wandering_particles = 1;
+    int wandering_particles = !morton_xyz;
 
     float rmin[NDIM], rmax[NDIM];
     Key_t (*getkey)(const void *p);
@@ -147,6 +147,9 @@ main(int argc, char *argv[])
 	Key_t k = KeyRshift(getkey(btab+start*stride), NDIM*(BITS_PER_DIM-level));
 	next_index = (k.k[0] & mask) + 1;
     }
+
+#define DSTART 697417000000
+#define DEND   697420000000
     
     /* Termination condition really is <=, since next proc didn't know it started at beginning */
     for (int64_t i = start; i <= end; /* NULL */) {
@@ -156,9 +159,9 @@ main(int argc, char *argv[])
 	    Error("input file not sorted by key\n");
 	int wandered = 0;
     again:
-	if (i > 2065000 && i < 2066000) printf("a %ld %s\n", i, PrintKey(getkey(btab+i*stride)));
+	/* if (i > DSTART && i < DEND) printf("a %ld %s\n", i, PrintKey(getkey(btab+i*stride))); */
 	while (KeyEQ(this_cell, KeyRshift(getkey(btab+i*stride), NDIM*(BITS_PER_DIM-level)))) i++;
-	if (i > 2065000 && i < 2066000) printf("b %ld %s\n", i, PrintKey(getkey(btab+i*stride)));
+	/* if (i > DSTART && i < DEND) printf("b %ld %s\n", i-1, PrintKey(getkey(btab+(i-1)*stride))); */
 	if (wandering_particles) {
 	    /* keys can be sorted in file by positions on previous timestep.  Sigh. */
 	    /* Roundoff error could also move particles out of their cell? */
@@ -166,13 +169,14 @@ main(int argc, char *argv[])
 	    int this_count = 0;
 	    int next_count = 0;
 	    Key_t next_cell = KeyRshift(getkey(btab+i*stride), NDIM*(BITS_PER_DIM-level));
-	    for (int64_t j = i+1; (j < i+11) && (j <= gnobj); j++) {
+	    /* Need to look at at least 30 for ds14_a_1.0000 */
+	    for (int64_t j = i+1; (j < i+51) && (j <= gnobj); j++) {
 		Key_t k = KeyRshift(getkey(btab+j*stride), NDIM*(BITS_PER_DIM-level));
 		if (KeyEQ(this_cell, k)) this_count++;
 		if (KeyEQ(next_cell, k)) next_count++;
 	    }
-	    if (i > 2065000 && i < 2066000) printf("c %ld %s %d %d\n", i, PrintKey(getkey(btab+i*stride)), this_count, next_count);
-	    if (this_count >= next_count && i < gnobj) {
+	    /* if (i > DSTART && i < DEND) printf("c %ld %s %d %d\n", i, PrintKey(getkey(btab+i*stride)), this_count, next_count); */
+	    if ((this_count > 1 || next_count < 20) && i < gnobj) {
 		i++;
 		wandered = 1;
 		goto again;
@@ -180,7 +184,8 @@ main(int argc, char *argv[])
 	}
 	nwander += wandered;
 	idx_t idx = {.base = i0, .len = i-i0, .index = this_cell.k[0] & mask};
-	/* Skip first one (started in the middle) the proc before us will do it */
+	if (i > DSTART && i < DEND) printf("d %ld %d %d\n", idx.base, idx.len, idx.index);
+	    /* Skip first one (started in the middle) the proc before us will do it */
 	if (!is_partial) {
 	    if (i-i0 >= (1LL<<30)) Error("cell len too large for int32_t\n");
 	    if (idx.index - next_index >= 1024*1024) {
@@ -207,9 +212,9 @@ main(int argc, char *argv[])
     char outname[256];
     sprintf(outname, "%s.midx%d", infile, level);
 
-    idx_t *idx = StkBase(&stk);
-    printf("%d %ld %ld %ld %ld %d %ld %d\n", MPMY_Procnum(), start, end, nout,
-	   idx[0].base, idx[0].index, idx[nout-1].base+idx[nout-1].len, idx[nout-1].index);
+    /* idx_t *idx = StkBase(&stk);
+       printf("p %4d %9ld %9ld %9ld %9ld %9ld %7d %7d\n", MPMY_Procnum(), start, end, nout,
+       idx[0].base, idx[nout-1].base+idx[nout-1].len, idx[0].index, idx[nout-1].index); */
 
     if (need_sparse) {
 	SDFwritehdr(outname, OUTIDX,

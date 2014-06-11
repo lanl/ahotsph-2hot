@@ -77,7 +77,7 @@ main(int argc, char *argv[])
 	if (idx[i].len) {
 	    if (idx[i].index != i) fail(idx, i);
 	    if (idx[i].base != next_base) fail(idx, i);
-	    next_base += idx[i].len;
+	    next_base = idx[i].base + idx[i].len;
 	}
     }
     singlPrintf("%s ok\n", infile);
