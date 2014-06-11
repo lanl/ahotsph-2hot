@@ -176,6 +176,21 @@ Key_t GetKeySphericalFast(const body *p)
     return(key);
 }
 
+#define IDENTMASK ((1LL<<48)-1)	/* use high bits for other purposes */
+
+Key_t OutIdentKey(const body *bp)
+{
+    Key_t tmp;
+
+    /* Using KeyInt will truncate int64_t idents */
+    tmp.k[0] = bp->ident & IDENTMASK;
+#if NK == 2
+    tmp.k[1] = 0;
+#endif
+    /* Decomp ignores the last bits of the Key */
+    return KeyLshift(tmp,21);
+}
+
 float UnityCost(const void *ptr) /* load balance cost for *ptr */
 {
     return 1.0;
@@ -264,15 +279,38 @@ main(int argc, char *argv[])
     nobj = gnobj;
     MPMY_Combine(&nobj, &gnobj, 1, MPMY_INT64, MPMY_SUM);
 
+    singlPrintf("Sorting by ident\n");
+    sortresult_t outputsort;
+    pqsortsetup_order(&outputsort, btab, nobj,
+                      sizeof(body), 0.1, 1, Realloc_f);
+    outputsort.method = 1;
+    btab = pqsort(&outputsort,
+                  (pq_wgtproto)UnityCost,
+                  (pq_keyproto)OutIdentKey);
+    int64_t outnobj = outputsort.nobj;
+
+    singlPrintf("Eliminating duplicate IDs\n");
+    singlPrintf("gnobj is %ld\n", gnobj);
+    nobj = 1;
+    for (int i = 1; i < outnobj; i++) {
+        if (btab[i].ident != btab[nobj-1].ident) {
+            btab[nobj++] = btab[i];
+        }
+    }
+    btab = Realloc(btab, nobj * sizeof(body));
+    gnobj = nobj;
+    MPMY_Combine(&gnobj, &gnobj, 1, MPMY_INT64, MPMY_SUM);
+    singlPrintf("gnobj is now %ld\n", gnobj);
+
     singlPrintf("Sorting %ld particles by xyz\n", gnobj);
     float rmin[NDIM], rmax[NDIM];
     VS(rmin, = -R0*1.01);
     VS(rmax, = R0*1.01);
     FixRsizeExact(rmin, rmax);
 
-    sortresult_t outputsort;
     pqsortsetup_order(&outputsort, btab, nobj,
 		      sizeof(body), 0.1, 1, Realloc_f);
+    outputsort.method = 1;
     btab = pqsort(&outputsort,
 		  (pq_wgtproto)UnityCost, 
 		  (pq_keyproto)GetKeyFast);
