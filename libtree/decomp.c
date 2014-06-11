@@ -35,7 +35,6 @@ static float *decomp_wgt;
 static void SetupDecomp1(sortresult_t *decompp, 
 			 float (*weight)(const void *), Key_t (*getkey)(const void *));
 
-
 #define CLEAR 0
 #define SAVE 1
 #define SET 2
@@ -250,7 +249,6 @@ SetupDecomp(sortresult_t *decompp,
     Msg_flush();
 }
 
-
 static void
 SetupDecomp1(sortresult_t *decompp, 
 	     float (*weight)(const void *), Key_t (*getkey)(const void *))
@@ -370,6 +368,8 @@ SetupDecomp1(sortresult_t *decompp,
     Msg_do("decomptab[%d] %s %ld\n", 
 	    MPMY_Procnum(), PrintKey(decomptab[MPMY_Procnum()]), decomptab[MPMY_Procnum()].k[NK-1]);
 }
+
+#endif
 
 int
 DestDecomp(void *b)
