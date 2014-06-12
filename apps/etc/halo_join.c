@@ -308,6 +308,9 @@ main(int argc, char *argv[])
 	       "mass_unit", SDF_STRING, "Msun/h", 
 	       "time_unit", SDF_STRING, "Gyr", 
 	       "velocity_unit", SDF_STRING, "km/s",
+	       "compiled_version_2HOT", SDF_STRING, version_2HOT,
+	       "compiled_date_2HOT", SDF_STRING, compiled_date_2HOT,
+	       "compiled_time_2HOT", SDF_STRING, compiled_time_2HOT,
 	       NULL);
 
     singlPrintf("Done.\n", gnobj);
