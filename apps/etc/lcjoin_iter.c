@@ -302,12 +302,26 @@ main(int argc, char *argv[])
     MPMY_Combine(&gnobj, &gnobj, 1, MPMY_INT64, MPMY_SUM);
     singlPrintf("gnobj is now %ld\n", gnobj);
 
-    singlPrintf("Sorting %ld particles by xyz\n", gnobj);
     float rmin[NDIM], rmax[NDIM];
-    VS(rmin, = -R0*1.01);
-    VS(rmax, = R0*1.01);
+    VS(rmin, = -R0);
+    VS(rmax, = R0);
     FixRsizeExact(rmin, rmax);
 
+    singlPrintf("Eliminating particles outside boundary\n");
+    outnobj = nobj;
+    nobj = 0;
+    for (int i = 0; i < outnobj; i++) {
+        if (btab[i].pos[0] <= rmin[0] || btab[i].pos[0] >= rmax[0]) continue;
+        if (btab[i].pos[1] <= rmin[1] || btab[i].pos[1] >= rmax[1]) continue;
+        if (btab[i].pos[2] <= rmin[2] || btab[i].pos[2] >= rmax[2]) continue;
+	btab[nobj++] = btab[i];
+    }
+    btab = Realloc(btab, nobj * sizeof(body));
+    gnobj = nobj;
+    MPMY_Combine(&gnobj, &gnobj, 1, MPMY_INT64, MPMY_SUM);
+    singlPrintf("gnobj is now %ld\n", gnobj);
+
+    singlPrintf("Sorting %ld particles by xyz\n", gnobj);
     pqsortsetup_order(&outputsort, btab, nobj,
 		      sizeof(body), 0.1, 1, Realloc_f);
     outputsort.method = 1;
@@ -327,7 +341,7 @@ main(int argc, char *argv[])
 	       nobj, btab, sizeof(body), OUTBODYDESC,
 	       "npart", SDF_INT64, gnobj,
 	       "particle_mass", SDF_FLOAT, particle_mass,
-	       "R0", SDF_FLOAT, R0*1.01,
+	       "R0", SDF_FLOAT, R0,
 	       "version", SDF_INT, version,
 	       "version_2HOT", SDF_INT, fileversion_2HOT,
 	       "units_2HOT", SDF_INT, units_2HOT,
