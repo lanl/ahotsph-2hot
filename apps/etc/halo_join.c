@@ -303,7 +303,7 @@ main(int argc, char *argv[])
 	       "h_100", SDF_DOUBLE, h_100,
 	       "so200b", SDF_INT, 1,
 	       "rockstar_units", SDF_INT, 1,
-	       "sorted_xyz", SDF_INT, 1,
+	       "morton_xyz", SDF_INT, 1,
 	       "length_unit", SDF_STRING, "Mpccm/h", 
 	       "mass_unit", SDF_STRING, "Msun/h", 
 	       "time_unit", SDF_STRING, "Gyr", 
