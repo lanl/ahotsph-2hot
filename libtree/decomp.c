@@ -369,8 +369,6 @@ SetupDecomp1(sortresult_t *decompp,
 	    MPMY_Procnum(), PrintKey(decomptab[MPMY_Procnum()]), decomptab[MPMY_Procnum()].k[NK-1]);
 }
 
-#endif
-
 int
 DestDecomp(void *b)
 {
