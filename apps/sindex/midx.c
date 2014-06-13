@@ -80,7 +80,7 @@ main(int argc, char *argv[])
 	getkey = GetKeySphericalFast;
 	VV(rmin, = rtp_min);
 	VV(rmax, = rtp_max);
-    } else if (sorted_xyz) {
+    } else if (SDFhasname("x_min", sdf)) {
 	SDFgetfloatOrDie(sdf, "x_min", &rmin[0]);
 	SDFgetfloatOrDie(sdf, "y_min", &rmin[1]);
 	SDFgetfloatOrDie(sdf, "z_min", &rmin[2]);
