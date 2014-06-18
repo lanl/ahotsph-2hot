@@ -61,6 +61,9 @@ main(int argc, char *argv[])
 	gnobj = SDFnrecs("x", sdf);
     }
 
+    char length_unit[256] = "kpc";
+    SDFgetstring(sdf, "length_unit", length_unit, sizeof(length_unit));
+
     int sorted_rtp = 0;
     SDFgetint(sdf, "sorted_rtp", &sorted_rtp);
     int sorted_xyz = 0;
@@ -218,7 +221,7 @@ main(int argc, char *argv[])
 		    "x_max", SDF_FLOAT, rmax[0],
 		    "y_max", SDF_FLOAT, rmax[1],
 		    "z_max", SDF_FLOAT, rmax[2],
-		    "length_unit", SDF_STRING, "kpc", 
+		    "length_unit", SDF_STRING, length_unit, 
 		    "compiled_date_idx", SDF_STRING, __DATE__,
 		    "compiled_time_idx", SDF_STRING, __TIME__,
 		    "compiled_version_2HOT", SDF_STRING, version_2HOT,
@@ -278,7 +281,7 @@ main(int argc, char *argv[])
 		   "x_max", SDF_FLOAT, rmax[0],
 		   "y_max", SDF_FLOAT, rmax[1],
 		   "z_max", SDF_FLOAT, rmax[2],
-		   "length_unit", SDF_STRING, "kpc", 
+		   "length_unit", SDF_STRING, length_unit, 
 		   "compiled_date_idx", SDF_STRING, __DATE__,
 		   "compiled_time_idx", SDF_STRING, __TIME__,
 		   "compiled_version_2HOT", SDF_STRING, version_2HOT,

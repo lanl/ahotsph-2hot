@@ -302,74 +302,143 @@ main(int argc, char *argv[])
     MPMY_Combine(&gnobj, &gnobj, 1, MPMY_INT64, MPMY_SUM);
     singlPrintf("gnobj is now %ld\n", gnobj);
 
-    float rmin[NDIM], rmax[NDIM];
-    VS(rmin, = -R0);
-    VS(rmax, = R0);
-    FixRsizeExact(rmin, rmax);
+    int sort_rtp = 1;
+    if (sort_rtp) {
+	const float rtp_min[NDIM] = {0.0, 0.0, 0.0};
+	const float rtp_max[NDIM] = {R0, M_PI, 2.0*M_PI};
+	FixRsizeExact(rtp_min, rtp_max);
 
-    singlPrintf("Eliminating particles outside boundary\n");
-    outnobj = nobj;
-    nobj = 0;
-    for (int i = 0; i < outnobj; i++) {
-        if (btab[i].pos[0] <= rmin[0] || btab[i].pos[0] >= rmax[0]) continue;
-        if (btab[i].pos[1] <= rmin[1] || btab[i].pos[1] >= rmax[1]) continue;
-        if (btab[i].pos[2] <= rmin[2] || btab[i].pos[2] >= rmax[2]) continue;
-	btab[nobj++] = btab[i];
+	singlPrintf("Eliminating particles outside boundary\n");
+	outnobj = nobj;
+	nobj = 0;
+	for (int i = 0; i < outnobj; i++) {
+	    float r2 = Dot(btab[i].pos, btab[i].pos);
+	    if (r2 >= R0*R0) continue;
+	    btab[nobj++] = btab[i];
+	}
+	btab = Realloc(btab, nobj * sizeof(body));
+	gnobj = nobj;
+	MPMY_Combine(&gnobj, &gnobj, 1, MPMY_INT64, MPMY_SUM);
+	singlPrintf("gnobj is now %ld\n", gnobj);
+
+	singlPrintf("Sorting %ld particles by rtp\n", gnobj);
+	pqsortsetup_order(&outputsort, btab, nobj,
+			  sizeof(body), 0.1, 1, Realloc_f);
+	outputsort.method = 1;
+	btab = pqsort(&outputsort,
+		      (pq_wgtproto)UnityCost, 
+		      (pq_keyproto)GetKeySphericalFast);
+	nobj = outputsort.nobj;
+
+	MPMY_Combine(&nobj, &gnobj, 1, MPMY_INT64, MPMY_SUM);
+
+	char outname[256];
+	
+	sprintf(outname, "%s_rtp", outbase);
+	singlPrintf("Writing \"%s\"\n", outname);
+
+	SDFwrite64(outname, gnobj,
+		   nobj, btab, sizeof(body), OUTBODYDESC,
+		   "npart", SDF_INT64, gnobj,
+		   "particle_mass", SDF_FLOAT, particle_mass,
+		   "R0", SDF_FLOAT, R0,
+		   "version", SDF_INT, version,
+		   "version_2HOT", SDF_INT, fileversion_2HOT,
+		   "units_2HOT", SDF_INT, units_2HOT,
+		   "light_cone", SDF_INT, 1,
+		   "sorted_rtp", SDF_INT, 1,
+		   "r_min", SDF_FLOAT, rtp_min[0],
+		   "theta_min", SDF_FLOAT, rtp_min[1],
+		   "phi_min", SDF_FLOAT, rtp_min[2],
+		   "r_max", SDF_FLOAT, rtp_max[0],
+		   "theta_max", SDF_FLOAT, rtp_max[1],
+		   "phi_max", SDF_FLOAT, rtp_max[2],
+		   "length_unit", SDF_STRING, "kpccm", 
+		   "light_cone_x0", SDF_DOUBLE, lc_origin[0],
+		   "light_cone_y0", SDF_DOUBLE, lc_origin[1],
+		   "light_cone_z0", SDF_DOUBLE, lc_origin[2],
+		   "do_periodic", SDF_INT, 0,
+		   "Omega0_m", SDF_DOUBLE, Omega0_m,
+		   "Omega0_r", SDF_DOUBLE, Omega0_r,
+		   "Omega0_lambda", SDF_DOUBLE, Omega0_lambda,
+		   "Omega0_fld", SDF_DOUBLE, Omega0_fld,
+		   "h_100", SDF_DOUBLE, h_100,
+		   "H0", SDF_DOUBLE, H0,
+		   "epsilon_scaled", SDF_FLOAT, epsilon_scaled,
+		   "compiled_version_2HOT", SDF_STRING, version_2HOT,
+		   "compiled_date_2HOT", SDF_STRING, compiled_date_2HOT,
+		   "compiled_time_2HOT", SDF_STRING, compiled_time_2HOT,
+		   NULL);
+    } else {
+	float rmin[NDIM], rmax[NDIM];
+	VS(rmin, = -R0);
+	VS(rmax, = R0);
+	FixRsizeExact(rmin, rmax);
+
+	singlPrintf("Eliminating particles outside boundary\n");
+	outnobj = nobj;
+	nobj = 0;
+	for (int i = 0; i < outnobj; i++) {
+	    if (btab[i].pos[0] <= rmin[0] || btab[i].pos[0] >= rmax[0]) continue;
+	    if (btab[i].pos[1] <= rmin[1] || btab[i].pos[1] >= rmax[1]) continue;
+	    if (btab[i].pos[2] <= rmin[2] || btab[i].pos[2] >= rmax[2]) continue;
+	    btab[nobj++] = btab[i];
+	}
+	btab = Realloc(btab, nobj * sizeof(body));
+	gnobj = nobj;
+	MPMY_Combine(&gnobj, &gnobj, 1, MPMY_INT64, MPMY_SUM);
+	singlPrintf("gnobj is now %ld\n", gnobj);
+
+	singlPrintf("Sorting %ld particles by xyz\n", gnobj);
+	pqsortsetup_order(&outputsort, btab, nobj,
+			  sizeof(body), 0.1, 1, Realloc_f);
+	outputsort.method = 1;
+	btab = pqsort(&outputsort,
+		      (pq_wgtproto)UnityCost, 
+		      (pq_keyproto)GetKeyFast);
+	nobj = outputsort.nobj;
+
+	MPMY_Combine(&nobj, &gnobj, 1, MPMY_INT64, MPMY_SUM);
+
+	char outname[256];
+	
+	sprintf(outname, "%s_xyz.sdf", outbase);
+	singlPrintf("Writing \"%s\"\n", outname);
+
+	SDFwrite64(outname, gnobj,
+		   nobj, btab, sizeof(body), OUTBODYDESC,
+		   "npart", SDF_INT64, gnobj,
+		   "particle_mass", SDF_FLOAT, particle_mass,
+		   "R0", SDF_FLOAT, R0,
+		   "version", SDF_INT, version,
+		   "version_2HOT", SDF_INT, fileversion_2HOT,
+		   "units_2HOT", SDF_INT, units_2HOT,
+		   "light_cone", SDF_INT, 1,
+		   "sorted_xyz", SDF_INT, 1,
+		   "x_min", SDF_FLOAT, rmin[0],
+		   "y_min", SDF_FLOAT, rmin[1],
+		   "z_min", SDF_FLOAT, rmin[2],
+		   "x_max", SDF_FLOAT, rmax[0],
+		   "y_max", SDF_FLOAT, rmax[1],
+		   "z_max", SDF_FLOAT, rmax[2],
+		   "length_unit", SDF_STRING, "kpccm", 
+		   "light_cone_x0", SDF_DOUBLE, lc_origin[0],
+		   "light_cone_y0", SDF_DOUBLE, lc_origin[1],
+		   "light_cone_z0", SDF_DOUBLE, lc_origin[2],
+		   "do_periodic", SDF_INT, 0,
+		   "Omega0_m", SDF_DOUBLE, Omega0_m,
+		   "Omega0_r", SDF_DOUBLE, Omega0_r,
+		   "Omega0_lambda", SDF_DOUBLE, Omega0_lambda,
+		   "Omega0_fld", SDF_DOUBLE, Omega0_fld,
+		   "h_100", SDF_DOUBLE, h_100,
+		   "H0", SDF_DOUBLE, H0,
+		   "epsilon_scaled", SDF_FLOAT, epsilon_scaled,
+		   "compiled_version_2HOT", SDF_STRING, version_2HOT,
+		   "compiled_date_2HOT", SDF_STRING, compiled_date_2HOT,
+		   "compiled_time_2HOT", SDF_STRING, compiled_time_2HOT,
+		   NULL);
     }
-    btab = Realloc(btab, nobj * sizeof(body));
-    gnobj = nobj;
-    MPMY_Combine(&gnobj, &gnobj, 1, MPMY_INT64, MPMY_SUM);
-    singlPrintf("gnobj is now %ld\n", gnobj);
-
-    singlPrintf("Sorting %ld particles by xyz\n", gnobj);
-    pqsortsetup_order(&outputsort, btab, nobj,
-		      sizeof(body), 0.1, 1, Realloc_f);
-    outputsort.method = 1;
-    btab = pqsort(&outputsort,
-		  (pq_wgtproto)UnityCost, 
-		  (pq_keyproto)GetKeyFast);
-    nobj = outputsort.nobj;
-
-    MPMY_Combine(&nobj, &gnobj, 1, MPMY_INT64, MPMY_SUM);
-
-    char outname[256];
-
-    sprintf(outname, "%s_xyz.sdf", outbase);
-    singlPrintf("Writing \"%s\"\n", outname);
-
-    SDFwrite64(outname, gnobj,
-	       nobj, btab, sizeof(body), OUTBODYDESC,
-	       "npart", SDF_INT64, gnobj,
-	       "particle_mass", SDF_FLOAT, particle_mass,
-	       "R0", SDF_FLOAT, R0,
-	       "version", SDF_INT, version,
-	       "version_2HOT", SDF_INT, fileversion_2HOT,
-	       "units_2HOT", SDF_INT, units_2HOT,
-	       "light_cone", SDF_INT, 1,
-	       "sorted_xyz", SDF_INT, 1,
-	       "x_min", SDF_FLOAT, rmin[0],
-	       "y_min", SDF_FLOAT, rmin[1],
-	       "z_min", SDF_FLOAT, rmin[2],
-	       "x_max", SDF_FLOAT, rmax[0],
-	       "y_max", SDF_FLOAT, rmax[1],
-	       "z_max", SDF_FLOAT, rmax[2],
-	       "length_unit", SDF_STRING, "kpccm", 
-	       "light_cone_x0", SDF_DOUBLE, lc_origin[0],
-	       "light_cone_y0", SDF_DOUBLE, lc_origin[1],
-	       "light_cone_z0", SDF_DOUBLE, lc_origin[2],
-	       "do_periodic", SDF_INT, 0,
-	       "Omega0_m", SDF_DOUBLE, Omega0_m,
-	       "Omega0_r", SDF_DOUBLE, Omega0_r,
-	       "Omega0_lambda", SDF_DOUBLE, Omega0_lambda,
-	       "Omega0_fld", SDF_DOUBLE, Omega0_fld,
-	       "h_100", SDF_DOUBLE, h_100,
-	       "H0", SDF_DOUBLE, H0,
-	       "epsilon_scaled", SDF_FLOAT, epsilon_scaled,
-	       "compiled_version_2HOT", SDF_STRING, version_2HOT,
-	       "compiled_date_2HOT", SDF_STRING, compiled_date_2HOT,
-	       "compiled_time_2HOT", SDF_STRING, compiled_time_2HOT,
-	       NULL);
-
+	
     singlPrintf("Done.\n", gnobj);
     MPMY_Finalize();
     exit(0);

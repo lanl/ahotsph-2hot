@@ -128,6 +128,10 @@ Key_t GetKeyFast(const body *p)
     uint32_t k0, k1, k2, k3;
     Key_t key = {{0, 1<<29}};
 
+    if (p->pos[0] < Rmin[0] || p->pos[1] < Rmin[1] || p->pos[2] < Rmin[2] ||
+	p->pos[1] >= Rmin[0]+Rsize[0] || p->pos[1] >= Rmin[1]+Rsize[1] || p->pos[2] >= Rmin[2]+Rsize[2])
+	Error("pos outside bounds\n");
+
     xp0 = keyfactor[0] * (p->pos[0] - Rmin[0]);
     xp1 = keyfactor[1] * (p->pos[1] - Rmin[1]);
     xp2 = keyfactor[2] * (p->pos[2] - Rmin[2]);
@@ -239,6 +243,11 @@ main(int argc, char *argv[])
     SDFgetdoubleOrDie(sdfp, "Omega0_m",  &Omega0_m);
     SDFgetdoubleOrDie(sdfp, "Omega0_lambda",  &Omega0_lambda);
     SDFgetdoubleOrDie(sdfp, "h_100",  &h_100);
+
+    int light_cone = 0;
+    SDFgetint(sdfp, "light_cone", &light_cone);
+    int do_periodic = 1;
+    SDFgetint(sdfp, "do_periodic", &do_periodic);
     SDFclose(sdfp);
 
     gnobj = nobj = 0;
@@ -268,12 +277,27 @@ main(int argc, char *argv[])
     sortresult_t outputsort;
     pqsortsetup_order(&outputsort, btab, nobj,
 		      sizeof(body), 0.1, 1, Realloc_f);
+    outputsort.method = 1;
     btab = pqsort(&outputsort,
 		  (pq_wgtproto)UnityCost, 
 		  (pq_keyproto)GetKeyFast);
     nobj = outputsort.nobj;
 
+    int64_t outnobj = 1;
+    for (int64_t i = 1; i < nobj; i++) {
+	if ((btab[i-1].pos[0] == btab[i].pos[0]) &&
+	    (btab[i-1].pos[1] == btab[i].pos[1]) &&
+	    (btab[i-1].pos[2] == btab[i].pos[2])) {
+	    SeriousWarning("identical positions %g %g %g %g\n", 
+			   btab[0].pos[0], btab[i].pos[1], btab[i].pos[2], btab[i].m200b);
+	} else {
+	    btab[outnobj++] = btab[i];
+	}
+    }
+    nobj = outnobj;
+    btab = Realloc(btab, nobj * sizeof(body));
     MPMY_Combine(&nobj, &gnobj, 1, MPMY_INT64, MPMY_SUM);
+
 
     singlPrintf("Writing \"%s\"\n", outname);
 
@@ -291,7 +315,8 @@ main(int argc, char *argv[])
 	       "overdensity", SDF_DOUBLE, overdensity,
 	       "SCALE_NOW", SDF_DOUBLE, a,
 	       "a", SDF_DOUBLE, a,
-	       "do_periodic", SDF_INT, 1,
+	       "do_periodic", SDF_INT, do_periodic,
+	       "light_cone", SDF_INT, light_cone,
 	       "x_min", SDF_FLOAT, rmin[0],
 	       "y_min", SDF_FLOAT, rmin[1],
 	       "z_min", SDF_FLOAT, rmin[2],

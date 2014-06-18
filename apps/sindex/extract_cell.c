@@ -73,29 +73,45 @@ main(int argc, char *argv[])
     if (!sdf) Error("SDFopen %s failed\n", infile);
 
     int64_t gnobj;
-    if (SDFgetint64(sdf, "npart", &gnobj)) Error("SDFget npart failed\n");
-
-    float a, R[NDIM], rmin[NDIM], rmax[NDIM], particle_mass;
-    SDFgetfloatOrDie(sdf, "Rx",  &R[0]);
-    SDFgetfloatOrDie(sdf, "Ry",  &R[1]);
-    SDFgetfloatOrDie(sdf, "Rz",  &R[2]);
-    SDFgetfloatOrDie(sdf, "a",  &a);
-    SDFgetfloatOrDie(sdf, "particle_mass",  &particle_mass);
-    
-    VV(rmin, = -a*R);
-    VV(rmax, = a*R);
-
-    int ic_Nmesh = 0;
-    if (!SDFgetint(sdf, "ic_Nmesh", &ic_Nmesh)) {
-	/* expand root for non-power-of-two */
-	double expand_root = 0.0;
-	int f2 = 1<<(ilog2(ic_Nmesh-1)+1);
-	if (f2 != ic_Nmesh) expand_root = (double)f2/ic_Nmesh - 1.0;
-	VS(rmin, *= (1.0 + expand_root)); 
-	VS(rmax, *= (1.0 + expand_root));
+    if (SDFgetint64(sdf, "npart", &gnobj)) {
+	gnobj = SDFnrecs("x", sdf);
     }
 
-    FixRsizeExact(rmin, rmax);
+    float particle_mass;
+    SDFgetfloatOrDie(sdf, "particle_mass",  &particle_mass);
+    int morton_xyz = 0;
+    SDFgetint(sdf, "morton_xyz", &morton_xyz);
+    
+    float rmin[NDIM], rmax[NDIM];
+    if (SDFhasname("x_min", sdf)) {
+	SDFgetfloatOrDie(sdf, "x_min", &rmin[0]);
+	SDFgetfloatOrDie(sdf, "y_min", &rmin[1]);
+	SDFgetfloatOrDie(sdf, "z_min", &rmin[2]);
+	SDFgetfloatOrDie(sdf, "x_max", &rmax[0]);
+	SDFgetfloatOrDie(sdf, "y_max", &rmax[1]);
+	SDFgetfloatOrDie(sdf, "z_max", &rmax[2]);
+	FixRsizeExact(rmin, rmax);
+    } else {
+	float R[NDIM];
+	double a = 1.0;
+	SDFgetdouble(sdf, "a",  &a);
+	SDFgetfloatOrDie(sdf, "Rx",  &R[0]);
+	SDFgetfloatOrDie(sdf, "Ry",  &R[1]);
+	SDFgetfloatOrDie(sdf, "Rz",  &R[2]);
+	VV(rmin, = -a*R);
+	VV(rmax, =  a*R);
+
+	int ic_Nmesh = 0;
+	if (!morton_xyz && !SDFgetint(sdf, "ic_Nmesh", &ic_Nmesh)) {
+	    /* expand root for non-power-of-two */
+	    double expand_root = 0.0;
+	    int f2 = 1<<(ilog2(ic_Nmesh-1)+1);
+	    if (f2 != ic_Nmesh) expand_root = (double)f2/ic_Nmesh - 1.0;
+	    VS(rmin, *= (1.0 + expand_root)); 
+	    VS(rmax, *= (1.0 + expand_root));
+	}
+	FixRsizeExact(rmin, rmax);
+    }
 
     offset = SDFfileoffset("x", sdf);
     stride = SDFfilestride("x", sdf);

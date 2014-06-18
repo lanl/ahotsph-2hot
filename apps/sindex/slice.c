@@ -26,25 +26,21 @@ typedef struct {
     uint32_t index;
 } idx_t;
 
-#define OUTIDX \
-"struct {\n\
-    int64_t base;		/* offset of first object in cell */\n\
-    unsigned int len;		/* number of objects in this cell */\n\
-    unsigned int index;		/* cell morton index */\n\
-}"
-
 int
 main(int argc, char *argv[])
 {
     MPMY_Init(&argc, &argv);
 
-    if (argc != 4) {
-	singlPrintf("usage: %s file.idx res nlayers\n", argv[0]);
+    if (argc != 5 && argc != 6) {
+	singlPrintf("usage: %s file.idx res x_min x_max [min_mass]\n", argv[0]);
 	exit(1);
     }
     char *idxfile = argv[1];
     int64_t res = atoi(argv[2]);
-    int nlayers = atoi(argv[3]);
+    float x_min = atoi(argv[3]);
+    float x_max = atoi(argv[4]);
+    float min_mass = 0.0;
+    if (argc == 6) min_mass = atof(argv[5]);
 
     /* memmap index file to idx */
     SDF *sdfidx = SDFopen(NULL, idxfile);
@@ -77,29 +73,21 @@ main(int argc, char *argv[])
     if (!sdf) Error("SDFopen %s failed\n", infile);
 
     int64_t gnobj;
-    if (SDFgetint64(sdf, "npart", &gnobj)) Error("SDFget npart failed\n");
+    if (SDFgetint64(sdf, "npart", &gnobj)) {
+	gnobj = SDFnrecs("x", sdf);
+    }
 
-    int sorted_rtp = 0;
-    SDFgetint(sdf, "sorted_rtp", &sorted_rtp);
-    int sorted_xyz = 0;
-    SDFgetint(sdf, "sorted_xyz", &sorted_xyz);
     float particle_mass = 1.0f;
     SDFgetfloat(sdf, "particle_mass",  &particle_mass);
 
     float rmin[NDIM], rmax[NDIM];
-    if (sorted_rtp) {
-	float R0;
-	SDFgetfloatOrDie(sdf, "R0",  &R0);
-	float rtp_min[NDIM] = {0.0, 0.0, -M_PI};
-	float rtp_max[NDIM] = {R0*1.01, 2.0*M_PI, M_PI};
-	FixRsizeExact(rtp_min, rtp_max);
-	VV(rmin, = rtp_min);
-	VV(rmax, = rtp_max);
-    } else if (sorted_xyz) {
-	float R0;
-	SDFgetfloatOrDie(sdf, "R0",  &R0);
-	VS(rmin, = -R0*1.01);	/* must match lcjoin */
-	VS(rmax, =  R0*1.01);
+    if (SDFhasname("x_min", sdf)) {
+	SDFgetfloatOrDie(sdf, "x_min", &rmin[0]);
+	SDFgetfloatOrDie(sdf, "y_min", &rmin[1]);
+	SDFgetfloatOrDie(sdf, "z_min", &rmin[2]);
+	SDFgetfloatOrDie(sdf, "x_max", &rmax[0]);
+	SDFgetfloatOrDie(sdf, "y_max", &rmax[1]);
+	SDFgetfloatOrDie(sdf, "z_max", &rmax[2]);
 	FixRsizeExact(rmin, rmax);
     } else {
 	float R[NDIM];
@@ -127,17 +115,17 @@ main(int argc, char *argv[])
     stride = SDFfilestride("x", sdf);
     len = SDFnrecs("x", sdf);
 
+    int64_t moffset = 0;
+    moffset = SDFfileoffset("m200b", sdf);
+
     SDFclose(sdf);
 
-    assert(stride == sizeof(body));
     assert(len == gnobj);
 
     fd = open(infile, O_RDONLY);
     if (fd == -1) Error("open %s failed\n", infile);
     void *mm2 = mmap(NULL, offset+len*stride, PROT_READ, MAP_PRIVATE, fd, 0);
     if (mm2 == MAP_FAILED) Error("mmap %s failed, %s\n", infile, strerror(errno));
-
-    body *btab = mm2 + offset;
 
     /* Make an image slice */
     float *image = calloc(res * res, sizeof(float));
@@ -148,30 +136,39 @@ main(int argc, char *argv[])
     Key_t placeholder = KeyLshift(KeyInt(1), level*NDIM);
     CellCorner(placeholder, corner, &size);
     printf("level %d cell size is %g\n", level, size);
-#if 0
-    float min[NDIM] = {0.0, 0.0, 0.0};
-    float max[NDIM] = {4.0*size, 64.0*size, 64.0*size};
-#else
-    float min[NDIM] = {-(nlayers/2)*size, rmin[1], rmin[2]};
-    float max[NDIM] = { (nlayers/2)*size, rmax[1], rmax[2]};
-#endif
-    printf("Expect %.0f**2 blocks per layer, %d layers\n", (max[2]-min[2])/size, nlayers);
+    float min[NDIM] = {x_min, rmin[1], rmin[2]};
+    float max[NDIM] = {x_max, rmax[1], rmax[2]};
+    float blocks_per_x = (x_max-x_min)/size;
+    float blocks_per_dim = (max[2]-min[2])/size;
+    printf("Expect %.0fk blocks\n", blocks_per_dim*blocks_per_dim*blocks_per_x/1024.0);
     for (int i = 0; i < idx_len; i++) {
+	if (idx[i].len == 0) continue;
 	Key_t key = KeyOr(placeholder, KeyInt(idx[i].index));
 	CellCorner(key, corner, &size);
 	VV(center, = 0.5f*size + corner);
 	if (center[0] >= min[0] && center[0] < max[0] &&
 	    center[1] >= min[1] && center[1] < max[1] &&
 	    center[2] >= min[2] && center[2] < max[2]) {
-	    if (++nblocks % 1000 == 0) {
+	    if (++nblocks % 1024 == 0) {
 		printf(".%d", nblocks/1000);
 		fflush(stdout);
 	    }
-	    for (body *p = &btab[idx[i].base]; p < &btab[idx[i].base+idx[i].len]; p++) {
-		int64_t iy = res*(p->pos[1]-min[1])/(max[1]-min[1]);
-		int64_t iz = res*(p->pos[2]-min[2])/(max[2]-min[2]);
-		if (iy >= 0 && iy < res && iz >= 0 && iz < res)
-		    image[res*iz + iy] += particle_mass;
+	    void *pos0 = mm2 + stride*idx[i].base + offset;
+	    void *mass0 = mm2 + stride*idx[i].base + moffset;
+	    assert(stride % sizeof(float) == 0);
+	    for (int j = 0; j < idx[i].len; j++) {
+		float *pos = pos0 + j * stride;
+		float *mass = mass0 + j * stride;
+		if (pos[0] < x_min || pos[0] >= x_max) continue;
+		int64_t iy = res*(pos[1]-min[1])/(max[1]-min[1]);
+		int64_t iz = res*(pos[2]-min[2])/(max[2]-min[2]);
+		if (iy >= 0 && iy < res && iz >= 0 && iz < res) {
+		    if (moffset && mass[0] > min_mass) {
+			image[res*iz + iy] += mass[0];
+		    } else {
+			image[res*iz + iy] += particle_mass;
+		    }
+		}
 	    }
 	}
     }
