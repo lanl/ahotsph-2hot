@@ -304,8 +304,8 @@ main(int argc, char *argv[])
 
     int sort_rtp = 1;
     if (sort_rtp) {
-	const float rtp_min[NDIM] = {0.0, 0.0, 0.0};
-	const float rtp_max[NDIM] = {R0, M_PI, 2.0*M_PI};
+	const float rtp_min[NDIM] = {0.0, 0.0, -M_PI};
+	const float rtp_max[NDIM] = {R0, M_PI, M_PI};
 	FixRsizeExact(rtp_min, rtp_max);
 
 	singlPrintf("Eliminating particles outside boundary\n");

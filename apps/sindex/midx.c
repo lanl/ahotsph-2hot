@@ -78,7 +78,7 @@ main(int argc, char *argv[])
 	float R0;
 	SDFgetfloatOrDie(sdf, "R0",  &R0);
 	float rtp_min[NDIM] = {0.0, 0.0, -M_PI};
-	float rtp_max[NDIM] = {R0*1.01, 2.0*M_PI, M_PI};
+	float rtp_max[NDIM] = {R0, 2.0*M_PI, M_PI};
 	FixRsizeExact(rtp_min, rtp_max);
 	getkey = GetKeySphericalFast;
 	VV(rmin, = rtp_min);
@@ -134,6 +134,7 @@ main(int argc, char *argv[])
     char *btab = mm + offset;
 
     int64_t mask = (1LL<<(level*NDIM))-1;
+    int nindex = 1 << (NDIM*level);
     int procnum = MPMY_Procnum();
     int nproc = MPMY_Nproc();
     int64_t start = procnum * gnobj / nproc;
@@ -197,6 +198,16 @@ main(int argc, char *argv[])
 	    previous_cell = this_cell;
 	} else is_partial = 0;
     }
+    if (MPMY_Procnum() == MPMY_Nproc()-1 && next_index < nindex) {
+	if (nindex - next_index >= 1024*1024) {
+	    need_sparse = 1;
+	} else {
+	    for (int j = next_index; j < nindex; j++) {
+		idx_t empty = {.base = 0, .len = 0, .index = 0};
+		StkPushData(&stk, &empty, sizeof(idx_t));
+	    }
+	}
+    }
     close(fd);
     
     int64_t gnout, nout;
@@ -204,9 +215,12 @@ main(int argc, char *argv[])
     MPMY_Combine(&nout, &gnout, 1, MPMY_INT64, MPMY_SUM);
     MPMY_Combine(&need_sparse, &need_sparse, 1, MPMY_INT, MPMY_SUM);
     if (wandering_particles) MPMY_Combine(&nwander, &nwander, 1, MPMY_INT64, MPMY_SUM);
-    int nindex = 1 << (NDIM*level);
     char outname[256];
     sprintf(outname, "%s.midx%d", infile, level);
+
+    idx_t *idx = StkBase(&stk);
+    printf("p %4d %9ld %9ld %9ld %9ld %9ld %7d %7d\n", MPMY_Procnum(), start, end, nout,
+	    idx[0].base, idx[nout-1].base+idx[nout-1].len, idx[0].index, idx[nout-1].index);
 
     if (need_sparse) {
 	SDFwritehdr(outname, OUTIDX,
@@ -214,6 +228,7 @@ main(int argc, char *argv[])
 		    "ndim", SDF_INT, NDIM,
 		    "nindex", SDF_INT, nindex,
 		    "midx_version", SDF_INT, 1,
+		    "sorted_rtp", SDF_INT, 1,
 		    "sparse_file", SDF_INT, 1,
 		    "x_min", SDF_FLOAT, rmin[0],
 		    "y_min", SDF_FLOAT, rmin[1],
