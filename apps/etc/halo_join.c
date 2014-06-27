@@ -29,8 +29,8 @@ typedef struct {
     float pos[NDIM];
     float vel[NDIM];
     float mvir, m200b, m200c, m500c, m2500c;
-    float vmax, rvmax, r200b, rvir, spin, kin_to_pot;
-    int64_t id, pid, vir_pid;
+    float vmax, rvmax, r200b, rvir, r500c, spin, kin_to_pot;
+    int64_t id, m200b_pid, mvir_pid, m500c_pid;
 } __attribute__ ((packed)) body;
 
 #define OUTBODYDESC \
@@ -38,8 +38,8 @@ typedef struct {
     float x, y, z;\n\
     float vx, vy, vz;\n\
     float mvir, m200b, m200c, m500c, m2500c;\n\
-    float vmax, rvmax, r200b, rvir, spin, kin_to_pot;\n\
-    int64_t id, pid, vir_pid;\n\
+    float vmax, rvmax, r200b, rvir, r500c, spin, kin_to_pot;\n\
+    int64_t id, m200b_pid, mvir_pid, m500c_pid;\n\
 }"
 
 static float Rmin[NDIM], Rsize[NDIM];
@@ -327,6 +327,8 @@ main(int argc, char *argv[])
 	       "Omega0_lambda", SDF_DOUBLE, Omega0_lambda,
 	       "h_100", SDF_DOUBLE, h_100,
 	       "so200b", SDF_INT, 1,
+	       "so500c", SDF_INT, 1,
+	       "sovir", SDF_INT, 1,
 	       "rockstar_units", SDF_INT, 1,
 	       "morton_xyz", SDF_INT, 1,
 	       "length_unit", SDF_STRING, "Mpccm/h", 
