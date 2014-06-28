@@ -455,7 +455,6 @@ main(int argc, char *argv[])
     if (nend > nfiles) nend = nfiles;
     for (int filen = nstart; filen < nend; filen++) {
 	char infile[256];
-	filen = MPMY_Procnum();
 	sprintf(infile, infilespec, filen);
 	load_bgc2(infile, &hdr, &gd, &num_groups, &parts, &num_parts);
 	BOX_SIZE = hdr.box_size;
@@ -474,8 +473,8 @@ main(int argc, char *argv[])
 	    }
 	    pindex += gd[i].npart;
 	}
-	/* fprintf(stderr, "%d - %ld halos from %ld groups, %ld particles\n", 
-	   filen, num_halos, num_groups, num_parts); */
+	fprintf(stderr, "%d - %s %ld halos from %ld groups, %ld particles\n", 
+		MPMY_Procnum(), infile, num_halos, num_groups, num_parts);
 	num_groups = num_parts = 0;
     }
     if (nend > nstart) {
