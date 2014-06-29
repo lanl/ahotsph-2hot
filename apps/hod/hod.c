@@ -20,8 +20,15 @@
 #define CRITICAL_DENSITY 2.77519737e11 // 3H^2/8piG in (Msun / h) / (Mpc / h)^3
 #define Gc (4.30117902e-9) //Actually, Gc * (Msun / Mpc) in (km/s)^2
 
+#define SQRT3 1.7320508075688772
+
 typedef struct  {
     float mass;			/* mass of halo */
+    float r;			/* radius of halo */
+    float r200b;
+    float rvir;
+    float rs;			/* NFW scale radius */
+    float vrms;			/* rms particle velocity */
     float pos[NDIM];		/* position of halo */
     float vel[NDIM];		/* velocity of halo */
     int64_t pid;		/* parent pid */
@@ -42,13 +49,18 @@ typedef struct options_s {
     double M_cut, M1, M_min;
     double sigma_logM;
     double alpha, Dgamma, Dv;
+    double cvir_fac;
     int seed;
     double delta_halo;
     double Omega0_m;
     double box_size;
     double x_min, y_min, z_min;
     double x_max, y_max, z_max;
+    char model[64];
+    char density_profile[64];
+    char velocity_distribution[64];
     char mass_name[64];
+    char radius_name[64];
     char parent_name[64];
     char hdr[FILENAME_MAX];
     char in[FILENAME_MAX];
@@ -72,6 +84,7 @@ parse_opt(int argc, char *argv[], options_s *opt)
 	ret += scan(p, alpha, %lf);
 	ret += scan(p, Dgamma, %lf);
 	ret += scan(p, Dv, %lf);
+	ret += scan(p, cvir_fac, %lf);
 	ret += scan(p, seed, %d);
 	ret += scan(p, Omega0_m, %lf);
 	ret += scan(p, delta_halo, %lf);
@@ -83,7 +96,11 @@ parse_opt(int argc, char *argv[], options_s *opt)
 	ret += scan(p, x_max, %lf);
 	ret += scan(p, y_max, %lf);
 	ret += scan(p, z_max, %lf);
+	ret += scans(p, model, %64s);
+	ret += scans(p, density_profile, %64s);
+	ret += scans(p, velocity_distribution, %64s);
 	ret += scans(p, mass_name, %64s);
+	ret += scans(p, radius_name, %64s);
 	ret += scans(p, parent_name, %64s);
 	ret += scans(p, hdr, %256s);
 	ret += scans(p, in, %256s);
@@ -96,6 +113,7 @@ SDF *
 ReadData(char *name, halo **htab, int64_t *gnobj, int *nobj, options_s *opt)
 {
     int massconf, xconf, yconf, zconf;
+    int rconf, rsconf, r200bconf, rvirconf, vrmsconf;
     int vxconf, vyconf, vzconf;
     int pidconf;
     SDF *sdfp;
@@ -103,6 +121,11 @@ ReadData(char *name, halo **htab, int64_t *gnobj, int *nobj, options_s *opt)
     singlPrintf("Reading %s\n", name);
     sdfp = SDFreadf64(opt->hdr, name, (void *)htab, gnobj, nobj, sizeof(halo),
 		      opt->mass_name, offsetof(halo, mass), &massconf,
+		      opt->radius_name, offsetof(halo, r), &rconf,
+		      "r200b", offsetof(halo, r200b), &r200bconf,
+		      "rvir", offsetof(halo, rvir), &rvirconf,
+		      "rs", offsetof(halo, rs), &rsconf,
+		      "vrms", offsetof(halo, vrms), &vrmsconf,
 		      "x", offsetof(halo, pos[0]), &xconf,
 		      "y", offsetof(halo, pos[1]), &yconf,
 		      "z", offsetof(halo, pos[2]), &zconf,
@@ -112,12 +135,19 @@ ReadData(char *name, halo **htab, int64_t *gnobj, int *nobj, options_s *opt)
 		      opt->parent_name, offsetof(halo, pid), &pidconf,
 		      NULL);
 
-    if (massconf==0 || xconf==0 || yconf==0 || zconf==0) {
-	SinglError("Could not find %s %s %s %s in data file!\n",
+    if (massconf==0 || rconf || xconf==0 || yconf==0 || zconf==0) {
+	SinglError("Could not find %s %s %s %s %s in data file!\n",
 		   (massconf==0)? opt->mass_name : "",
+		   (rconf==0)? opt->radius_name : "",
 		   (xconf==0)? "x" : "",
 		   (yconf==0)? "y" : "",
 		   (zconf==0)? "z" : "");
+    }
+    if (rsconf == 0 || r200bconf == 0 || rvirconf == 0) {
+	SinglError("Missing r\n");
+    }
+    if (vrmsconf == 0) {
+	SinglError("Missing vrms\n");
     }
     if (vxconf != vyconf || vxconf != vzconf) {
 	SinglError("Missing velocity components!\n");
@@ -161,6 +191,81 @@ N_sat(double halo_m, double ncen_expected, const options_s *opt)
 	: 0.0;
 }
 
+void
+isothermal_density(float halo_r, const float *halo_pos, const options_s *opt, const gsl_rng *rng, float *pos)
+{
+    /* Simple isotropic isothermal distribution */
+    double rr[NDIM];
+    gsl_ran_dir_3d(rng, &rr[0], &rr[1], &rr[2]);
+    float scale = halo_r * gsl_rng_uniform(rng);
+    for (int k = 0; k < NDIM; k++) {
+	pos[k] = halo_pos[k] + rr[k] * scale;
+	if (pos[k] >= opt->box_size) pos[k] -= opt->box_size;
+	if (pos[k] < 0.0) pos[k] += opt->box_size;
+    }
+}
+
+double
+nfw(double r, double rs)
+{
+    double c = r / rs;
+    double one_plus_c = 1.0 + c;
+    return(rs / (r * one_plus_c * one_plus_c));
+}
+
+void
+nfw_density(float halo_r, float r, float rs, const float *halo_pos, const options_s *opt, const gsl_rng *rng, float *pos)
+{
+    double rr[NDIM], u, ur, mr;
+    gsl_ran_dir_3d(rng, &rr[0], &rr[1], &rr[2]);
+    rs /= opt->cvir_fac;
+
+    /* NFW density via rejection method */
+    double mm = nfw(rs, rs) * rs * rs;
+    do {
+	u = gsl_rng_uniform(rng);
+	ur = gsl_rng_uniform(rng) * r;
+	mr = nfw(ur, rs) * ur * ur / mm;
+    } while (u > mr);
+
+    for (int k = 0; k < NDIM; k++) {
+	pos[k] = halo_pos[k] + rr[k] * ur;
+	if (pos[k] >= opt->box_size) pos[k] -= opt->box_size;
+	if (pos[k] < 0.0) pos[k] += opt->box_size;
+    }
+}
+
+void
+constant_velocity(float vcirc, const float *halo_vel, const options_s *opt, const gsl_rng *rng, float *vel)
+{
+    double vv[NDIM];
+    gsl_ran_dir_3d(rng, &vv[0], &vv[1], &vv[2]);
+    for (int k = 0; k < NDIM; k++) {
+	vel[k] = halo_vel[k] + vv[k] * vcirc;
+    }
+}
+
+void
+gaussian_velocity(float vrms, const float *halo_vel, const options_s *opt, const gsl_rng *rng, float *vel)
+{
+    double vv[NDIM];
+    gsl_ran_dir_3d(rng, &vv[0], &vv[1], &vv[2]);
+    for (int k = 0; k < NDIM; k++) {
+	vel[k] = halo_vel[k] + gsl_ran_gaussian(rng, vrms/SQRT3) * vv[k];
+    }
+}
+
+void
+exponential_velocity(float vrms, const float *halo_vel, const options_s *opt, const gsl_rng *rng, float *vel)
+{
+    /* zurek94 http://adsabs.harvard.edu/abs/1994ApJ...431..559Z */
+    /* Need to add infall term */
+    double vv[NDIM];
+    gsl_ran_dir_3d(rng, &vv[0], &vv[1], &vv[2]);
+    for (int k = 0; k < NDIM; k++) {
+	vel[k] = halo_vel[k] + gsl_ran_laplace(rng, vrms/SQRT3) * vv[k]; /* correct factor? */
+    }
+}
 
 void
 process_halos(const halo *halos, int nobj, const options_s *opt, const gsl_rng *rng, Stk *stk)
@@ -169,8 +274,15 @@ process_halos(const halo *halos, int nobj, const options_s *opt, const gsl_rng *
 	if (h->pid != -1) continue;
 	if (h->mass == 0.0f) continue;
 	double halo_m = h->mass;
-	double halo_r = pow(3.0 * halo_m / (4.0 * M_PI * opt->delta_halo * opt->Omega0_m * CRITICAL_DENSITY), 1./3.);
 	double vcirc = sqrt(Gc*halo_m);
+
+	double halo_r = 0.0;
+	if (!strcmp(opt->mass_name, "m200b"))
+	    halo_r = h->r200b;
+	else if (!strcmp(opt->mass_name, "mvir"))
+	    halo_r = h->rvir;
+	else
+	    halo_r = pow(3.0 * halo_m / (4.0 * M_PI * opt->delta_halo * opt->Omega0_m * CRITICAL_DENSITY), 1./3.);
 
 	double ncen_expected = N_cen(halo_m, opt);
 	int Ncen = (gsl_rng_uniform(rng) > ncen_expected) ? 0 : 1;
@@ -184,7 +296,12 @@ process_halos(const halo *halos, int nobj, const options_s *opt, const gsl_rng *
 	}
 
 	if (Ncen > 0) {
+	    float vel[NDIM] = {h->vel[0], h->vel[1], h->vel[2]};
 	    /* central */
+	    if (!strcmp(opt->velocity_distribution, "gaussian"))
+		gaussian_velocity(h->vrms, h->vel, opt, rng, vel);
+	    else if (!strcmp(opt->velocity_distribution, "exponential"))
+		exponential_velocity(h->vrms, h->vel, opt, rng, vel);
 	    StkPushData(stk, (halo *)h->pos, NDIM*sizeof(float));
 	    StkPushData(stk, (halo *)h->vel, NDIM*sizeof(float));
 	}
@@ -195,18 +312,20 @@ process_halos(const halo *halos, int nobj, const options_s *opt, const gsl_rng *
 	       halo_m, halo_r, h->pos[0], h->pos[1], h->pos[2]); 
 #endif
 	for (int i = 0; i < Nsat; i++) {
-	    float pos[NDIM], vel[NDIM];
-	    /* Simple isotropic isothermal distribution */
-	    float rsq = spherical_rand(pos, rng);
-	    spherical_rand(vel, rng);
-	    float scale = halo_r * gsl_rng_uniform(rng) / sqrt(rsq);
-	    float vscale = vcirc;
-	    for (int k = 0; k < NDIM; k++) {
-		pos[k] = h->pos[k] + pos[k] * scale;
-		vel[k] = h->vel[k] + vel[k] * vscale;
-		if (pos[k] >= opt->box_size) pos[k] -= opt->box_size;
-		if (pos[k] < 0.0) pos[k] += opt->box_size;
-	    }
+	    float pos[NDIM] = {}, vel[NDIM] = {};
+
+	    if (!strcmp(opt->density_profile, "isothermal"))
+		isothermal_density(halo_r, h->pos, opt, rng, pos);
+	    else if (!strcmp(opt->density_profile, "NFW"))
+		nfw_density(halo_r, h->r, h->rs, h->pos, opt, rng, pos);
+
+	    if (!strcmp(opt->velocity_distribution, "constant"))
+		constant_velocity(vcirc, h->vel, opt, rng, vel);
+	    else if (!strcmp(opt->velocity_distribution, "gaussian"))
+		gaussian_velocity(h->vrms, h->vel, opt, rng, vel);
+	    else if (!strcmp(opt->velocity_distribution, "exponential"))
+		exponential_velocity(h->vrms, h->vel, opt, rng, vel);
+
 	    /* satellites */
 	    StkPushData(stk, pos, NDIM*sizeof(float));
 	    StkPushData(stk, vel, NDIM*sizeof(float));
@@ -218,17 +337,38 @@ process_halos(const halo *halos, int nobj, const options_s *opt, const gsl_rng *
 int
 main(int argc, char *argv[])
 {
-    options_s opt = {.mass_name = "m200b", .parent_name = "m200b_pid",
-		     /* Manera12 parameters */
-		     .M_cut = 1.193987172e+13, /* 10^13.077 */
-		     .M1 = 1.0e+14,
-		     .M_min = 1.23026916e+13, /* 10^13.09 */
-		     .sigma_logM = 0.596,
-		     .alpha = 1.0126,
-		     .Dgamma = 0.0,
-		     .Dv = 1.0,
-		     .seed = 0,
+    options_s *opt, opt_models[] = {
+	[0].model = "manera12",
+	[0].mass_name = "m200b", 
+	[0].parent_name = "m200b_pid",
+	[0].delta_halo = 200.0,
+	[0].M_cut = 1.193987172e+13, /* 10^13.077 */
+	[0].M1 = 1.0e+14,
+	[0].M_min = 1.23026916e+13, /* 10^13.09 */
+	[0].sigma_logM = 0.596,
+	[0].alpha = 1.0126,
+	[0].cvir_fac = 1.0,
+	[0].seed = 0,
+	[0].density_profile = "NFW",
+	[0].velocity_distribution = "gaussian",
+
+	[1].model = "reddick13",
+	[1].mass_name = "mvir", 
+	[1].parent_name = "mvir_pid",
+	[1].delta_halo = 360.0,	/* not used */
+	[1].M_cut = 2.05e+12,
+	[1].M1 = 3.11e+14,
+	[1].M_min = 2.55e+13,
+	[1].sigma_logM = 0.636,
+	[1].alpha = 1.06,
+	[1].cvir_fac = 0.606,
+	[1].seed = 0,
+	[1].density_profile = "NFW",
+	[1].velocity_distribution = "gaussian",
+
+	[2].model = ""		/* indicate last entry */
     };
+
     MPMY_Init(&argc, &argv);
     if (argc < 2) {
 	singlPrintf("Required arguments: in=filename\n");
@@ -236,47 +376,57 @@ main(int argc, char *argv[])
 	singlPrintf("Optional arguments: [xyz]_min [xyz]_max\n");
 	exit(1);
     } else {
-	parse_opt(argc, argv, &opt);
+	opt = &opt_models[0];
+	for (int i = 1; i < argc; i++) {
+	    char s[64];
+	    if (sscanf(argv[i], "model=%64s", s) == 1) {
+		for (int j = 0; opt_models[j].model[0]; j++)
+		    if (!strcmp(s, opt_models[j].model)) opt = &opt_models[j];
+	    }
+	}
+	parse_opt(argc, argv, opt);
     }
     singlPrintf("%s\n\tversion %s %s %s\n", argv[0], Version, Compiled_date, Compiled_time);
 
     int nobj;
     int64_t gnobj;
     halo *halos;
-    SDF *sdfp = ReadData(opt.in, &halos, &gnobj, &nobj, &opt);
+    SDF *sdfp = ReadData(opt->in, &halos, &gnobj, &nobj, opt);
     Stk outstk;
     StkInitEz(&outstk);
-    SDFgetdouble(sdfp, "Omega0_m", &opt.Omega0_m);
-    SDFgetdouble(sdfp, "overdensity", &opt.delta_halo);
-    SDFgetdouble(sdfp, "BOX_SIZE", &opt.box_size);
+    SDFgetdouble(sdfp, "Omega0_m", &opt->Omega0_m);
+    SDFgetdouble(sdfp, "BOX_SIZE", &opt->box_size);
 
     const gsl_rng_type *T = gsl_rng_default;
     gsl_rng *rng = gsl_rng_alloc(T);
-    gsl_rng_set(rng, MPMY_Nproc() * opt.seed + MPMY_Procnum());
+    gsl_rng_set(rng, MPMY_Nproc() * opt->seed + MPMY_Procnum());
 
-    process_halos(halos, nobj, &opt, rng, &outstk);
+    process_halos(halos, nobj, opt, rng, &outstk);
 
     char outname[256];
-    snprintf(outname, sizeof(outname), "%s.gals", opt.in);
+    if (opt->out[0]) snprintf(outname, sizeof(outname), "%s", opt->out);
+    else snprintf(outname, sizeof(outname), "%s.%s_mock", opt->in, opt->model);
     galaxy *outgals = StkBase(&outstk);
     int ngals = StkSz(&outstk)/sizeof(galaxy);
     int64_t gngals = ngals;
     MPMY_Combine(&gngals, &gngals, 1, MPMY_INT64, MPMY_SUM);
+
+    singlPrintf("\nWriting %d galaxies to %s.\n", gngals, outname);
     
     SDFwrite(outname, gngals, 
 	     ngals, outgals, sizeof(galaxy),
 	     GALAXYDESC,
 	     "ngals", SDF_INT, gngals,
-	     "Omega0_m", SDF_DOUBLE, opt.Omega0_m,
-	     "BOX_SIZE", SDF_DOUBLE, opt.box_size,
-	     "delta_halo", SDF_DOUBLE, opt.delta_halo,
-	     "seed", SDF_INT, opt.seed,
-	     "M_cut", SDF_DOUBLE, opt.M_cut,
-	     "M1", SDF_DOUBLE, opt.M1,
-	     "M_min", SDF_DOUBLE, opt.M_min,
-	     "sigma_logM", SDF_DOUBLE, opt.sigma_logM,
-	     "Dgamma", SDF_DOUBLE, opt.Dgamma,
-	     "Dv", SDF_DOUBLE, opt.Dv,
+	     "Omega0_m", SDF_DOUBLE, opt->Omega0_m,
+	     "BOX_SIZE", SDF_DOUBLE, opt->box_size,
+	     "delta_halo", SDF_DOUBLE, opt->delta_halo,
+	     "seed", SDF_INT, opt->seed,
+	     "M_cut", SDF_DOUBLE, opt->M_cut,
+	     "M1", SDF_DOUBLE, opt->M1,
+	     "M_min", SDF_DOUBLE, opt->M_min,
+	     "sigma_logM", SDF_DOUBLE, opt->sigma_logM,
+	     "cvir_fac", SDF_DOUBLE, opt->cvir_fac,
+	     "model", SDF_STRING, opt->model,
 	     NULL);
 
     singlPrintf("\nOutput %d galaxies to %s.\n", gngals, outname);

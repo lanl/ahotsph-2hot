@@ -21,7 +21,6 @@
 #include "singlio.h"
 #include "version_2HOT.h"
 
-
 #define BITS_PER_DIM ((KEYBITS-1)/NDIM)
 #define IDENTMASK ((1LL<<48)-1)	/* use high bits for other purposes */
 
@@ -29,8 +28,10 @@ typedef struct {
     float pos[NDIM];
     float vel[NDIM];
     float mvir, m200b, m200c, m500c, m2500c;
-    float vmax, rvmax, r200b, rvir, r500c, spin, kin_to_pot;
-    int64_t id, m200b_pid, mvir_pid, m500c_pid;
+    float rvir, r200b, r500c;
+    float radius, rs, rvmax;
+    float vrms, vmax, spin, kin_to_pot;
+    int64_t id, mvir_pid, m200b_pid, m500c_pid;
 } __attribute__ ((packed)) body;
 
 #define OUTBODYDESC \
@@ -38,8 +39,10 @@ typedef struct {
     float x, y, z;\n\
     float vx, vy, vz;\n\
     float mvir, m200b, m200c, m500c, m2500c;\n\
-    float vmax, rvmax, r200b, rvir, r500c, spin, kin_to_pot;\n\
-    int64_t id, m200b_pid, mvir_pid, m500c_pid;\n\
+    float rvir, r200b, r500c; /* Mpcccm/h */\n\
+    float radius, rs, rvmax;  /* kpc/h */\n\
+    float vrms, vmax, spin, kin_to_pot;\n\
+    int64_t id, mvir_pid, m200b_pid, m500c_pid; /* pid is -1 if not subhalo */\n\
 }"
 
 static float Rmin[NDIM], Rsize[NDIM];
@@ -201,7 +204,6 @@ main(int argc, char *argv[])
     double L0;
     double Omega0_m, Omega0_lambda, h_100;
     double redshift;
-    double overdensity;
     double tpos;
     float particle_mass;
     double a;
@@ -234,15 +236,17 @@ main(int argc, char *argv[])
     if (!(sdfp = SDFopen(NULL, sdfhdr))) {
 	Error("SDFopen failed: %s", SDFerrstring);
     }
-    SDFgetfloatOrDie(sdfp, "part_mass",  &particle_mass);
-    SDFgetdoubleOrDie(sdfp, "BOX_SIZE",  &L0);
-    SDFgetdoubleOrDie(sdfp, "SCALE_NOW",  &a);
+    SDFgetfloatOrDie(sdfp, "particle_mass",  &particle_mass);
+    SDFgetdoubleOrDie(sdfp, "L0",  &L0);
+    SDFgetdoubleOrDie(sdfp, "a",  &a);
     SDFgetdoubleOrDie(sdfp, "redshift",  &redshift);
     SDFgetdoubleOrDie(sdfp, "tpos",  &tpos);
-    SDFgetdoubleOrDie(sdfp, "overdensity",  &overdensity);
     SDFgetdoubleOrDie(sdfp, "Omega0_m",  &Omega0_m);
     SDFgetdoubleOrDie(sdfp, "Omega0_lambda",  &Omega0_lambda);
     SDFgetdoubleOrDie(sdfp, "h_100",  &h_100);
+    /* Convert to rockstar units */
+    particle_mass *= h_100 * 1e10;
+    L0 *= 0.001*h_100;
 
     int light_cone = 0;
     SDFgetint(sdfp, "light_cone", &light_cone);
@@ -312,7 +316,7 @@ main(int argc, char *argv[])
 	       "offset_center", SDF_INT, 1,
 	       "redshift", SDF_DOUBLE, redshift,
 	       "tpos", SDF_DOUBLE, tpos,
-	       "overdensity", SDF_DOUBLE, overdensity,
+	       "overdensity", SDF_DOUBLE, 200.0,
 	       "SCALE_NOW", SDF_DOUBLE, a,
 	       "a", SDF_DOUBLE, a,
 	       "do_periodic", SDF_INT, do_periodic,
