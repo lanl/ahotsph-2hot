@@ -185,10 +185,15 @@ N_cen(double halo_m, const options_s *opt)
 double
 N_sat(double halo_m, double ncen_expected, const options_s *opt)
 {
-    /* HOD.x case 2 */
-    return (halo_m >= opt->M_cut)
-	? ncen_expected * pow(((halo_m-opt->M_cut)/opt->M1), opt->alpha) 
-	: 0.0;
+    if (!strcmp(opt->model, "manera12")) {
+	/* HOD.x case 2 */
+	return (halo_m >= opt->M_cut)
+	    ? ncen_expected * pow(((halo_m-opt->M_cut)/opt->M1), opt->alpha) 
+	    : 0.0;
+    } else if (!strcmp(opt->model, "reddick13")) {
+	/* HOD.x not quite case 3 or 6 */
+	return ncen_expected * exp(-opt->M_cut/halo_m) * pow((halo_m/opt->M1), opt->alpha);
+    } else Error("Don't know what to do\n");
 }
 
 void
@@ -280,12 +285,12 @@ process_halos(const halo *halos, int nobj, const options_s *opt, const gsl_rng *
 	if (!strcmp(opt->mass_name, "m200b"))
 	    halo_r = h->r200b;
 	else if (!strcmp(opt->mass_name, "mvir"))
-	    halo_r = h->rvir;
+	    halo_r = h->rvir;	/* I don't understand why halo->rvir is slightly different from halo->r */
 	else
 	    halo_r = pow(3.0 * halo_m / (4.0 * M_PI * opt->delta_halo * opt->Omega0_m * CRITICAL_DENSITY), 1./3.);
 
 	double ncen_expected = N_cen(halo_m, opt);
-	int Ncen = (gsl_rng_uniform(rng) > ncen_expected) ? 0 : 1;
+	int Ncen = (gsl_rng_uniform(rng) <= ncen_expected) ? 1 : 0;
 
 	double nsat_expected = N_sat(halo_m, ncen_expected, opt);
 	int Nsat = gsl_ran_poisson(rng, nsat_expected);
@@ -303,7 +308,7 @@ process_halos(const halo *halos, int nobj, const options_s *opt, const gsl_rng *
 	    else if (!strcmp(opt->velocity_distribution, "exponential"))
 		exponential_velocity(h->vrms, h->vel, opt, rng, vel);
 	    StkPushData(stk, (halo *)h->pos, NDIM*sizeof(float));
-	    StkPushData(stk, (halo *)h->vel, NDIM*sizeof(float));
+	    StkPushData(stk, vel, NDIM*sizeof(float));
 	}
 #if 0
 	/* For diagnostic plot */

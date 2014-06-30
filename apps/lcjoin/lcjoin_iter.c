@@ -8,6 +8,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <float.h>
+#include <gsl/gsl_errno.h>
+#include <gsl/gsl_roots.h>
 #include "Malloc.h"
 #include "macr.h"
 #define NDIM 3
@@ -19,6 +21,7 @@
 #include "SDFwrite.h"
 #include "pqsort.h"
 #include "singlio.h"
+#include "cosmo.h"
 #include "version_2HOT.h"
 
 
@@ -196,8 +199,34 @@ float UnityCost(const void *ptr) /* load balance cost for *ptr */
     return 1.0;
 }
 
+struct r_params {
+    cosmology *c;
+    double r;
+};
 
-/* Use mpirun -np ???? -bynode */
+double
+rroot(double z, void *params)
+{
+    struct r_params *p = params;
+    return p->c->conformal_distance_at_z(p->c, z) - p->r;
+}
+
+double
+z_at_conformal_distance(gsl_root_fsolver *s)
+{
+    int iter = 0;
+    int status;
+    do {
+	iter++;
+	status = gsl_root_fsolver_iterate(s);
+	double z = gsl_root_fsolver_root(s);
+	double z_lo = gsl_root_fsolver_x_lower(s);
+	double z_hi = gsl_root_fsolver_x_upper(s);
+	status = gsl_root_test_interval(z_lo, z_hi, 0, 1e-7);
+	if (status == GSL_SUCCESS) return z;
+    } while (status == GSL_CONTINUE && iter < 100);
+    Error("z_at_conformal_distance failed to converge\n");
+}
 
 int
 main(int argc, char *argv[])
@@ -208,12 +237,13 @@ main(int argc, char *argv[])
     SDF *sdfp;
     int64_t gnobj, nobj;
     float R0;
-    double Omega0_m, Omega0_r, Omega0_lambda, Omega0_fld, h_100, H0;
     float particle_mass;
     float epsilon_scaled;
     double lc_origin[NDIM] = {};
     body *btab = NULL;
     int version, fileversion_2HOT, units_2HOT;
+    char velocity_unit[256];
+    cosmology cosmo = {};
 
     MPMY_Init(&argc, &argv);
 
@@ -246,18 +276,27 @@ main(int argc, char *argv[])
     if (!(sdfp = SDFopen(NULL, sdfhdr))) {
 	Error("SDFopen failed: %s", SDFerrstring);
     }
-    SDFgetintOrDefault(sdfp, "version", &version, 2);
+    SDFgetintOrDefault(sdfp, "version", &version, 3);
     SDFgetintOrDefault(sdfp, "version_2HOT", &fileversion_2HOT, 2);
     SDFgetintOrDefault(sdfp, "units_2HOT", &units_2HOT, 2);
+    SDFgetstringOrDefault(sdfp, "velocity_unit", velocity_unit, sizeof(velocity_unit), "kpccm/Gyr");
     SDFgetfloatOrDie(sdfp, "particle_mass",  &particle_mass);
     SDFgetfloatOrDie(sdfp, "R0",  &R0);
-    SDFgetdoubleOrDie(sdfp, "Omega0_m",  &Omega0_m);
-    SDFgetdoubleOrDie(sdfp, "Omega0_r",  &Omega0_r);
-    SDFgetdoubleOrDie(sdfp, "Omega0_lambda",  &Omega0_lambda);
-    SDFgetdoubleOrDie(sdfp, "Omega0_fld",  &Omega0_fld);
-    SDFgetdoubleOrDie(sdfp, "h_100",  &h_100);
-    SDFgetdoubleOrDie(sdfp, "H0",  &H0);
     SDFgetfloatOrDie(sdfp, "epsilon_scaled",  &epsilon_scaled);
+    SDFgetdoubleOrDie(sdfp, "h_100",  &cosmo.h_100);
+    SDFgetdoubleOrDie(sdfp, "H0", &cosmo.H0);
+    SDFgetdoubleOrDie(sdfp, "Omega0",  &cosmo.Omega0);
+    SDFgetdoubleOrDie(sdfp, "Omega0_r",  &cosmo.Omega0_r);
+    SDFgetdoubleOrDie(sdfp, "Omega0_m",  &cosmo.Omega0_m);
+    SDFgetdoubleOrDie(sdfp, "Omega0_lambda",  &cosmo.Omega0_lambda);
+    SDFgetdoubleOrDie(sdfp, "Omega0_cdm",  &cosmo.Omega0_cdm);
+    SDFgetdoubleOrDefault(sdfp, "Omega0_ncdm_tot",  &cosmo.Omega0_ncdm_tot, 0.0);
+    SDFgetdoubleOrDie(sdfp, "Omega0_b",  &cosmo.Omega0_b);
+    SDFgetdoubleOrDie(sdfp, "Omega0_g",  &cosmo.Omega0_g);
+    SDFgetdoubleOrDefault(sdfp, "Omega0_ur",  &cosmo.Omega0_ur, 0.0);
+    SDFgetdoubleOrDefault(sdfp, "Omega0_fld",  &cosmo.Omega0_fld, 0.0);
+    SDFgetdoubleOrDefault(sdfp, "w0_fld",  &cosmo.w0_fld, 0.0);
+    SDFgetdoubleOrDefault(sdfp, "wa_fld",  &cosmo.wa_fld, 0.0);
     SDFclose(sdfp);
 
     gnobj = nobj = 0;
@@ -302,7 +341,33 @@ main(int argc, char *argv[])
     MPMY_Combine(&gnobj, &gnobj, 1, MPMY_INT64, MPMY_SUM);
     singlPrintf("gnobj is now %ld\n", gnobj);
 
-    int sort_rtp = 1;
+    if (!strcmp(velocity_unit, "kpccm/Gyr")) {
+	singlPrintf("converting to comoving velocity\n", gnobj);
+	tbl_init(&cosmo, "cosmology.tbl");
+	const gsl_root_fsolver_type *T;
+	gsl_root_fsolver *s;
+	gsl_function F;
+	struct r_params params = {&cosmo, 0.0};
+	F.function = &rroot;
+	F.params = &params;
+	T = gsl_root_fsolver_brent;
+	s = gsl_root_fsolver_alloc(T);
+
+	for (body *p = btab; p < btab + nobj; p++) {
+	    double rr[NDIM];
+	    VVV(rr, = p->pos, - lc_origin);
+	    double r = sqrt(Dot(rr, rr));
+	    params.r = r;
+	    gsl_root_fsolver_set(s, &F, 0.0, 10.0);
+	    double z = z_at_conformal_distance(s);
+	    double a = 1.0 / (1.0 + z);
+	    double H = cosmo.H_at_z(&cosmo, z);
+	    VV(p->vel, -= H * a * rr); /* subtract hubble flow */
+	    VS(p->vel, *= a); /* to comoving vel  */
+	}
+    }
+
+    int sort_rtp = 0;
     if (sort_rtp) {
 	const float rtp_min[NDIM] = {0.0, 0.0, -M_PI};
 	const float rtp_max[NDIM] = {R0, M_PI, M_PI};
@@ -358,13 +423,21 @@ main(int argc, char *argv[])
 		   "light_cone_y0", SDF_DOUBLE, lc_origin[1],
 		   "light_cone_z0", SDF_DOUBLE, lc_origin[2],
 		   "do_periodic", SDF_INT, 0,
-		   "Omega0_m", SDF_DOUBLE, Omega0_m,
-		   "Omega0_r", SDF_DOUBLE, Omega0_r,
-		   "Omega0_lambda", SDF_DOUBLE, Omega0_lambda,
-		   "Omega0_fld", SDF_DOUBLE, Omega0_fld,
-		   "h_100", SDF_DOUBLE, h_100,
-		   "H0", SDF_DOUBLE, H0,
 		   "epsilon_scaled", SDF_FLOAT, epsilon_scaled,
+		   "Omega0", SDF_DOUBLE, cosmo.Omega0,
+		   "Omega0_m", SDF_DOUBLE, cosmo.Omega0_m,
+		   "Omega0_r", SDF_DOUBLE, cosmo.Omega0_r,
+		   "Omega0_lambda", SDF_DOUBLE, cosmo.Omega0_lambda,
+		   "Omega0_cdm", SDF_DOUBLE, cosmo.Omega0_cdm,
+		   "Omega0_ncdm_tot", SDF_DOUBLE, cosmo.Omega0_ncdm_tot,
+		   "Omega0_b", SDF_DOUBLE, cosmo.Omega0_b,
+		   "Omega0_g", SDF_DOUBLE, cosmo.Omega0_g,
+		   "Omega0_ur", SDF_DOUBLE, cosmo.Omega0_ur,
+		   "Omega0_fld", SDF_DOUBLE, cosmo.Omega0_fld,
+		   "w0_fld", SDF_DOUBLE, cosmo.w0_fld,
+		   "wa_fld", SDF_DOUBLE, cosmo.wa_fld,
+		   "h_100", SDF_DOUBLE, cosmo.h_100,
+		   "H0", SDF_DOUBLE, cosmo.H0,
 		   "compiled_version_2HOT", SDF_STRING, version_2HOT,
 		   "compiled_date_2HOT", SDF_STRING, compiled_date_2HOT,
 		   "compiled_time_2HOT", SDF_STRING, compiled_time_2HOT,
@@ -402,7 +475,7 @@ main(int argc, char *argv[])
 
 	char outname[256];
 	
-	sprintf(outname, "%s_xyz.sdf", outbase);
+	sprintf(outname, "%s", outbase);
 	singlPrintf("Writing \"%s\"\n", outname);
 
 	SDFwrite64(outname, gnobj,
@@ -426,13 +499,22 @@ main(int argc, char *argv[])
 		   "light_cone_y0", SDF_DOUBLE, lc_origin[1],
 		   "light_cone_z0", SDF_DOUBLE, lc_origin[2],
 		   "do_periodic", SDF_INT, 0,
-		   "Omega0_m", SDF_DOUBLE, Omega0_m,
-		   "Omega0_r", SDF_DOUBLE, Omega0_r,
-		   "Omega0_lambda", SDF_DOUBLE, Omega0_lambda,
-		   "Omega0_fld", SDF_DOUBLE, Omega0_fld,
-		   "h_100", SDF_DOUBLE, h_100,
-		   "H0", SDF_DOUBLE, H0,
 		   "epsilon_scaled", SDF_FLOAT, epsilon_scaled,
+		   "Omega0", SDF_DOUBLE, cosmo.Omega0,
+		   "Omega0_m", SDF_DOUBLE, cosmo.Omega0_m,
+		   "Omega0_r", SDF_DOUBLE, cosmo.Omega0_r,
+		   "Omega0_lambda", SDF_DOUBLE, cosmo.Omega0_lambda,
+		   "Omega0_cdm", SDF_DOUBLE, cosmo.Omega0_cdm,
+		   "Omega0_ncdm_tot", SDF_DOUBLE, cosmo.Omega0_ncdm_tot,
+		   "Omega0_b", SDF_DOUBLE, cosmo.Omega0_b,
+		   "Omega0_g", SDF_DOUBLE, cosmo.Omega0_g,
+		   "Omega0_ur", SDF_DOUBLE, cosmo.Omega0_ur,
+		   "Omega0_fld", SDF_DOUBLE, cosmo.Omega0_fld,
+		   "w0_fld", SDF_DOUBLE, cosmo.w0_fld,
+		   "wa_fld", SDF_DOUBLE, cosmo.wa_fld,
+		   "h_100", SDF_DOUBLE, cosmo.h_100,
+		   "H0", SDF_DOUBLE, cosmo.H0,
+
 		   "compiled_version_2HOT", SDF_STRING, version_2HOT,
 		   "compiled_date_2HOT", SDF_STRING, compiled_date_2HOT,
 		   "compiled_time_2HOT", SDF_STRING, compiled_time_2HOT,
