@@ -236,6 +236,14 @@ main(int argc, char *argv[])
     if (!(sdfp = SDFopen(NULL, sdfhdr))) {
 	Error("SDFopen failed: %s", SDFerrstring);
     }
+    int light_cone = 0;
+    double lc_origin[NDIM] = {};
+    SDFgetint(sdfp, "light_cone", &light_cone);
+    if (light_cone) {
+	SDFgetdouble(sdfp, "light_cone_x0", &lc_origin[0]);
+	SDFgetdouble(sdfp, "light_cone_x1", &lc_origin[1]);
+	SDFgetdouble(sdfp, "light_cone_x2", &lc_origin[2]);
+    }
     SDFgetfloatOrDie(sdfp, "particle_mass",  &particle_mass);
     SDFgetdoubleOrDie(sdfp, "L0",  &L0);
     SDFgetdoubleOrDie(sdfp, "a",  &a);
@@ -245,11 +253,11 @@ main(int argc, char *argv[])
     SDFgetdoubleOrDie(sdfp, "Omega0_lambda",  &Omega0_lambda);
     SDFgetdoubleOrDie(sdfp, "h_100",  &h_100);
     /* Convert to rockstar units */
+    VS(lc_origin, += 0.5 * L0);
+    VS(lc_origin, *= 0.001*h_100);
     particle_mass *= h_100 * 1e10;
     L0 *= 0.001*h_100;
 
-    int light_cone = 0;
-    SDFgetint(sdfp, "light_cone", &light_cone);
     int do_periodic = 1;
     SDFgetint(sdfp, "do_periodic", &do_periodic);
     SDFclose(sdfp);
@@ -321,6 +329,9 @@ main(int argc, char *argv[])
 	       "a", SDF_DOUBLE, a,
 	       "do_periodic", SDF_INT, do_periodic,
 	       "light_cone", SDF_INT, light_cone,
+	       "light_cone_x0", SDF_DOUBLE, lc_origin[0],
+	       "light_cone_y0", SDF_DOUBLE, lc_origin[1],
+	       "light_cone_z0", SDF_DOUBLE, lc_origin[2],
 	       "x_min", SDF_FLOAT, rmin[0],
 	       "y_min", SDF_FLOAT, rmin[1],
 	       "z_min", SDF_FLOAT, rmin[2],
