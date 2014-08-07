@@ -114,7 +114,7 @@ typedef struct tree_s{
     unsigned int hash_mask;
     Key_t (*GetKey)(const void *);
     float (*GetCost)(const void *);
-    void (*CofmFromDaugh)(hcell *, hcell **);
+    void (*CofmFromDaugh)(hcell *, hcell **, sortresult_t *);
     void *(*CellFromCofm)(void */*cofm*/);
     int (*CellSz)(void *cp);
 } tree_t;
@@ -138,14 +138,14 @@ void SetupTree(tree_t *tp, int ndim,
 	       int bodysz, int cellsz, int cell2sz, int cell4sz,
 	       int tbodysz, int cofmdatasz,
 	       Key_t (*GetKey)(const void *), float (*GetCost)(const void *),
-	       void (*CofmFromDaugh)(hcell *, hcell **),
+	       void (*CofmFromDaugh)(hcell *, hcell **, sortresult_t *),
 	       void *(*CellFromCofm)(void *cofm),
 	       int (*CellSz)(void *p));
 void SetupTree8(tree_t *tp, int ndim,
 		int bodysz, int cellsz, int cell2sz, int cell4sz, int cell8sz,
 		int tbodysz, int cofmdatasz,
 		Key_t (*GetKey)(const void *), float (*GetCost)(const void *),
-		void (*CofmFromDaugh)(hcell *, hcell **),
+		void (*CofmFromDaugh)(hcell *, hcell **, sortresult_t *),
 		void *(*CellFromCofm)(void *cofm),
 		int (*CellSz)(void *p));
 void BuildTree(tree_t *treep, sortresult_t *bodies);

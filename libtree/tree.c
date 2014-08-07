@@ -79,8 +79,9 @@ NewCell(tree_t *tp, Key_t key)
     hcellptr *np = tp->htab+KeyAndInt(key,tp->hash_mask);
     hcellptr new = ChnAlloc(&tp->hcellchn);
 
-    if (Find(tp, key))
-      Error("NewCell found existing key %s\n", PrintKey(key));
+#ifndef __OPTIMIZE__
+    if (Find(tp, key)) Error("NewCell found existing key %s\n", PrintKey(key));
+#endif
     new->next = *np;
     new->key = key;
     *np = new;
@@ -96,7 +97,7 @@ Enter(tree_t *tp, Key_t key, void *c, hcell_type type)
     return(np);
 }
 
-static void CofmFromDaughNOOP(hcell *hp, hcell **daugh){}
+static void CofmFromDaughNOOP(hcell *hp, hcell **daugh, sortresult_t *bodies){}
 static void *CellFromCofmNOOP(void *cofm){return NULL;}
 
 void 
@@ -104,7 +105,7 @@ SetupTree(tree_t *tp, int ndim, int bodysz, int cellsz,
 	  int cell2sz, int cell4sz, int tbodysz, 
 	  int cofmdatasz, Key_t (*GetKey)(const void *), 
 	  float (*GetCost)(const void *),
-	  void (*CofmFromDaugh)(hcell *, hcell **),
+	  void (*CofmFromDaugh)(hcell *, hcell **, sortresult_t *),
 	  void *(*CellFromCofm)(void *cofm),
 	  int (*CellSz)(void *p))
 {
@@ -129,7 +130,7 @@ SetupTree8(tree_t *tp, int ndim, int bodysz, int cellsz,
 	   int cell2sz, int cell4sz, int cell8sz, int tbodysz, 
 	   int cofmdatasz, Key_t (*GetKey)(const void *), 
 	   float (*GetCost)(const void *),
-	   void (*CofmFromDaugh)(hcell *, hcell **),
+	   void (*CofmFromDaugh)(hcell *, hcell **, sortresult_t *),
 	   void *(*CellFromCofm)(void *cofm),
 	   int (*CellSz)(void *p))
 {
@@ -218,7 +219,7 @@ void Finish(tree_t *tp, Key_t k)
     unsigned int sub_flags, i;
 
     hp = Find(tp, k);
-    Msgf(("TF: %s\n", hcellPrint(hp)));
+    /* Msgf(("TF: %s\n", hcellPrint(hp))); */
     sub_flags = Sub_Flags(hp);
     if( sub_flags == 0 )
 	return;
@@ -232,7 +233,7 @@ void Finish(tree_t *tp, Key_t k)
 	}
     }
     hp->ptr = ChnAlloc(&tp->cofmchn);
-    tp->CofmFromDaugh(hp, daughters);
+    tp->CofmFromDaugh(hp, daughters, tp->bodies);
     for (i = 0; i < nsub; i++) {
 	if (daughters[i] && Sub_Flags(daughters[i])) {
 	    void *cp = tp->CellFromCofm(daughters[i]->ptr);
@@ -368,13 +369,13 @@ make_tree(tree_t *tp)
     for (i = 0; i <= nobj; bp = (char *)bp + body_sz, i++) {
 	if (i < nobj) {
 	    bkey = getkey(bp);
-	    Msgf(("Computed key=%s\n", PrintKey(bkey)));
+	    /* Msgf(("Computed key=%s\n", PrintKey(bkey))); */
 	} else {
 	    bp = NULL;
 	    bkey = hibound;
 	}
 	    
-	Msgf(("Loading %s, rshiftbits: %d\n", PrintKey(bkey), rshiftbits));
+	/* Msgf(("Loading %s, rshiftbits: %d\n", PrintKey(bkey), rshiftbits)); */
 	/* First pop and finish all the cells that we are certain */
 	/* are done, because this body is outside them. */
 	ckey = KeyRshift(bkey, rshiftbits);
@@ -382,10 +383,10 @@ make_tree(tree_t *tp)
 	while (KeyNEQ(ckey, lastckey) || (iamlast && i == nobj)) {
 	    loboundcell = KeyRshift(lobound, rshiftbits);
 	    hiboundcell = KeyRshift(hibound, rshiftbits);
-	    Msgf(("FinishCheck: %10s ", PrintKey(ckey)));
-	    Msgf(("%10s ", PrintKey(lastckey)));
-	    Msgf(("%10s ", PrintKey(loboundcell)));
-	    Msgf(("%10s\n", PrintKey(hiboundcell)));
+	    /* Msgf(("FinishCheck: %10s ", PrintKey(ckey))); */
+	    /* Msgf(("%10s ", PrintKey(lastckey))); */
+	    /* Msgf(("%10s ", PrintKey(loboundcell))); */
+	    /* Msgf(("%10s\n", PrintKey(hiboundcell))); */
 	    if (loopagain && 
 		(iam0 || KeyGT(lastckey, loboundcell)) && 
 		(iamlast || KeyLT(lastckey, hiboundcell))) {
@@ -404,7 +405,7 @@ make_tree(tree_t *tp)
 	/* from lastbody. */
 	parent = Find(tp, lastckey);
 	oldptr = parent->ptr;
-	Msgf(("Start to push cells with parent=%s\n", hcellPrint(parent)));
+	/* Msgf(("Start to push cells with parent=%s\n", hcellPrint(parent))); */
 	    
 	for(;;){
 	    rshiftbits -= ndim;
@@ -424,7 +425,7 @@ make_tree(tree_t *tp)
 	    sub = KeyAndInt(ckey, nsub1);
 	    Set_Sub_Flag(parent, 1<<sub);
 	    parent->ptr = NULL;
-	    Msgf(("Parent: %s\n", hcellPrint(parent)));
+	    /* Msgf(("Parent: %s\n", hcellPrint(parent))); */
 
 	    if( rshiftbits == 0 ){
 		unsigned int emptysub, parentsub;
@@ -451,8 +452,8 @@ make_tree(tree_t *tp)
 	    Set_Sub_Flag(parent, (1<<sub_last));
 	    parent->ptr = NULL;
 	    new = Enter(tp, lastckey, oldptr, 0);
-	    Msgf(("Created new copy of lastbody: %s\n", hcellPrint(new)));
-	    Msgf(("New Parent: %s\n", hcellPrint(parent)));
+	    /* Msgf(("Created new copy of lastbody: %s\n", hcellPrint(new))); */
+	    /* Msgf(("New Parent: %s\n", hcellPrint(parent))); */
 	}
 
 	if (bp) {
@@ -460,8 +461,8 @@ make_tree(tree_t *tp)
 	    sub = KeyAndInt(ckey, nsub1);
 	    Set_Sub_Flag(parent, 1<<sub);
 	    new = Enter(tp, ckey, bp, 0);
-	    Msgf(("Created new body: %s\n", hcellPrint(new)));
-	    Msgf(("Body's Parent: %s\n", hcellPrint(parent)));
+	    /* Msgf(("Created new body: %s\n", hcellPrint(new))); */
+	    /* Msgf(("Body's Parent: %s\n", hcellPrint(parent))); */
 	}
 	lastbkey = bkey;
 	lastckey = ckey;
@@ -541,7 +542,7 @@ CofmPost(tree_t *tp, hcell *hp, hcell *daughters[])
 	if (hp->ptr == NULL) hp->ptr = ChnAlloc(&tp->cofmchn);
 	hp->type |= SHARED;
 	Msg("sharedcells", ("CoFDaugh: %s\n", hcellPrint(hp)));
-	tp->CofmFromDaugh(hp, daughters);
+	tp->CofmFromDaugh(hp, daughters, tp->bodies);
 	for (i = 0; i < nsub; i++) {
 	    if (daughters[i] && Sub_Flags(daughters[i])) {
 		void *cp = tp->CellFromCofm(daughters[i]->ptr);
