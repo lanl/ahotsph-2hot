@@ -123,6 +123,8 @@ SetupTree(tree_t *tp, int ndim, int bodysz, int cellsz,
     tp->CofmFromDaugh = (CofmFromDaugh) ? CofmFromDaugh : CofmFromDaughNOOP;
     tp->CellFromCofm = (CellFromCofm) ? CellFromCofm : CellFromCofmNOOP;
     tp->CellSz = CellSz;
+    tp->CellActive = NULL;
+    tp->BodyActive = NULL;
 }
 
 void 

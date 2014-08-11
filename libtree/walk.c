@@ -373,29 +373,23 @@ static void Walkbody(int commonlev, int bodylev){
 }
 
 static int preWalk(tree_t *tp, hcell *hp){
-    level++;
-    hc_tbl[level] = hp;
-    if( Sub_Flags(hp) == 0 && TreeLocal(hp->type) ){
-	if( Msg_test(__FILE__) ){
-	    Msg_do("Body at %s.\n", hcellPrint(hp));
-	    Msg_do("level=%d, common level=%d\n", level, common_level);
-	}
-	if( done_first ){
-	    Walkbody(common_level, level);
-	}else{
-	    Walkbody(0, level);
+    hc_tbl[level+1] = hp;
+    if (!TreeLocal(hp->type)) return 0;
+    if (Sub_Flags(hp) == 0) {
+	if (tp->BodyActive == NULL || tp->BodyActive(hp->ptr)) {
+	    if (Msg_test(__FILE__)) {
+		Msg_do("Body at %s.\n", hcellPrint(hp));
+		Msg_do("level=%d, common level=%d\n", level+1, common_level);
+	    }
+	    Walkbody(done_first ? common_level : 0, level+1);
 	    done_first = 1;
+	    common_level = level;
 	}
-	common_level = --level;
-	return 0;		/* don't look for kids */
-    }else{
-	if( TreeLocal(hp->type) ){
-	    return 1;
-	}else{
-	    common_level = --level;
-	    return 0;
-	}
+    } else if (tp->CellActive == NULL || tp->CellActive(hp->ptr)) {
+	level++;
+	return 1;
     }
+    return 0;
 }
 
 static void postWalk(tree_t *tp, hcell *hp, hcell **daughters){

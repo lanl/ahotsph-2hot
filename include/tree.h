@@ -117,6 +117,8 @@ typedef struct tree_s{
     void (*CofmFromDaugh)(hcell *, hcell **, sortresult_t *);
     void *(*CellFromCofm)(void */*cofm*/);
     int (*CellSz)(void *cp);
+    int (*CellActive)(const void *);
+    int (*BodyActive)(const void *);
 } tree_t;
 
 typedef void *(*cellfromcofm_t)(void *);
