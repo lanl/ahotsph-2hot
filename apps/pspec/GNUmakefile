@@ -3,7 +3,7 @@ TREEHOME=../..
 treedir=$(TREEHOME)
 
 EXTRACFLAGS=-I$(FFTW_INC) -I$(MPICH_DIR)/include
-PRELIBS=-L$(FFTW_DIR) $(CRAY_FFTW_DIR)/sandybridge/lib/libcray_memcpy.so -lfftw3f_mpi -lfftw3f
+PRELIBS=-L$(FFTW_DIR) -lfftw3f_mpi -lfftw3f
 
 prog=powspec
 
