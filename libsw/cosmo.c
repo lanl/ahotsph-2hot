@@ -416,8 +416,8 @@ cosmo1_init(cosmology *c)
 	c->H0 = c->h_100*0.1*(one_Gyr/one_kpc);
     /* definition of Mpc and Gyr differs slightly from cosmo.h to class.h */
     double ferr = fabs(c->h_100*0.1*(one_Gyr/one_kpc)/c->H0-1.0);
-    if (ferr > 1e-5) 
-	Error("cosmo1_init H0 and h_100 inconsistent (%g > 1e-6)\n", ferr);
+    if (ferr > 2e-5) 
+	Error("cosmo1_init H0 and h_100 inconsistent (%g > 2e-5)\n", ferr);
     p->H0 = c->H0;
     /* cosmo1 names Omega0 incorrectly */
     p->Omega0 = c->Omega0_m;
