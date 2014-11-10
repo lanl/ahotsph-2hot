@@ -22,16 +22,12 @@
     _a > _b ? _a : _b; })
 
 typedef struct {
-    float mass;			/* mass of body */
-    float pos[NDIM];
     float acc[NDIM];		/* acceleration of body */
     int64_t ident;
-} body;
+} __attribute__ ((packed)) body;
 
 typedef struct {
-    float pos[NDIM];
-    float acc[NDIM];
-    double diff[NDIM];
+    float diff[NDIM];
     int64_t ident;
 } __attribute__ ((packed)) adiff;
 
@@ -45,7 +41,7 @@ main(int argc, char **argv)
     double a0, a1;
     double R0;
     body *btab0, *btab1;
-    int massconf, xconf, yconf, zconf, axconf, ayconf, azconf, identconf;
+    int axconf, ayconf, azconf, identconf;
 
     MPMY_Init(&argc, &argv);
     if (argc < 3) {
@@ -55,22 +51,13 @@ main(int argc, char **argv)
     singlPrintf("Differencing %d files\n", argc-2);
     singlPrintf("Reading \"%s\"\n", argv[1]);
     sdfp0 = SDFreadf64(NULL, argv[1], (void **)&btab0, &gnobj0, &nobj0, sizeof(body),
-		       "mass", offsetof(body, mass), &massconf,
-		       "x", offsetof(body, pos[0]), &xconf,
-		       "y", offsetof(body, pos[1]), &yconf,
-		       "z", offsetof(body, pos[2]), &zconf,
 		       "ax", offsetof(body, acc[0]), &axconf,
 		       "ay", offsetof(body, acc[1]), &ayconf,
 		       "az", offsetof(body, acc[2]), &azconf,
 		       "ident", offsetof(body, ident), &identconf,
 		       NULL);
-    if( massconf==0 || xconf==0 || yconf==0 || zconf==0 
-	|| axconf==0 || ayconf==0 || azconf==0){
-	SinglWarning("Could not find %s %s %s %s %s %s %s %s in data file!\n",
-		     (massconf==0)? "mass" : "",
-		     (xconf==0)? "x" : "",
-		     (yconf==0)? "y" : "",
-		     (zconf==0)? "z" : "",
+    if( axconf==0 || ayconf==0 || azconf==0){
+	SinglWarning("Could not find %s %s %s %s in data file!\n",
 		     (axconf==0)? "ax" : "",
 		     (ayconf==0)? "ay" : "",
 		     (azconf==0)? "az" : "",
@@ -83,22 +70,13 @@ main(int argc, char **argv)
     for (int ii = 2; ii < argc; ii++) {
 	singlPrintf("Reading \"%s\"\n", argv[ii]);
 	sdfp1 = SDFreadf64(NULL, argv[ii], (void **)&btab1, &gnobj1, &nobj1, sizeof(body),
-			   "mass", offsetof(body, mass), &massconf,
-			   "x", offsetof(body, pos[0]), &xconf,
-			   "y", offsetof(body, pos[1]), &yconf,
-			   "z", offsetof(body, pos[2]), &zconf,
 			   "ax", offsetof(body, acc[0]), &axconf,
 			   "ay", offsetof(body, acc[1]), &ayconf,
 			   "az", offsetof(body, acc[2]), &azconf,
 			   "ident", offsetof(body, ident), &identconf,
 			   NULL);
-	if( massconf==0 || xconf==0 || yconf==0 || zconf==0 
-	    || axconf==0 || ayconf==0 || azconf==0){
-	    SinglWarning("Could not find %s %s %s %s %s %s %s %s in data file!\n",
-			 (massconf==0)? "mass" : "",
-			 (xconf==0)? "x" : "",
-			 (yconf==0)? "y" : "",
-			 (zconf==0)? "z" : "",
+	if( axconf==0 || ayconf==0 || azconf==0){
+	    SinglWarning("Could not find %s %s %s %s in data file!\n",
 			 (axconf==0)? "ax" : "",
 			 (ayconf==0)? "ay" : "",
 			 (azconf==0)? "az" : "",
@@ -125,18 +103,16 @@ main(int argc, char **argv)
 	    continue;
 	}
 	
-	double diff[NDIM];
+	float diff[NDIM];
 	VS(diff, = 0.0);
 	Stk outstk;
 	StkInitEz(&outstk);
 	for (int i = 0; i < nobj0; i++) {
 	    /* exact accs are usually a subsample */
-	    if (Dot(btab0[i].acc, btab0[i].acc) != 0.0) {
+	    if (Dot(btab0[i].acc, btab0[i].acc) != 0.0 && btab0[i].ident < 1000000) {
 		if (btab0[i].ident != btab1[i].ident) Error("idents don't match\n");
 		VVV(diff, = btab1[i].acc, - btab0[i].acc);
-		StkPushData(&outstk, btab0[i].pos, NDIM*sizeof(float));
-		StkPushData(&outstk, btab0[i].acc, NDIM*sizeof(float));
-		StkPushData(&outstk, diff, NDIM*sizeof(double));
+		StkPushData(&outstk, diff, NDIM*sizeof(float));
 		StkPushData(&outstk, &btab0[i].ident, sizeof(int64_t));
 	    }
 	}
@@ -155,10 +131,8 @@ main(int argc, char **argv)
 	    Fopen(fp, outname, "w");
 	    fprintf(fp, "# difference %s %s\n", argv[1], argv[ii]);
 	    for (int i = 0; i < nin; i++) {
-		fprintf(fp, "%10ld %10g %10g %10g %10g %10g %10g %10lg %10lg %10lg\n", 
+		fprintf(fp, "%10ld %10g %10g %10g\n", 
 			atab[i].ident,
-			atab[i].pos[0], atab[i].pos[1], atab[i].pos[2],
-			atab[i].acc[0], atab[i].acc[1], atab[i].acc[2],
 			atab[i].diff[0], atab[i].diff[1], atab[i].diff[2]);
 	    }
 	    Free(atab);

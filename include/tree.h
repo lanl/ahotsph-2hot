@@ -81,7 +81,7 @@
 /* allocate tbodies, cells, etc. be.  Larger leads to possible */
 /* fragmentation, but smaller makes malloc work harder and makes */
 /* malloc_print output somewhat unwieldy. */
-#define CHUNKSZ (8384512*4)
+#define CHUNKSZ (1024*1024*16)
 
 typedef int hcell_type;	/* Try to anticipate future need for more bits */
 

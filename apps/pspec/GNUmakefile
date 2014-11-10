@@ -2,6 +2,8 @@ TREEHOME=../..
 ##### Application-specific stuff goes here
 treedir=$(TREEHOME)
 
+override LD:=gcc
+
 EXTRACFLAGS=-I$(FFTW_INC) -I$(MPICH_DIR)/include
 PRELIBS=-L$(FFTW_DIR) -lfftw3f_mpi -lfftw3f
 

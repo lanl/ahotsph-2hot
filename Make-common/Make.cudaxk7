@@ -11,7 +11,7 @@ LEX:=flex
 YACC:=bison -y
 
 CUDACC=nvcc
-CUDACFLAGS=-Xptxas=-v -keep -keep-dir Objfiles/$(ARCH) -use_fast_math -arch=sm_35 -I../include -I$(CUDATOOLKIT_HOME)/extras/CUPTI/include
+CUDACFLAGS=-DNO_MSGS -O -Xptxas=-v -keep -keep-dir Objfiles/$(ARCH) -use_fast_math -arch=sm_35 -I../include -I$(CUDATOOLKIT_HOME)/extras/CUPTI/include
 PRELIBS += -L$(CUDATOOLKIT_HOME) -lcudart
 
 include $(treedir)/Make-common/Make.default
