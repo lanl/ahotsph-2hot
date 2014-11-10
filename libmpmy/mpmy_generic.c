@@ -234,11 +234,6 @@ MPMY_CheckpointDue(int next_output_seconds)
     if (MPMY_Procnum() == 0) {
 	t = time(NULL);
 	if (t >= checkpoint_next) retval = 1;
-	if (next_output_seconds < checkpoint_interval/4) {
-	    Msg_do("Postponing checkpoint since output expected in %d seconds\n", 
-		  next_output_seconds);
-	    retval = 0;
-	}
 	if (job_end > 0 && t >= job_end) retval = 1;
     }
     if (retval) Msg_do("Checkpoint Due\n");
