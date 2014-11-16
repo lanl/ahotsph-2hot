@@ -99,6 +99,7 @@ main(int argc, char *argv[])
 	VV(rmin, = -a*R);
 	VV(rmax, =  a*R);
 
+#if 0
 	int ic_Nmesh = 0;
 	if (!SDFgetint(sdf, "ic_Nmesh", &ic_Nmesh)) {
 	    /* expand root for non-power-of-two */
@@ -108,6 +109,7 @@ main(int argc, char *argv[])
 	    VS(rmin, *= (1.0 + expand_root)); 
 	    VS(rmax, *= (1.0 + expand_root));
 	}
+#endif
 	FixRsizeExact(rmin, rmax);
     }
 
@@ -116,7 +118,7 @@ main(int argc, char *argv[])
     len = SDFnrecs("x", sdf);
 
     int64_t moffset = 0;
-    moffset = SDFfileoffset("m200b", sdf);
+    /* moffset = SDFfileoffset("m200b", sdf); */
 
     SDFclose(sdf);
 
