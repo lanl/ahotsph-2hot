@@ -17,6 +17,7 @@
 #include "gc.h"			/* for ilog2 */
 #include "stk.h"
 #include "SDFwrite.h"
+#include "version_2HOT.h"
 
 typedef struct {
     int64_t base;
@@ -34,6 +35,10 @@ typedef struct {
 int
 main(int argc, char *argv[])
 {
+    MPMY_Init(&argc, &argv);
+    singlPrintf("compiled %s %s\n", __DATE__, __TIME__);
+    singlPrintf("library %s %s %s\n", version_2HOT, compiled_date_2HOT, compiled_time_2HOT);
+
     if (argc != 4) {
 	singlPrintf("usage: %s file.idx cell_level index\n", argv[0]);
 	exit(1);
@@ -104,6 +109,7 @@ main(int argc, char *argv[])
 	int ic_Nmesh = 0;
 	if (!morton_xyz && !SDFgetint(sdf, "ic_Nmesh", &ic_Nmesh)) {
 	    /* expand root for non-power-of-two */
+	    singlPrintf("Expanding root cell\n");
 	    double expand_root = 0.0;
 	    int f2 = 1<<(ilog2(ic_Nmesh-1)+1);
 	    if (f2 != ic_Nmesh) expand_root = (double)f2/ic_Nmesh - 1.0;
@@ -129,8 +135,10 @@ main(int argc, char *argv[])
 
     body *btab = mm2 + offset;
 
+    if (MPMY_Nproc() > 1) index |= MPMY_Procnum();
+
     char outfile[256];
-    sprintf(outfile, "ds14_a_%llo.cell", 1LL<<(NDIM*cell_level) | index);
+    sprintf(outfile, "ds14_b_%llo_cell", 1LL<<(NDIM*cell_level) | index);
     FILE *fp = fopen(outfile, "w");
     if (!fp) Error("fopen failed, %s\n", strerror(errno));
 
@@ -148,16 +156,3 @@ main(int argc, char *argv[])
     fclose(fp);
     exit(0);
 }
-
-#if 0
-msw@titan-ext7:~/scratch/ds14_a> SDFcvt ds14_a_1.0000.idx len base index | awk '{if ($1 > 300000) print}'
-307250 37577382446 11470039
-300627 206944166814 30106732
-354834 208675923698 30159983
-396337 304966701534 43354754
-330006 952498058384 117836548
-310010 1062089096996 126684840
-/* Densest level 9 cell is 43354754 at offset 304966701534 */
-msw@titan-ext7:~/scratch/ds14_a> SDFcvt -s 304966701534 -n 1 ds*1.0000 x y z
--5.520516e+06 1.345774e+06 -2.034626e+06
-#endif
