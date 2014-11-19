@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "Assert.h"
 #include "key.h"
 #include "decomp.h"
@@ -205,19 +206,21 @@ SetupDecomp(sortresult_t *decompp,
     Native_MPMY_Combine(keyden, keyden, radix, MPMY_DOUBLE, MPMY_SUM);
     StopTimer(&DecompCommTm);
 
-#if 0
-    #include <time.h>
-    if (MPMY_Procnum() == 0) {
+    FILE *logfp = NULL;
+    if (decompp->log && MPMY_Procnum() == 0) {
 	char name[256];
-	sprintf(name, "decomp_%ld.txt", time(NULL));
-	FILE *fp = fopen(name, "w");
-	fprintf(fp, "# %d procs\n", MPMY_Nproc());
+	long int t = time(NULL);
+	sprintf(name, "weight_%ld.txt", t);
+	logfp = fopen(name, "w");
+	fprintf(logfp, "# %d radix\n", radix);
 	for (int i = 1; i < radix; i++) {
-	    fprintf(fp, "%d %g\n", i, keyden[i]);
+	    fprintf(logfp, "%d %g\n", i, keyden[i]);
 	}
-	fclose(fp);
+	fclose(logfp);
+	sprintf(name, "decomp_%ld.txt", t);
+	logfp = fopen(name, "w");
+	fprintf(logfp, "# %d procs\n", MPMY_Nproc());
     }
-#endif
 
     for (int i = 1; i < radix; i++) keyden[i] += keyden[i-1];
     double fac = MPMY_Nproc() / keyden[mask];
@@ -227,13 +230,25 @@ SetupDecomp(sortresult_t *decompp,
 
     int j = 0;
     Key_t base = KeyLshift(KeyInt(1), TOPBIT);
+    const int extra_precision = 3; /* multiple of ndim */
     for (int i = 0; i < MPMY_Nproc()-1; i++) {
 	while (fac * keyden[j] < i + 1) j++;
-	if ((j & 077) == 077) j++;
-	if ((j & 077) == 001) j--;
-	decomptab[i] = KeyOr(KeyLshift(KeyInt(j), shift), base);
+	float over = fac * keyden[j] - (i + 1);
+	if (over > 0.9f) {
+	    Warning("decomp more than 90%% over target\n");
+	    over = 0.9f;
+	}
+	int jx = (1.0f + 0.5f/(1 << extra_precision) - over) * (1 << extra_precision);
+	if (jx < (1 << extra_precision)) {
+	    int jj = (j << extra_precision) | jx;
+	    decomptab[i] = KeyOr(KeyLshift(KeyInt(jj), shift-extra_precision), base);
+	} else {
+	    decomptab[i] = KeyOr(KeyLshift(KeyInt(j+1), shift), base);
+	}
 	Msgf(("[%5d] %s\n", i, PrintKey(decomptab[i])));
+	if (decompp->log && MPMY_Procnum() == 0) fprintf(logfp, "%5d %s %d %g\n", i, PrintKey(decomptab[i]), j+1, fac * keyden[j]);
     }
+    if (decompp->log && MPMY_Procnum() == 0) fclose(logfp);
     Key_t tmp = KeyLshift(KeyInt(1), TOPBIT);
     tmp = KeyOr(tmp, KeySub(tmp, KeyInt(1)));
     decomptab[MPMY_Nproc()-1] = tmp;
