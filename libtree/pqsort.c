@@ -290,7 +290,9 @@ void *pqsort(sortresult_t *decompp,
 	Msgf(("first key is (null)\nlast key is (null)\n"));
     } else {
 	StartTimer(&SortTm);
-	rsort(decompp->data, decompp->nobj, decompp->size, 12, KEYBITS, getkey);
+	/* Only need to sort on the final cycle */
+	if (decompp->cycle == decompp->decomp_cycles-1)
+	    rsort(decompp->data, decompp->nobj, decompp->size, 12, KEYBITS-1, getkey);
 	/* qsort(decompp->data, decompp->nobj, decompp->size, cmpkey); */
 	StopTimer(&SortTm);
 	Msgf(("first key is %s, ",  PrintKey(getkey(decompp->data))));
