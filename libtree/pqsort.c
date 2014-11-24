@@ -147,7 +147,7 @@ void *pqsort(sortresult_t *decompp,
     incoming = nsendarr[MPMY_Procnum()];
     Free(nsendarr);
     Msgf(("Preparing for final particle count of %d\n", incoming));
-    if( Msg_test("memleak") ){
+    if (Msg_test("memleak")) {
 	Msg_do("Memory map before pqsort realloc\n");
 	malloc_print();
     }

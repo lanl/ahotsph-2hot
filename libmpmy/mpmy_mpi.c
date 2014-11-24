@@ -502,6 +502,82 @@ Native_MPMY_Combine(const void *sendbuf, void *recvbuf, int count, MPMY_Datatype
     return MPMY_SUCCESS;
 }
 
+int
+Native_MPMY_Combine_Node(const void *sendbuf, void *recvbuf, int count, MPMY_Datatype type, MPMY_Op mpmy_op)
+{
+    MPI_Datatype st;
+    MPI_Op op;
+
+    switch (type) {
+    case MPMY_FLOAT:
+	st = MPI_FLOAT;
+	break;
+    case MPMY_DOUBLE:
+	st = MPI_DOUBLE;
+	break;
+    case MPMY_INT:
+	st = MPI_INT;
+	break;
+    case MPMY_CHAR:
+	st = MPI_CHAR;
+	break;
+    case MPMY_SHORT:
+	st = MPI_SHORT;
+	break;
+    case MPMY_LONG:
+	st = MPI_LONG;
+	break;
+    default:
+	Error("No type match in combine\n");
+    }
+    switch (mpmy_op) {
+    case MPMY_SUM:
+	op = MPI_SUM;
+	break;
+    case MPMY_PROD:
+	op = MPI_PROD;
+	break;
+    case MPMY_MAX:
+	op = MPI_MAX;
+	break;
+    case MPMY_MIN:
+	op = MPI_MIN;
+	break;
+#ifdef BIT_OPS
+    case MPMY_BAND:
+	op = MPI_BAND;
+	break;
+    case MPMY_BOR:
+	op = MPI_BOR;
+	break;
+    case MPMY_BXOR:
+	Error("Not supported\n");
+	break;
+#endif
+    default:
+	Error("No op match in combine\n");
+    }
+    if (sendbuf == recvbuf) sendbuf = MPI_IN_PLACE;
+
+    int ranks[PROCS_PER_NODE];
+    int myroot = (MPMY_Procnum() / PROCS_PER_NODE) * PROCS_PER_NODE;
+    for (int i = 0; i < PROCS_PER_NODE; i++) {
+	ranks[i] = myroot + i;
+    }
+    MPI_Group group_all, group_node;
+    MPI_Comm comm_node;
+    MPI_Comm_group(MPI_COMM_WORLD, &group_all);
+    MPI_Group_incl(group_all, PROCS_PER_NODE, ranks, &group_node);
+    MPI_Comm_create(MPI_COMM_WORLD, group_node, &comm_node);
+
+    MPI_Allreduce(sendbuf, recvbuf, count, st, op, comm_node);
+
+    MPI_Comm_free(&comm_node);
+    MPI_Group_free(&group_node);
+    MPI_Group_free(&group_all);
+    return MPMY_SUCCESS;
+}
+
 
 
 #define HAVE_MPMY_SYNC

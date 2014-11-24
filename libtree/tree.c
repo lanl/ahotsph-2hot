@@ -157,7 +157,8 @@ void
 BuildTree(tree_t *tp, sortresult_t *bodies)
 {
     tp->bodies = bodies;
-    pqsort(tp->bodies, tp->GetCost, tp->GetKey);
+    for (tp->bodies->cycle = 0; tp->bodies->cycle < tp->bodies->decomp_cycles; tp->bodies->cycle++) 
+	pqsort(tp->bodies, tp->GetCost, tp->GetKey);
     tp->htab = Calloc(HASH_TABLE_SIZE, sizeof(hcellptr));
 
 #define NALLOC(unitsz) (unitsz)? (CHUNKSZ-1)/(unitsz) + 1 : CHUNKSZ/8

@@ -22,6 +22,7 @@ typedef struct {
     float loadbal_target;
     int proc_order;
     int method;
+    int decomp_cycles, cycle;
     int log;
     void *(*realloc_like)(void *, size_t);
     Key_t hikey, lokey;

@@ -11,9 +11,26 @@
 #ifndef __INSIGHT__
 int malloc_debug(int i){ return -1; }
 int malloc_verify(void){return 0;}
-void malloc_print(void){Msg_do("Can't print malloc structures for system malloc\n");}
 #endif
 size_t malloc_avail(void){return -1;}
+
+void
+malloc_print(void)
+{
+    char fname[256];
+    char line[256];
+    FILE *fp;
+
+    sprintf(fname, "/proc/%d/maps", getpid());
+    if ((fp = fopen(fname, "r")) == NULL) {
+	Msg_do("fopen of /proc/<pid>/maps failed\n");
+	return;
+    }
+    while (fgets(line, sizeof(line), fp)) {
+	Msg_do("%s", line);
+    }
+    fclose(fp);
+}
 
 size_t
 malloc_heapsz(void)

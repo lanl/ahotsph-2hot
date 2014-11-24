@@ -1,4 +1,4 @@
-tarname:=tree19
+xctarname:=tree19
 
 # Make.$(ARCH) sets many of the variables that are then used in
 # Make.generic.  Leaving it out can cause problems, for example,

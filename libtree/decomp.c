@@ -192,6 +192,24 @@ SetupDecomp(sortresult_t *decompp,
     unsigned int radix = 1 << radixBits;
     unsigned int mask = radix - 1;
     double *keyden = Calloc(radix, sizeof(double));
+    int proc0 = 0;
+    int nproc = MPMY_Nproc();
+    Key_t base = KeyLshift(KeyInt(1), TOPBIT);
+    if (decompp->cycle > 0 && MPMY_Nproc() > PROCS_PER_NODE) {
+	proc0 = (MPMY_Procnum() / PROCS_PER_NODE) * PROCS_PER_NODE;
+	nproc = PROCS_PER_NODE;
+	shift = 0;
+	base = proc0 ? decomptab[proc0-1] : base;
+	Key_t last = decomptab[proc0+PROCS_PER_NODE-1];
+	Key_t diff = KeySub(last, base);
+	Key_t key_radix = KeyInt(radix);
+	Msg_do("idiff %s\n", PrintKey(diff));
+	Msg_do("krdix %s\n", PrintKey(key_radix));
+	while (KeyGE(KeyRshift(diff, shift), key_radix) && shift < TOPBIT)
+	    shift++;
+	Msg_do("sdiff %s\n", PrintKey(KeyRshift(diff, shift)));
+	Msg_do("effective radix %d bits for cycle %d\n", TOPBIT-shift, decompp->cycle);
+    }
 
     unsigned int size = decompp->size;
     unsigned int nobj = decompp->nobj;
@@ -199,15 +217,18 @@ SetupDecomp(sortresult_t *decompp,
     int counter = 0;
     Msgf(("%s\n", PrintKey(getkey(data))));
     for (char *b = data; b < data + nobj * size; b += size) {
-	keyden[KeyAndInt(KeyRshift(getkey(b), shift), mask)] += weight(b);
-	if (counter++ % 100000 == 0) Msgf(("%s\n", PrintKey(KeyRshift(getkey(b), shift))));
+	keyden[KeyAndInt(KeyRshift(KeySub(getkey(b), base), shift), mask)] += weight(b);
+	if (counter++ % 100000 == 0) Msgf(("%s\n", PrintKey(KeyRshift(KeySub(getkey(b), base), shift))));
     }
     StartTimer(&DecompCommTm);
-    Native_MPMY_Combine(keyden, keyden, radix, MPMY_DOUBLE, MPMY_SUM);
+    if (decompp->cycle == 0)
+	Native_MPMY_Combine(keyden, keyden, radix, MPMY_DOUBLE, MPMY_SUM);
+    else
+	Native_MPMY_Combine_Node(keyden, keyden, radix, MPMY_DOUBLE, MPMY_SUM);
     StopTimer(&DecompCommTm);
 
     FILE *logfp = NULL;
-    if (decompp->log && MPMY_Procnum() == 0) {
+    if (decompp->log && decompp->cycle == 0 && MPMY_Procnum() == 0 ) {
 	char name[256];
 	long int t = time(NULL);
 	sprintf(name, "weight_%ld.txt", t);
@@ -223,17 +244,14 @@ SetupDecomp(sortresult_t *decompp,
     }
 
     for (int i = 1; i < radix; i++) keyden[i] += keyden[i-1];
-    double fac = MPMY_Nproc() / keyden[mask];
-    for (int i = 1; i < radix; i <<= 1) {
-	Msgf(("%d %g\n", i, fac * keyden[i]));
-    }
+    double fac = nproc / keyden[mask];
+    Msg_do("work%d fac %g\n", decompp->cycle, fac);
 
     int j = 0;
-    Key_t base = KeyLshift(KeyInt(1), TOPBIT);
-    const int extra_precision = 3; /* multiple of ndim */
-    for (int i = 0; i < MPMY_Nproc()-1; i++) {
-	while (fac * keyden[j] < i + 1) j++;
-	float over = fac * keyden[j] - (i + 1);
+    const int extra_precision = (shift > 3) ? 3 : 0; /* multiple of ndim */
+    for (int i = proc0; i < proc0+nproc-1; i++) {
+	while (fac * keyden[j] < i + 1 - proc0 && j < radix) j++;
+	float over = fac * keyden[j] - (i + 1 - proc0);
 	if (over > 0.9f) {
 	    Warning("decomp more than 90%% over target\n");
 	    over = 0.9f;
@@ -241,26 +259,38 @@ SetupDecomp(sortresult_t *decompp,
 	int jx = (1.0f + 0.5f/(1 << extra_precision) - over) * (1 << extra_precision);
 	if (jx < (1 << extra_precision)) {
 	    int jj = (j << extra_precision) | jx;
-	    decomptab[i] = KeyOr(KeyLshift(KeyInt(jj), shift-extra_precision), base);
+	    decomptab[i] = KeyAdd(KeyLshift(KeyInt(jj), shift-extra_precision), base);
 	} else {
-	    decomptab[i] = KeyOr(KeyLshift(KeyInt(j+1), shift), base);
+	    decomptab[i] = KeyAdd(KeyLshift(KeyInt(j+1), shift), base);
 	}
-	Msgf(("[%5d] %s\n", i, PrintKey(decomptab[i])));
-	if (decompp->log && MPMY_Procnum() == 0) fprintf(logfp, "%5d %s %d %g\n", i, PrintKey(decomptab[i]), j+1, fac * keyden[j]);
+	if (i == MPMY_Procnum()) {
+	    Msg_do("over%d is %g\n", decompp->cycle, over);
+	    Msgf(("[%5d] %s\n", i, PrintKey(decomptab[i])));
+	}
+	if (decompp->log && decompp->cycle == 0 && MPMY_Procnum() == 0) fprintf(logfp, "%5d %s %d %g\n", i, PrintKey(decomptab[i]), j+1, fac * keyden[j]);
     }
-    if (decompp->log && MPMY_Procnum() == 0) fclose(logfp);
-    Key_t tmp = KeyLshift(KeyInt(1), TOPBIT);
-    tmp = KeyOr(tmp, KeySub(tmp, KeyInt(1)));
-    decomptab[MPMY_Nproc()-1] = tmp;
-    Msgf(("[%5d] %s\n", MPMY_Nproc()-1, PrintKey(decomptab[MPMY_Nproc()-1])));
+    if (decompp->log && decompp->cycle == 0 && MPMY_Procnum() == 0) fclose(logfp);
+    if (decompp->cycle == 0) {
+	Key_t tmp = KeyLshift(KeyInt(1), TOPBIT);
+	tmp = KeyOr(tmp, KeySub(tmp, KeyInt(1)));
+	decomptab[MPMY_Nproc()-1] = tmp;
+    }
+    if (MPMY_Procnum() == proc0+nproc-1)
+	Msgf(("[%5d] %s\n", proc0+nproc-1, PrintKey(decomptab[proc0+nproc-1])));
 
     Free(keyden);
     assert(MPMY_Nproc() < MAXNPROC);
 
+    if (decompp->cycle == decompp->decomp_cycles-1) {
+	Key_t my_end = decomptab[MPMY_Procnum()];
+	StartTimer(&DecompCommTm);
+	Native_MPMY_Allgather(&my_end, sizeof(decomptab[0]), MPMY_CHAR, decomptab);
+	StopTimer(&DecompCommTm);
+    }
     StopTimer(&DecompTm);
     Msgf(("SetupDecomp done\n"));
-    Msg_do("decomptab[%d] %s %ld\n", 
-	    MPMY_Procnum(), PrintKey(decomptab[MPMY_Procnum()]), decomptab[MPMY_Procnum()].k[NK-1]);
+    Msg_do("decomptab%d[%d] %s %ld\n", 
+	   decompp->cycle, MPMY_Procnum(), PrintKey(decomptab[MPMY_Procnum()]), decomptab[MPMY_Procnum()].k[NK-1]);
     Msg_flush();
 }
 
