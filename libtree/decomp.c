@@ -191,7 +191,7 @@ SetupDecomp(sortresult_t *decompp,
     int shift = TOPBIT-radixBits;
     unsigned int radix = 1 << radixBits;
     unsigned int mask = radix - 1;
-    double *keyden = Calloc(radix, sizeof(double));
+    float *keyden = Calloc(radix, sizeof(float));
     int proc0 = 0;
     int nproc = MPMY_Nproc();
     Key_t base = KeyLshift(KeyInt(1), TOPBIT);
@@ -222,9 +222,9 @@ SetupDecomp(sortresult_t *decompp,
     }
     StartTimer(&DecompCommTm);
     if (decompp->cycle == 0)
-	Native_MPMY_Combine(keyden, keyden, radix, MPMY_DOUBLE, MPMY_SUM);
+	Native_MPMY_Combine(keyden, keyden, radix, MPMY_FLOAT, MPMY_SUM);
     else
-	Native_MPMY_Combine_Node(keyden, keyden, radix, MPMY_DOUBLE, MPMY_SUM);
+	Native_MPMY_Combine_Node(keyden, keyden, radix, MPMY_FLOAT, MPMY_SUM);
     StopTimer(&DecompCommTm);
 
     FILE *logfp = NULL;
@@ -243,7 +243,11 @@ SetupDecomp(sortresult_t *decompp,
 	fprintf(logfp, "# %d procs\n", MPMY_Nproc());
     }
 
-    for (int i = 1; i < radix; i++) keyden[i] += keyden[i-1];
+    double sum = 0.0;
+    for (int i = 0; i < radix; i++) {
+	sum += keyden[i];	/* must accumulate in double precision */
+	keyden[i] = sum;
+    }
     double fac = nproc / keyden[mask];
     Msg_do("work%d fac %g\n", decompp->cycle, fac);
 
