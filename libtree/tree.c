@@ -157,7 +157,7 @@ void
 BuildTree(tree_t *tp, sortresult_t *bodies)
 {
     tp->bodies = bodies;
-    for (tp->bodies->cycle = 0; tp->bodies->cycle < tp->bodies->decomp_cycles; tp->bodies->cycle++) 
+    for (tp->bodies->cycle = tp->bodies->first_cycle; tp->bodies->cycle < tp->bodies->decomp_cycles; tp->bodies->cycle++) 
 	pqsort(tp->bodies, tp->GetCost, tp->GetKey);
     tp->htab = Calloc(HASH_TABLE_SIZE, sizeof(hcellptr));
 

@@ -238,6 +238,12 @@ Native_MPMY_Combine(const void *sendbuf, void *recvbuf, int count, MPMY_Datatype
     return MPMY_SUCCESS;
 }
 
+int
+Native_MPMY_Combine_Node(const void *sendbuf, void *recvbuf, int count, MPMY_Datatype type, MPMY_Op mpmy_op)
+{
+    memcpy(recvbuf, sendbuf, count*MPMY_Datasize[type]);
+    return MPMY_SUCCESS;
+}
 
 
 int MPMY_Init(int *argcp, char ***argvp){
