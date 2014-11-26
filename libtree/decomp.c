@@ -202,10 +202,9 @@ SetupDecomp(sortresult_t *decompp,
 	base = proc0 ? decomptab[proc0-1] : base;
 	Key_t last = decomptab[proc0+PROCS_PER_NODE-1];
 	Key_t diff = KeySub(last, base);
-	Key_t key_radix = KeyInt(radix);
-	Msg_do("idiff %s\n", PrintKey(diff));
+	Key_t key_radix = KeyInt(radix-1);
 	Msg_do("krdix %s\n", PrintKey(key_radix));
-	while (KeyGE(KeyRshift(diff, shift), key_radix) && shift < TOPBIT)
+	while (KeyGT(KeyRshift(diff, shift), key_radix) && shift < TOPBIT)
 	    shift++;
 	Msg_do("sdiff %s\n", PrintKey(KeyRshift(diff, shift)));
 	Msg_do("effective radix %d bits for cycle %d\n", TOPBIT-shift, decompp->cycle);
@@ -217,7 +216,7 @@ SetupDecomp(sortresult_t *decompp,
     int counter = 0;
     Msgf(("%s\n", PrintKey(getkey(data))));
     for (char *b = data; b < data + nobj * size; b += size) {
-	keyden[KeyAndInt(KeyRshift(KeySub(getkey(b), base), shift), mask)] += weight(b);
+	keyden[KeyAndInt(KeySub(KeyRshift(getkey(b), shift), KeyRshift(base, shift)), mask)] += weight(b);
 	if (counter++ % 100000 == 0) Msgf(("%s\n", PrintKey(KeyRshift(KeySub(getkey(b), base), shift))));
     }
     StartTimer(&DecompCommTm);
@@ -261,14 +260,17 @@ SetupDecomp(sortresult_t *decompp,
 	    over = 0.9f;
 	}
 	int jx = (1.0f + 0.5f/(1 << extra_precision) - over) * (1 << extra_precision);
-	if (jx < (1 << extra_precision)) {
+	if (decompp->cycle == 0 && jx < (1 << extra_precision)) {
 	    int jj = (j << extra_precision) | jx;
-	    decomptab[i] = KeyAdd(KeyLshift(KeyInt(jj), shift-extra_precision), base);
+	    decomptab[i] = KeyLshift(KeyAdd(KeyInt(jj), KeyRshift(base, shift-extra_precision)), shift-extra_precision);
+	    if (i == MPMY_Procnum()) Msg_do("extra_precision jx %d\n", jx);
 	} else {
-	    decomptab[i] = KeyAdd(KeyLshift(KeyInt(j+1), shift), base);
+	    decomptab[i] = KeyLshift(KeyAdd(KeyInt(j+1), KeyRshift(base, shift)), shift);
 	}
 	if (i == MPMY_Procnum()) {
-	    Msg_do("over%d is %g\n", decompp->cycle, over);
+	    Msg_do("over%d is %g j %d\n", decompp->cycle, over, j);
+	    Msg_do("   base[%d] %s\n", i, PrintKey(base));
+	    Msg_do("   diff[%d] %s\n", i, PrintKey(KeyLshift(KeyInt(j+1), shift)));
 	    Msgf(("[%5d] %s\n", i, PrintKey(decomptab[i])));
 	}
 	if (decompp->log && decompp->cycle == 0 && MPMY_Procnum() == 0) fprintf(logfp, "%5d %s %d %g\n", i, PrintKey(decomptab[i]), j+1, fac * keyden[j]);
