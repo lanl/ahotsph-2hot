@@ -189,7 +189,7 @@ FreeTree(tree_t *tp)
     ChnTerminate(&tp->hcellchn);
 }
 
-static void
+void
 LoadSharedNode(tree_t *tp, Key_t key, hcell_type type, void *ptr)
 {
     /* load a new node in the tree and fill in empty parent cells */
@@ -303,7 +303,7 @@ void exch_bounds(int ndim, Key_t hikey, Key_t lokey, Key_t *hiboundp, Key_t *lob
     }
 }
 
-static void
+void
 make_tree(tree_t *tp)
 {
     void *bp;
@@ -482,7 +482,7 @@ make_tree(tree_t *tp)
 
 static Stk brstk;
 
-static int
+int
 FindBranches(tree_t *tp, hcell *hp)
 {
     int sz;
@@ -533,7 +533,7 @@ CofmPre(tree_t *tp,hcell *hp)
     }
 }
 
-static void
+void
 CofmPost(tree_t *tp, hcell *hp, hcell *daughters[])
 {
     int i;
@@ -556,7 +556,7 @@ CofmPost(tree_t *tp, hcell *hp, hcell *daughters[])
     }
 }
 
-static void
+void
 DoSharedCells(tree_t *tp)
 {
     typedef struct {Key_t lo; Key_t hi; int nbytes;} sbuf;

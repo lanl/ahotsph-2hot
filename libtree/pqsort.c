@@ -155,7 +155,7 @@ void *pqsort(sortresult_t *decompp,
     assert(nsendarr[MPMY_Procnum()] == nkeep);
     StartTimer(&PQSortWaitTm);
     Msgf(("Before Combine:\n"));
-    MPMY_Combine(nsendarr, nsendarr, MPMY_Nproc(), MPMY_INT, MPMY_SUM);
+    Native_MPMY_Combine(nsendarr, nsendarr, MPMY_Nproc(), MPMY_INT, MPMY_SUM);
     Msgf(("After combine:\n"));
     StopTimer(&PQSortWaitTm);
 
@@ -220,11 +220,10 @@ void *pqsort(sortresult_t *decompp,
     StartTimer(&PQSortCommTm);
     nrecvarr = Calloc(MPMY_Nproc(), sizeof(int));
     StartTimer(&PQSortWaitTm);
-    MPMY_Sync();
-    StopTimer(&PQSortWaitTm);
     StartTimer(&PQSortAtoaTm);
     Native_MPMY_Alltoall(nsendarr, 1, MPMY_INT, nrecvarr, 1, MPMY_INT);
     StopTimer(&PQSortAtoaTm);
+    StopTimer(&PQSortWaitTm);
 
     outstart = aux;
     instart = data + nkeep*size;
@@ -259,22 +258,15 @@ void *pqsort(sortresult_t *decompp,
     AddCounter(&PQSortMaxn, maxn);
 
     Msgf(("Before Alltoallv:\n"));
-    StartTimer(&PQSortWaitTm);
-    MPMY_Sync();
-    StopTimer(&PQSortWaitTm);
     StartTimer(&PQSortAtoavTm);
-
 #if 1
     Native_MPMY_Alltoallv(outstart, nsendarr, sendoffsets, MPMY_INT, 
-		   instart, nrecvarr, recvoffsets, MPMY_INT);
+			  instart, nrecvarr, recvoffsets, MPMY_INT);
 #else
     MPMY_Alltoallv_simple(outstart, nsendarr, sendoffsets, MPMY_INT, 
 			  instart, nrecvarr, recvoffsets, MPMY_INT);
 #endif
     StopTimer(&PQSortAtoavTm);
-    StartTimer(&PQSortWaitTm);
-    MPMY_Sync();
-    StopTimer(&PQSortWaitTm);
     Msgf(("After Alltoallv:\n"));
     StopTimer(&PQSortCommTm);
 #ifdef EXPENSIVE_ASSERTIONS
