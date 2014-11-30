@@ -37,7 +37,7 @@ Timer_t PQSortAtoavTm;
 Timer_t SortTm;
 Counter_t PQSortSends, PQSortRecvs, PQSortMaxn;
 
-struct sortpair{
+struct sortpair {
     int sortkey;
     void *p;
 };
@@ -46,6 +46,23 @@ static int cmpsort(const void *k1, const void *k2);
 static Key_t (*getkey_s)(const void *);
 
 #define SORT_TAG 4326
+
+#define pswap(a, b, sz) do {    \
+	char _c[sz]; \
+	memcpy((void *)&_c, (void *)(a), sz);	\
+	memcpy((void *)(a), (void *)(b), sz);	\
+	memcpy((void *)(b), (void *)&_c, sz);	\
+    } while (0)
+
+Key_t keyptr(const void *ptr) {
+    Key_t k = *(Key_t *)ptr;
+#if NK==2
+    k.k[1] &= (1 << (KEYBITS-sizeof(_KTYPE)*8)) - 1;
+#else
+    k.k[0] &= (1 << KEYBITS) -1;
+#endif
+    return k;
+}
 
 void pqsortsetup(sortresult_t *decompp, void *bp, int nobj, 
 		int size, float median_tol,
@@ -138,7 +155,7 @@ void *pqsort(sortresult_t *decompp,
     assert(nsendarr[MPMY_Procnum()] == nkeep);
     StartTimer(&PQSortWaitTm);
     Msgf(("Before Combine:\n"));
-    MPMY_Combine(nsendarr, nsendarr, MPMY_Nproc(), MPMY_INT, MPMY_SUM);
+    Native_MPMY_Combine(nsendarr, nsendarr, MPMY_Nproc(), MPMY_INT, MPMY_SUM);
     Msgf(("After combine:\n"));
     StopTimer(&PQSortWaitTm);
 
@@ -203,11 +220,10 @@ void *pqsort(sortresult_t *decompp,
     StartTimer(&PQSortCommTm);
     nrecvarr = Calloc(MPMY_Nproc(), sizeof(int));
     StartTimer(&PQSortWaitTm);
-    MPMY_Sync();
-    StopTimer(&PQSortWaitTm);
     StartTimer(&PQSortAtoaTm);
     Native_MPMY_Alltoall(nsendarr, 1, MPMY_INT, nrecvarr, 1, MPMY_INT);
     StopTimer(&PQSortAtoaTm);
+    StopTimer(&PQSortWaitTm);
 
     outstart = aux;
     instart = data + nkeep*size;
@@ -242,21 +258,15 @@ void *pqsort(sortresult_t *decompp,
     AddCounter(&PQSortMaxn, maxn);
 
     Msgf(("Before Alltoallv:\n"));
-    StartTimer(&PQSortWaitTm);
-    MPMY_Sync();
-    StopTimer(&PQSortWaitTm);
     StartTimer(&PQSortAtoavTm);
-#if 0
-    MPMY_Alltoallv(outstart, nsendarr, sendoffsets, MPMY_INT, 
-		   instart, nrecvarr, recvoffsets, MPMY_INT);
+#if 1
+    Native_MPMY_Alltoallv(outstart, nsendarr, sendoffsets, MPMY_INT, 
+			  instart, nrecvarr, recvoffsets, MPMY_INT);
 #else
     MPMY_Alltoallv_simple(outstart, nsendarr, sendoffsets, MPMY_INT, 
 			  instart, nrecvarr, recvoffsets, MPMY_INT);
 #endif
     StopTimer(&PQSortAtoavTm);
-    StartTimer(&PQSortWaitTm);
-    MPMY_Sync();
-    StopTimer(&PQSortWaitTm);
     Msgf(("After Alltoallv:\n"));
     StopTimer(&PQSortCommTm);
 #ifdef EXPENSIVE_ASSERTIONS
@@ -291,8 +301,60 @@ void *pqsort(sortresult_t *decompp,
     } else {
 	StartTimer(&SortTm);
 	/* Only need to sort on the final cycle */
-	if (decompp->cycle == decompp->decomp_cycles-1)
+	if (decompp->cycle == decompp->decomp_cycles-1) {
+#if 1
+	    /* Permutation no faster on Titan/Opterons, but wins on Eos/Intel */
 	    rsort(decompp->data, decompp->nobj, decompp->size, 12, KEYBITS-1, getkey);
+#else
+	    /* Make an index array, sort it, and then permute the data array */
+	    /* This saves a bunch of getkey calls inside rsort */
+	    /* It also reduces the amount of data moving around inside rsort */
+	    int n = decompp->nobj;
+	    int sz = decompp->size;
+	    Key_t *kindex = Malloc(n * sizeof(Key_t));
+	    char *ddata = (char *)decompp->data;
+	    for (int i = 0; i < n; i++) {
+		/* Stuff the index into the empty high bits of the Key */
+		/* this will break if KEYBITS + ilog2(n) overflows the key */
+		/* need to mask in keyptr() or isort part of rsort will fail */
+		kindex[i] = KeyOr(getkey(ddata + i * sz), KeyLshift(KeyInt(i), KEYBITS));
+	    }
+	    rsort(kindex, n, sizeof(Key_t), 12, KEYBITS-1, keyptr);
+	    /* Take indices out of key array, throw rest away */
+	    int *permute = Malloc(n * sizeof(int));
+	    for (int i = 0; i < n; i++) {
+		permute[i] = KeyAndInt(KeyRshift(kindex[i], KEYBITS), (1<<30)-1);
+	    }
+	    Free(kindex);
+	    /* helpful hint from http://stackoverflow.com/questions/7365814/in-place-array-reordering */
+	    for (int i = 0; i < n; i++) {
+		char tmp[sz];
+		memcpy(tmp, ddata + i * sz, sz);
+		int j = i;
+		while (1) {
+		    int k = permute[j];
+		    permute[j] = j;
+		    if (i == k) break;
+		    memcpy(ddata + j * sz, ddata + k * sz, sz);
+		    j = k;
+		}
+		memcpy(ddata + j * sz, tmp, sz);
+	    }
+	    Free(permute);
+#endif
+#if 0
+	    /* DEBUG */
+	    for (i = 0; i < decompp->nobj-1; i++) {
+		char *ddata = decompp->data;
+		int sz = decompp->size;
+		if (KeyGT(getkey(ddata + i * sz), getkey(ddata + (i + 1) * sz))) {
+		    Msg_do("%s\n", PrintKey(getkey(ddata + i * sz)));
+		    Msg_do("%s\n", PrintKey(getkey(ddata + (i + 1) * sz)));
+		    Error("Not sorted at element %d %s\n", i, PrintKey(getkey(ddata + i * sz)));
+		}
+	    }
+#endif
+	}
 	/* qsort(decompp->data, decompp->nobj, decompp->size, cmpkey); */
 	StopTimer(&SortTm);
 	Msgf(("first key is %s, ",  PrintKey(getkey(decompp->data))));

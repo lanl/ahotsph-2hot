@@ -222,7 +222,12 @@ static void
 alrm_hndlr(int sig)
 {
     /* Should this be Shout followed by MPMY_RaiseAbnormal()?? */
-    Error("Exceeded timeout (%d sec)\n", nt);
+    if (MPMY_Procnum() % 1000 == 0) { /* throttle output on large partitions */
+	Error("Exceeded timeout (%d sec)\n", nt);
+    } else {
+	Shout("Exceeded timeout (%d sec)\n", nt);
+	exit(1);
+    }
 }
 
 void

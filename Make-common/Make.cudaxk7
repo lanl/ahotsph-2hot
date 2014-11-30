@@ -26,3 +26,8 @@ LOADLIBES:=-L$(MPICH_DIR)/lib -lmpich
 PAROSCFLAGS:=-I$(MPICH_DIR)/include
 endif
 
+ifeq ($(PAROS),mpi7)
+MPI=/opt/cray/mpt/7.0.4/gni/mpich2-gnu/48
+LOADLIBES:=-L$(MPI)/lib -lmpich
+PAROSCFLAGS:=-I$(MPI)/include
+endif
