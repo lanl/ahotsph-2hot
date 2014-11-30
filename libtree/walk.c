@@ -236,6 +236,10 @@ walkv(void *sink, const Stk *parent_unacc, const Stk *parent_flags,
 		    StkPushType(deferred, key, Key_t);
 		    StkPushType(deferred_flags, flags_vec[i], int);
 		    IncrCounter(&DeferCnt);
+		    if (DeferCnt.counter > 3000000) {
+			SeriousWarning("Defer count is very large\n");
+			DeferCnt.counter = 0;
+		    }
 		    if ((type & REQUESTED) == 0) {
 			Type(pp_vec[i]) |= REQUESTED;
 			IncrCounter(&RequestCnt);
@@ -351,7 +355,7 @@ static void Walkbody(int commonlev, int bodylev){
 		    StkPushType(defto, key, Key_t);
 		    StkPushType(defto_flags, flags_vec[i], int);
 		    IncrCounter(&DeferCnt);
-		    if (DeferCnt.counter > 10000000) {
+		    if (DeferCnt.counter > 3000000) {
 			SeriousWarning("Defer count is very large\n");
 			DeferCnt.counter = 0;
 		    }
