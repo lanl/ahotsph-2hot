@@ -285,7 +285,7 @@ SetupDecomp(sortresult_t *decompp,
 	Msgf(("[%5d] %s\n", proc0+nproc-1, PrintKey(decomptab[proc0+nproc-1])));
 
     Free(keyden);
-    assert(MPMY_Nproc() < MAXNPROC);
+    assert(MPMY_Nproc() <= MAXNPROC);
 
     if (decompp->cycle == decompp->decomp_cycles-1) {
 	Key_t my_end = decomptab[MPMY_Procnum()];
@@ -385,7 +385,7 @@ SetupDecomp1(sortresult_t *decompp,
     nin /= sizeof(Key_t);
     StkTerminate(&ostk);
 
-    assert(MPMY_Nproc() < MAXNPROC);
+    assert(MPMY_Nproc() <= MAXNPROC);
 #ifdef SHOW_WGTS
     decomp_wgt = Calloc(MPMY_Nproc(), sizeof(float));
 #endif
