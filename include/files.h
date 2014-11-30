@@ -11,6 +11,7 @@ int fexists_and_unlink(const char *name);
 int ForceCheckpoint(void);
 int ForceOutput(void);
 int ForceStop(void);
+int ForceDie(void);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

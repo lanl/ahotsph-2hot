@@ -57,3 +57,9 @@ ForceStop(void)
 {
     return fexists_and_unlink("_ForceStop_");
 }
+
+int
+ForceDie(void)
+{
+    return fexists_and_unlink("_ForceDie_");
+}
