@@ -256,7 +256,7 @@ SetupDecomp(sortresult_t *decompp,
 	while (fac * keyden[j] < i + 1 - proc0 && j < radix) j++;
 	float over = fac * keyden[j] - (i + 1 - proc0);
 	if (over > 0.9f) {
-	    Warning("decomp more than 90%% over target\n");
+	    Msg_do("decomp more than 90%% over target\n");
 	    over = 0.9f;
 	}
 	int jx = (1.0f + 0.5f/(1 << extra_precision) - over) * (1 << extra_precision);
