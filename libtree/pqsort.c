@@ -259,7 +259,7 @@ void *pqsort(sortresult_t *decompp,
 
     Msgf(("Before Alltoallv:\n"));
     StartTimer(&PQSortAtoavTm);
-#if 1
+#if 0
     Native_MPMY_Alltoallv(outstart, nsendarr, sendoffsets, MPMY_INT, 
 			  instart, nrecvarr, recvoffsets, MPMY_INT);
 #else
