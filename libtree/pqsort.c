@@ -301,7 +301,7 @@ void *pqsort(sortresult_t *decompp,
     } else {
 	StartTimer(&SortTm);
 	/* Only need to sort on the final cycle */
-	if (decompp->cycles == 0 || decompp->cycle == decompp->decomp_cycles-1) {
+	if (decompp->decomp_cycles == 0 || decompp->cycle == decompp->decomp_cycles-1) {
 #if 1
 	    /* Permutation no faster on Titan/Opterons, but wins on Eos/Intel */
 	    rsort(decompp->data, decompp->nobj, decompp->size, 12, KEYBITS-1, getkey);
