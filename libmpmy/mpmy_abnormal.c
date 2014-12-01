@@ -221,11 +221,13 @@ static int nt;
 static void
 alrm_hndlr(int sig)
 {
+    char hostname[128];
+    gethostname(hostname, sizeof(hostname));
     /* Should this be Shout followed by MPMY_RaiseAbnormal()?? */
     if (MPMY_Procnum() % 1000 == 0) { /* throttle output on large partitions */
-	Error("Exceeded timeout (%d sec)\n", nt);
+	Error("Exceeded timeout (%d sec) on %s\n", nt, hostname);
     } else {
-	Shout("Exceeded timeout (%d sec)\n", nt);
+	Shout("Exceeded timeout (%d sec) on %s\n", nt, hostname);
 	exit(1);
     }
 }
