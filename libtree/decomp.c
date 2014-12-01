@@ -287,7 +287,7 @@ SetupDecomp(sortresult_t *decompp,
     Free(keyden);
     assert(MPMY_Nproc() <= MAXNPROC);
 
-    if (decompp->cycles == 0 || decompp->cycle == decompp->decomp_cycles-1) {
+    if (decompp->decomp_cycles == 0 || decompp->cycle == decompp->decomp_cycles-1) {
 	Key_t my_end = decomptab[MPMY_Procnum()];
 	StartTimer(&DecompCommTm);
 	Native_MPMY_Allgather(&my_end, sizeof(decomptab[0]), MPMY_CHAR, decomptab);
