@@ -37,7 +37,7 @@ void SWError(const char * mesg, ...)
 	MPMY_SystemAbort();	/* errors within errors.  A very bad sign */
 
     va_start(alist, mesg);
-    fprintf(stderr, "ERROR: Node %d (%s) ", MPMY_Procnum(), MPMY_Physnode());
+    fprintf(stderr, "ERROR: Proc %d (%s) ", MPMY_Procnum(), MPMY_Physnode());
     vfprintf(stderr, mesg, alist);
     fflush(stderr);
     va_end(alist);
@@ -58,7 +58,7 @@ void vError(const char * mesg, va_list alist)
     if( recursion++ )
 	MPMY_SystemAbort();	/* errors within errors.  A very bad sign */
 
-    fprintf(stderr, "ERROR: Node %d (%s) ", MPMY_Procnum(), MPMY_Physnode());
+    fprintf(stderr, "ERROR: Proc %d (%s) ", MPMY_Procnum(), MPMY_Physnode());
     vfprintf(stderr, mesg, alist);
     fflush(stderr);
 
@@ -145,7 +145,7 @@ SeriousWarning(const char *mesg, ...)
     }
     va_start(alist, mesg);
     /* These should be put together so they are written atomically */
-    fprintf(stderr, "WARNING: Node %d ", MPMY_Procnum());
+    fprintf(stderr, "WARNING: Proc %d ", MPMY_Procnum());
     vfprintf(stderr, mesg, alist);
     fflush(stderr);
     va_end(alist);
