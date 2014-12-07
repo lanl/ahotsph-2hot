@@ -441,9 +441,15 @@ make_tree(tree_t *tp)
 			PrintKey(bkey));
 		Msg_do("parent = %s, using slot %d\n",
 		       hcellPrint(parent), emptysub);
-		if( emptysub > nsub1 )
-		    Error("Totally out of bits!\n");
 		ckey = KeyOrInt(KeyAndNotInt(bkey, nsub1) , emptysub);
+		if (emptysub > nsub1) {
+		    SeriousWarning("Totally out of bits!\n");
+		    /* last ditch effort */
+		    ckey = bkey;
+		    while (Find(tp, ckey)) {
+			ckey = KeySub(ckey, KeyInt(1));
+		    }
+		}
 		break;
 	    }
 
