@@ -447,7 +447,7 @@ make_tree(tree_t *tp)
 		    /* last ditch effort */
 		    ckey = bkey;
 		    while (Find(tp, ckey)) {
-			ckey = KeyAddInt(ckey, 1);
+			ckey = KeySub(ckey, KeyInt(1));
 		    }
 		}
 		break;
