@@ -255,7 +255,10 @@ SetupDecomp(sortresult_t *decompp,
     for (int i = proc0; i < proc0+nproc-1; i++) {
 	while (fac * keyden[j] < i + 1 - proc0 && j < radix) j++;
 	float over = fac * keyden[j] - (i + 1 - proc0);
-	if (over > 0.9f) over = 0.9f;
+	if (over > 0.9f) {
+	    Msg_do("decomp more than 90%% over target\n");
+	    over = 0.9f;
+	}
 	int jx = (1.0f + 0.5f/(1 << extra_precision) - over) * (1 << extra_precision);
 	if (decompp->cycle == 0 && jx < (1 << extra_precision)) {
 	    int jj = (j << extra_precision) | jx;
