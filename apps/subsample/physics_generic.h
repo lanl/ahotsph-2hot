@@ -1,0 +1,63 @@
+#ifndef _PhysicsDOTh
+#define _PhysicsDOTh
+#include "key.h"
+
+#ifndef NDIM
+ # error You must define NDIM before including physics.h
+#endif
+
+/* from physics.c (generic) */
+#ifdef __cplusplus
+extern "C"{
+#endif /* __cplusplus */
+void FindBbox(body *bp, int n, float *rmin, float *rmax);
+float FixRsize(float *rmin, float *rmax);
+float FixRsizeExact(float *rmin, float *rmax);
+void CellCorner(Key_t key, float *corner, float *size);
+void CellCornerPH(Key_t key, float *corner, float *size);
+Key_t GetKey(const body *p);
+Key_t GetKeyFast(const body *p);
+Key_t GetKeyFastOut(const outbody *p);
+Key_t GetKeyLong(const body *p);
+Key_t GetKeyPH(const body *p);	/* peano-hilbert key */
+float GetCost(const body *p);
+float UnityCost(const void *p);
+
+#ifdef BODY_HAS_KEY
+Key_t GetKeyFromStruct(const body *p);
+void FixKeys(body *btab, int64_t nobj, Key_t (*func)(const body *));
+#endif
+
+#ifdef HAS_IDENT
+Key_t OutIdentKey(const outbody *outb);
+void FixId(body *btab, int nobj, int64_t gnobj);
+#endif
+
+#ifdef HAS_NTERMS
+void FixNterms(body *btab, int nobj);
+#endif
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+/* CHUBITS is the number of bits per-dimension in the key */
+#define CHUBITS ((KEYBITS-1)/NDIM)
+#define MAXCHU ((long long)1<<CHUBITS)
+
+/* Should go somewhere else */
+#define Square(x) ({ __typeof__ (x) _x = (x); _x*_x; })
+#define pow2(x) ({ __typeof__ (x) _x = (x); _x*_x; })
+#define pow3(x) ({ __typeof__ (x) _x = (x); _x*_x*_x; })
+
+#define Max(a,b) \
+    ({ __typeof__ (a) _a = (a); \
+    __typeof__ (b) _b = (b); \
+    _a > _b ? _a : _b; })
+
+#define Min(a,b) \
+    ({ __typeof__ (a) _a = (a); \
+    __typeof__ (b) _b = (b); \
+    _a < _b ? _a : _b; })
+
+#endif
