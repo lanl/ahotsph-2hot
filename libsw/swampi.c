@@ -15,7 +15,7 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <sys/ioctl.h>
-#if defined(__SUN4__) || defined(__SUN5__) || defined(linux)
+#if defined(__SUN4__) || defined(__SUN5__) || defined(__linux__)
 /* SunOS hides TCP_NODELAY and TCP_MAXSEG in netinet/tcp.h */
 #include <netinet/tcp.h>
 #endif
