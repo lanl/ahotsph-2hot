@@ -85,14 +85,14 @@ extern void *StkTop(const struct stk *s);
 /* StkClear is equivalent to StkPop(s, StkSz(s)), but it returns void */
 extern void StkClear(struct stk *s);
 
-/* StkCrunch realloc's the stack so it doesn't use any more space */
-/* than necessary.  Use it if you know you've reached the high-water-mark */
-extern void *StkCrunch(struct stk *s);
-
 /* Discover the alignment of a given stack.  I.e., how would it  */
 extern int StkAlign(const struct stk *s, unsigned int nbytes);
 
 #endif
+
+/* StkCrunch realloc's the stack so it doesn't use any more space */
+/* than necessary.  Use it if you know you've reached the high-water-mark */
+extern void *StkCrunch(struct stk *s);
 
 #ifdef __cplusplus
 }
