@@ -1,8 +1,9 @@
 defaultCC:=gcc
+defaultFC:=gfortran
 
-CC_SPECIFIC:=-g -Wall -std=c99 -D_XOPEN_SOURCE=500
-ARCH_SPECIFIC:=-march=corei7-avx -DSTK_FORCE_ALIGNMENT=4 -D_FILE_OFFSET_BITS=64 -DUSE_SYSTEM_MALLOC -DUSE_MPIIO -DUSE_HWCLOCK -DPROCS_PER_NODE=16
-OPTIMIZE=-O2
+CC_SPECIFIC:=-g -Wall -std=c99 -D_XOPEN_SOURCE=500 -D_GNU_SOURCE
+ARCH_SPECIFIC:=-march=native -DSTK_FORCE_ALIGNMENT=4 -D_FILE_OFFSET_BITS=64 -DUSE_SYSTEM_MALLOC -DUSE_MPIIO -DUSE_HWCLOCK -DPROCS_PER_NODE=16
+override OPTIMIZE=-O2
 AGGRESSIVE_OPT=-Ofast
 LDFLAGS=-g
 LEX:=flex
@@ -15,10 +16,10 @@ asmdir:=asm-sse
 asmsrc=do_grav_sse64_noswiz.s do_grav_sse64_noswiz_eps.s do_grav_sse64_nr.s
 cppasmsrc=do_grav_sse16_ivec.S
 
-LOADLIBES=-lclass -lrt
+LOADLIBES=-L$(HOT_CLASS) -lclass -lrt
 
 ifeq ($(PAROS),mpi)
-LOADLIBES:=-L$(MPI_ROOT)/lib -L$(MPI_ROOT)/lib64 -lclass -lmpi -lslurm
+LOADLIBES:=-L$(HOT_CLASS) -L$(MPI_ROOT)/lib -L$(MPI_ROOT)/lib64 -lclass -lmpi -lslurm
 PAROSCFLAGS:=-I$(MPI_ROOT)/include
 endif
 

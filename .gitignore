@@ -10,3 +10,8 @@ Objfiles
 *.native-mpi
 version.proto
 version.c
+devel
+nln
+sph+nln
+wvt
+snsph
