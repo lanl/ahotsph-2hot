@@ -1,6 +1,0 @@
-[submodule "nln"]
-	path = nln
-	url = git@github.com:mswarren/2HOT_nln.git
-[submodule "scripts"]
-	path = scripts
-	url = git@github.com:mswarren/2HOT_scripts.git
