@@ -35,6 +35,8 @@ check_c_compiler_flag("-std=c99" HAVE_C99)
 # TODO: Figure out how to set PROCS_PER_NODE
 # option(PROCS_PER_NODE "Processors Per Node" 16)
 SET(PROCS_PER_NODE 16)
+# TODO: Figuer out if we care about ARCH outside of version.c
+SET(CONFIG_ARCH "cmake")
 # TODO: Add params for each flag we want to set at cmake time
 # COMMENT: Do we even care? It sounds like all inputs were machine specific (CMake will find libraries) or arch specific (Compiler Tests?)
 
@@ -100,3 +102,6 @@ add_subdirectory(libsw)
 
 # libSDF
 add_subdirectory(libSDF)
+
+# libtree
+add_subdirectory(libtree)
