@@ -165,20 +165,20 @@ floppy: $(tarname).tgz
 
 # clean-clutter will remove the ~ files, the #*#, etc.
 clean-clutter: FORCE
-	rm -f *~ #*# *.bak *.bakk
+	$(RM) *~ #*# *.bak *.bakk
 
 # clean will remove the binary and object files associated with the
 # current ARCH-PAROS pair
 clean: FORCE clean-clutter
-	rm $(bin) $(objdir)/*
+	$(RM) $(bin) $(objdir)/*
 
 # clean-all will attempt to remove all object files in Objfiles/ and
 # all executables in . associated with them.  USE WITH CARE!!
 clean-all: FORCE clean-clutter
 	for dir in `ls Objfiles`; do \
 	  set arch=`basename $$dir`; \
-	  rm -rf Objfiles/$$dir; \
-	  rm -f $(programname).$$dir* ; \
+	  $(RM) -r Objfiles/$$dir; \
+	  $(RM) $(programname).$$dir* ; \
 	done
 
 # Run makedepend, and then massage the Makfile to the symbolic names
