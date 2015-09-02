@@ -11,7 +11,7 @@ ADD_FLEX_BISON_DEPENDENCY(SDFlex SDFparse)
 
 # COMMENT: Baseline added these to libsw. We make a separate library
 # TODO: Verify that the lexer's output is completely ignored
-add_library(libsdf
+add_library(libSDF
     SDF-parse.c 	SDFfuncs.c	SDFget.c	SDFhdrio.c
     # SDF-lex.c
     # ${FLEX_SDFlex_OUTPUTS}
