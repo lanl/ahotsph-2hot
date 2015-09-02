@@ -48,7 +48,7 @@ add_definitions(-DPROCS_PER_NODE=${PROCS_PER_NODE})
 
 
 ########################################################################
-#Find external packages/libraries
+#Find external packages/libraries/binaries
 ########################################################################
 # Find libssl
 # TODO: Do other SSL implementations do libssl?
@@ -64,6 +64,12 @@ find_package(MPI)
 
 # HOT_CLASS Stuff
 find_package(Hotclass REQUIRED)
+
+# Flex
+find_package(FLEX REQUIRED)
+
+# Bison
+find_package(BISON REQUIRED)
 
 ########################################################################
 # Basic system tests (standard libraries, headers, functions, types)   #
@@ -91,3 +97,6 @@ include_directories(include)
 
 # libsw
 add_subdirectory(libsw)
+
+# libSDF
+add_subdirectory(libSDF)
