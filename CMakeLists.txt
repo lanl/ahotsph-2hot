@@ -37,6 +37,8 @@ check_c_compiler_flag("-std=c99" HAVE_C99)
 SET(PROCS_PER_NODE 16)
 # TODO: Figuer out if we care about ARCH outside of version.c
 SET(CONFIG_ARCH "cmake")
+# TODO: Find way to pass in string value
+SET(CONFIG_PAROS "seq")
 # TODO: Add params for each flag we want to set at cmake time
 # COMMENT: Do we even care? It sounds like all inputs were machine specific (CMake will find libraries) or arch specific (Compiler Tests?)
 
@@ -62,7 +64,9 @@ find_package(Libunwind REQUIRED)
 include_directories(${LIBUNWIND_INCLUDE_DIRS})
 
 # Find MPI: Only required if PAROS=mpi
-find_package(MPI)
+if(${CONFIG_PAROS} STREQUAL "mpi")
+    find_package(MPI REQUIRED)
+endif()
 
 # HOT_CLASS Stuff
 find_package(Hotclass REQUIRED)
@@ -76,10 +80,10 @@ find_package(BISON REQUIRED)
 ########################################################################
 # Basic system tests (standard libraries, headers, functions, types)   #
 ########################################################################
+include(CheckLibraryExists)
 # Find libm
 set(MATH_LIBRARIES "m" CACHE STRING "math library")
 mark_as_advanced( MATH_LIBRARIES )
-include(CheckLibraryExists)
 # TODO: Add funcs we need
 foreach(FUNC sqrt)
   check_library_exists(${MATH_LIBRARIES} ${FUNC} "" FOUND_${FUNC}_${MATH_LIBRARIES})
@@ -105,3 +109,6 @@ add_subdirectory(libSDF)
 
 # libtree
 add_subdirectory(libtree)
+
+#libmpmy
+add_subdirectory(libmpmy)
