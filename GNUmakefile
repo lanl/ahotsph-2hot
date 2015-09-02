@@ -28,7 +28,7 @@ Depends :
 	for dir in $(subdirs); do (cd $$dir; $(MAKE) depends); done
 
 Clean : 
-	rm $(objdir)/*
+	$(RM) $(objdir)/*
 	for dir in $(subdirs); do (cd $$dir; $(MAKE) clean); done
 
 .PHONY: version.proto
