@@ -177,10 +177,10 @@ ENDIF()
 
 # sph+nln driver
 IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/sph+nln)
-	message(STATUS "sph driver enabled")
+	message(STATUS "sph+nln driver enabled")
 
 	# sph+nln driver
-	add_executable(sph
+	add_executable(sph+nln
 		${CMAKE_SOURCE_DIR}/sph+nln/cofm.c ${CMAKE_SOURCE_DIR}/sph+nln/eos.c
 		${CMAKE_SOURCE_DIR}/sph+nln/grav.c ${CMAKE_SOURCE_DIR}/sph+nln/mac.c
 		${CMAKE_SOURCE_DIR}/sph+nln/main.c
@@ -195,10 +195,39 @@ IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/sph+nln)
 		${CMAKE_SOURCE_DIR}/sph+nln/sphplus.c ${CMAKE_SOURCE_DIR}/sph+nln/wind.c
 	)
 
-	target_link_libraries(sph
+	target_link_libraries(sph+nln
 		libsw libtree libSDF libmpmy
 		${LIBUNWIND_LIBRARIES} ${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
 		-ldl -lm -lrt
 	)
+ENDIF()
 
+# snsph driver
+IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/snsph)
+	message(STATUS "snsph driver enabled")
+
+	# TODO: What does -mp1 do and should it be an FFLAG?
+
+	# sph+nln driver
+	add_executable(snsph
+		${CMAKE_SOURCE_DIR}/snsph/cofm.c ${CMAKE_SOURCE_DIR}/snsph/grav.c
+		${CMAKE_SOURCE_DIR}/snsph/mac.c ${CMAKE_SOURCE_DIR}/snsph/main.c
+		${CMAKE_SOURCE_DIR}/snsph/physics.c
+		${CMAKE_SOURCE_DIR}/snsph/print.c ${CMAKE_SOURCE_DIR}/snsph/integrate.c
+		${CMAKE_SOURCE_DIR}/snsph/sphcofm.c
+		${CMAKE_SOURCE_DIR}/snsph/sph.c ${CMAKE_SOURCE_DIR}/snsph/sphinit.c
+		${CMAKE_SOURCE_DIR}/snsph/physics_sph.c
+		${CMAKE_SOURCE_DIR}/snsph/shrink.c
+		${CMAKE_SOURCE_DIR}/snsph/sphprint.c
+		${CMAKE_SOURCE_DIR}/snsph/sphplus.c ${CMAKE_SOURCE_DIR}/snsph/sn.c
+		${CMAKE_SOURCE_DIR}/snsph/eos3.f ${CMAKE_SOURCE_DIR}/snsph/sleos.f
+		${CMAKE_SOURCE_DIR}/snsph/nse4d.f ${CMAKE_SOURCE_DIR}/snsph/ocean.f
+		${CMAKE_SOURCE_DIR}/snsph/eosgen.f
+	)
+
+	target_link_libraries(snsph
+		libsw libtree libSDF libmpmy
+		${LIBUNWIND_LIBRARIES} ${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
+		-ldl -lm -lrt
+	)
 ENDIF()
