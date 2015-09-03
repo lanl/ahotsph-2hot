@@ -231,3 +231,28 @@ IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/snsph)
 		-ldl -lm -lrt
 	)
 ENDIF()
+
+# interp_cylgrid driver/utility
+IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/wvt)
+	message(STATUS "interp_cylgrid driver/utility enabled")
+
+	# interp_cylgrid driver
+	add_executable(interp_cylgrid
+		${CMAKE_SOURCE_DIR}/wvt/
+		${CMAKE_SOURCE_DIR}/wvt/grav.c ${CMAKE_SOURCE_DIR}/wvt/interp_cylgrid.c
+		${CMAKE_SOURCE_DIR}/wvt/mac.c ${CMAKE_SOURCE_DIR}/wvt/physics.c
+		${CMAKE_SOURCE_DIR}/wvt/physics_sph.c
+		${CMAKE_SOURCE_DIR}/wvt/sphcofm.c ${CMAKE_SOURCE_DIR}/wvt/sphinit.c
+		${CMAKE_SOURCE_DIR}/wvt/sph.c ${CMAKE_SOURCE_DIR}/wvt/sphprint.c
+		${CMAKE_SOURCE_DIR}/wvt/sphplus.c
+		${CMAKE_SOURCE_DIR}/wvt/ghosts.c ${CMAKE_SOURCE_DIR}/wvt/com.c
+		${CMAKE_SOURCE_DIR}/wvt/ranlib.c ${CMAKE_SOURCE_DIR}/wvt/wvt.c
+		${CMAKE_SOURCE_DIR}/wvt/polint.c ${CMAKE_SOURCE_DIR}/wvt/initial.c
+	)
+
+	target_link_libraries(interp_cylgrid
+		libsw libtree libSDF libmpmy
+		${LIBUNWIND_LIBRARIES} ${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
+		-ldl -lm -lrt
+	)
+ENDIF()
