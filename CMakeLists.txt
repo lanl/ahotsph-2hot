@@ -41,7 +41,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native")
 # TODO: Check each flag we use
 
 ########################################################################
-# User input options												   #
+# User input options                                                   #
 ########################################################################
 # option(PROCS_PER_NODE "Processors Per Node" 16)
 SET(PROCS_PER_NODE "16" CACHE STRING "Number of
@@ -70,7 +70,7 @@ add_definitions(-DPROCS_PER_NODE=${PROCS_PER_NODE})
 
 
 ########################################################################
-# Find external packages/libraries/binaries
+# Find external packages/libraries/binaries                            #
 ########################################################################
 # Find libssl
 # TODO: Do other SSL implementations do libssl?
@@ -96,8 +96,7 @@ find_package(FLEX REQUIRED)
 find_package(BISON REQUIRED)
 
 ########################################################################
-# Basic system tests (standard libraries,
-# headers, functions, types)   #
+# Basic system tests (standard libraries, headers, functions, types)   #
 ########################################################################
 include(CheckLibraryExists)
 # Find libm
@@ -135,39 +134,43 @@ add_subdirectory(libSDF)
 # libtree
 add_subdirectory(libtree)
 
-#libmpmy
+# libmpmy
 add_subdirectory(libmpmy)
 
-#nln driver
-#NLN driver's Version.c
-add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/version.c
-	COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/genNLNVersion.sh" "${CONFIG_ARCH}" "${CMAKE_CURRENT_BINARY_DIR}/version.c"
-	COMMENT "Generating version.c for nln ..."
-)
+# nln driver
+IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/nln)
+	message(STATUS "nlna driver enabled")
 
+	# nln driver's Version.c
+	file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/nln)
+	add_custom_command(
+		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/nln/version.c
+		COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/genNLNVersion.sh" "${CONFIG_ARCH}" "${CMAKE_CURRENT_BINARY_DIR}/nln/version.c"
+		COMMENT "Generating version.c for nln ..."
+	)
 
+	# nlna driver
+	add_executable(nlna
+		${CMAKE_SOURCE_DIR}/nln/cofm.c
+		${CMAKE_SOURCE_DIR}/nln/grav.c
+		${CMAKE_SOURCE_DIR}/nln/mac.c
+		${CMAKE_SOURCE_DIR}/nln/main.c
+		${CMAKE_SOURCE_DIR}/nln/physics.c
+		${CMAKE_SOURCE_DIR}/nln/print.c
+		${CMAKE_SOURCE_DIR}/nln/output.c
+		${CMAKE_SOURCE_DIR}/nln/integrate.c
+		${CMAKE_SOURCE_DIR}/nln/ewald_le2.c
+		${CMAKE_SOURCE_DIR}/nln/do_grav_sse4.c
+		${CMAKE_SOURCE_DIR}/nln/do_grav_avx8.c
+		${CMAKE_SOURCE_DIR}/nln/pgrav_vec.c
+		${CMAKE_SOURCE_DIR}/nln/ewald.c
+		${CMAKE_SOURCE_DIR}/nln/grav_n2.c
+		${CMAKE_BINARY_DIR}/nln/version.c
+	)
 
-add_executable(nlna
-	${CMAKE_SOURCE_DIR}/nln/cofm.c
-	${CMAKE_SOURCE_DIR}/nln/grav.c
-	${CMAKE_SOURCE_DIR}/nln/mac.c
-	${CMAKE_SOURCE_DIR}/nln/main.c
-	${CMAKE_SOURCE_DIR}/nln/physics.c
-	${CMAKE_SOURCE_DIR}/nln/print.c
-	${CMAKE_SOURCE_DIR}/nln/output.c
-	${CMAKE_SOURCE_DIR}/nln/integrate.c
-	${CMAKE_SOURCE_DIR}/nln/ewald_le2.c
-	${CMAKE_SOURCE_DIR}/nln/do_grav_sse4.c
-	${CMAKE_SOURCE_DIR}/nln/do_grav_avx8.c
-	${CMAKE_SOURCE_DIR}/nln/pgrav_vec.c
-	${CMAKE_SOURCE_DIR}/nln/ewald.c
-	${CMAKE_SOURCE_DIR}/nln/grav_n2.c
-	${CMAKE_BINARY_DIR}/version.c
-)
-
-target_link_libraries(nlna
-	libsw libtree libSDF libmpmy
-	${LIBUNWIND_LIBRARIES} ${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
-	-ldl -lm -lrt
-)
+	target_link_libraries(nlna
+		libsw libtree libSDF libmpmy
+		${LIBUNWIND_LIBRARIES} ${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
+		-ldl -lm -lrt
+	)
+ENDIF()
