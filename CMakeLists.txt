@@ -174,3 +174,31 @@ IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/nln)
 		-ldl -lm -lrt
 	)
 ENDIF()
+
+# sph+nln driver
+IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/sph+nln)
+	message(STATUS "sph driver enabled")
+
+	# sph+nln driver
+	add_executable(sph
+		${CMAKE_SOURCE_DIR}/sph+nln/cofm.c ${CMAKE_SOURCE_DIR}/sph+nln/eos.c
+		${CMAKE_SOURCE_DIR}/sph+nln/grav.c ${CMAKE_SOURCE_DIR}/sph+nln/mac.c
+		${CMAKE_SOURCE_DIR}/sph+nln/main.c
+		${CMAKE_SOURCE_DIR}/sph+nln/physics.c
+		${CMAKE_SOURCE_DIR}/sph+nln/print.c
+		${CMAKE_SOURCE_DIR}/sph+nln/integrate.c
+		${CMAKE_SOURCE_DIR}/sph+nln/sphcofm.c ${CMAKE_SOURCE_DIR}/sph+nln/sph.c
+		${CMAKE_SOURCE_DIR}/sph+nln/sphinit.c
+		${CMAKE_SOURCE_DIR}/sph+nln/shrink.c
+		${CMAKE_SOURCE_DIR}/sph+nln/physics_sph.c
+		${CMAKE_SOURCE_DIR}/sph+nln/sphprint.c
+		${CMAKE_SOURCE_DIR}/sph+nln/sphplus.c ${CMAKE_SOURCE_DIR}/sph+nln/wind.c
+	)
+
+	target_link_libraries(sph
+		libsw libtree libSDF libmpmy
+		${LIBUNWIND_LIBRARIES} ${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
+		-ldl -lm -lrt
+	)
+
+ENDIF()
