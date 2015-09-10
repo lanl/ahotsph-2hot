@@ -18,3 +18,7 @@ add_library(libsw
     peano.c		SDFreadf.c	hwclock.c
     class_params.c	cosmo_tbl.c
 )
+
+target_link_libraries(libsw
+    libmpmy
+)

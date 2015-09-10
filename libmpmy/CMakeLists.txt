@@ -12,3 +12,9 @@ endif ()
 add_library(libmpmy
      ${LIBMPMY_SOURCES}
 )
+
+if(${CONFIG_PAROS} STREQUAL "mpi")
+    target_link_libraries(libmpmy
+        ${MPI_C_LIBRARIES}
+    )
+endif()

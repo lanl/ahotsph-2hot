@@ -58,14 +58,20 @@ endif()
 ########################################################################
 # User input options                                                   #
 ########################################################################
-# option(PROCS_PER_NODE "Processors Per Node" 16)
-SET(PROCS_PER_NODE "16" CACHE STRING "Number of
-Processors per Node (Integer)")
+SET(PROCS_PER_NODE "16" CACHE STRING "Number of Processors per Node (Integer)")
+
 # TODO: Figure out if we care about ARCH outside of version.c
-SET(CONFIG_ARCH "cmake" CACHE STRING "String
-Representing Architecture/Target Machine")
-SET(CONFIG_PAROS "seq" CACHE STRING "Parallelization
-Scheme")
+SET(CONFIG_ARCH "cmake" CACHE STRING "String Representing Architecture/Target Machine")
+
+SET(CONFIG_PAROS "seq" CACHE STRING "Parallelization Scheme")
+
+SET(CONFIG_MPIIO false CACHE BOOLEAN "Use MPIIO")
+
+SET(CONFIG_USEHWCLK true CACHE BOOLEAN "Use Hardware Clock")
+
+SET(CONFIG_USEGETTIME false CACHE BOOLEAN "Use gettime()")
+
+
 # TODO: Add params for each flag we want to set at cmake time
 # COMMENT: Do we even care? It sounds like all inputs were machine specific (CMake will find libraries) or arch specific (Compiler Tests?)
 
@@ -77,8 +83,31 @@ add_definitions(-D_XOPEN_SOURCE=500)
 add_definitions(-D_GNU_SOURCE)
 # Specify number of processors per node for libraries
 add_definitions(-DPROCS_PER_NODE=${PROCS_PER_NODE})
-# TODO: Are the rest optimizations or required?
 
+# Set mpmy Variables
+if(CONFIG_USEHWCLK)
+	message(STATUS "Hardware Clock Enabled")
+	add_definitions(-DUSE_HWCLOCK)
+elseif(CONFIG_USEGETTIME)
+	message(STATUS "gettime() based Clock Enabled")
+	message(FATAL_ERROR "./libmpmy/timers_gettime.c incomplete, Build will Fail")
+	add_definitions(-DUSE_GETTIME)
+endif()
+
+if (${CONFIG_PAROS} STREQUAL "mpi")
+	if(CONFIG_MPIIO)
+		message(STATUS "MPI I/O Enabled")
+		add_definitions(-DUSE_MPIIO)
+	endif(CONFIG_MPIIO)
+
+	if(NOT CONFIG_USEHWCLK AND NOT CONFIG_USEGETTIME)
+		message(STATUS "MPMY Timers Enabled")
+		message(FATAL_ERROR "./libmpmy/timers_mpi.c incomplete, Build will Fail")
+		add_definitions(-DHAVE_MPMY_TIMERS)
+	endif()
+endif(${CONFIG_PAROS} STREQUAL "mpi")
+
+# TODO: Are the rest optimizations or required?
 
 ########################################################################
 # Find external packages/libraries/binaries                            #
@@ -111,8 +140,7 @@ find_package(BISON REQUIRED)
 ########################################################################
 include(CheckLibraryExists)
 # Find libm
-set(MATH_LIBRARIES "m" CACHE STRING "math
-library")
+set(MATH_LIBRARIES "m" CACHE STRING "math library")
 mark_as_advanced( MATH_LIBRARIES )
 # TODO: Add funcs we need
 foreach(FUNC sqrt)
