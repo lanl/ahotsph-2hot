@@ -31,12 +31,6 @@ if(NOT HAVE_C99)
 endif(NOT HAVE_C99)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
 
-#check_c_compiler_flag("-march=barcelona" HAVE_MARCH_BARCELONA)
-#if(NOT HAVE_MARCH_BARCELONA)
-#    message(FATAL_ERROR "flag '-march=barcelona' does not work: Consider a recent AMD processor")
-#endif(NOT HAVE_MARCH_BARCELONA)
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native")
-
 # Find SSE4
 include(FindSSE)
 FindSSE()
@@ -44,14 +38,17 @@ FindSSE()
 if(SSE4_A_FOUND)
 	message(STATUS "SSE4A Detected")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4a")
-#elseif(SSE4_2_FOUND)
-#	message(STATUS "SSE4.2 Detected")
-#	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4.2")
+elseif(SSE4_2_FOUND)
+	message(STATUS "SSE4.2 Detected")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4.2")
 elseif(SSE4_1_FOUND)
 	message(STATUS "SSE4.1 Detected")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4.1")
+elseif(SSSE3_FOUND)
+	message(STATUS "SSE3 Detected")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse3")
 else()
- 	message(FATAL_ERROR "No SSE4 Detected")
+ 	message(FATAL_ERROR "No SSE3 or SSE4 Detected")
 endif()
 
 
@@ -64,17 +61,13 @@ endif()
 # option(PROCS_PER_NODE "Processors Per Node" 16)
 SET(PROCS_PER_NODE "16" CACHE STRING "Number of
 Processors per Node (Integer)")
-# TODO: Figure out if we care about ARCH outside of
-# version.c
+# TODO: Figure out if we care about ARCH outside of version.c
 SET(CONFIG_ARCH "cmake" CACHE STRING "String
 Representing Architecture/Target Machine")
 SET(CONFIG_PAROS "seq" CACHE STRING "Parallelization
 Scheme")
-# TODO: Add params for each flag we want to set at
-# cmake time
-# COMMENT: Do we even care? It sounds like all inputs
-# were machine specific (CMake will find libraries) or
-# arch specific (Compiler Tests?)
+# TODO: Add params for each flag we want to set at cmake time
+# COMMENT: Do we even care? It sounds like all inputs were machine specific (CMake will find libraries) or arch specific (Compiler Tests?)
 
 ########################################################################
 # General and Machine-Specific Definitions                             #
@@ -101,7 +94,7 @@ include_directories(${LIBUNWIND_INCLUDE_DIRS})
 
 # Find MPI: Only required if PAROS=mpi
 if(${CONFIG_PAROS} STREQUAL "mpi")
-find_package(MPI REQUIRED)
+	find_package(MPI REQUIRED)
 endif()
 
 # HOT_CLASS Stuff
@@ -138,9 +131,7 @@ endforeach(FUNC)
 ######################################
 # Actual Targets                     #
 ######################################
-# First add include
-# directory as everyone will
-# need it
+# First add include directory as everyone will need it
 include_directories(include)
 
 # libsw
@@ -191,7 +182,7 @@ IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/nln)
 		${LIBUNWIND_LIBRARIES} ${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
 		-ldl -lm -lrt
 	)
-ENDIF()
+ENDIF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/nln)
 
 # sph+nln driver
 IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/sph+nln)
@@ -218,7 +209,7 @@ IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/sph+nln)
 		${LIBUNWIND_LIBRARIES} ${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
 		-ldl -lm -lrt
 	)
-ENDIF()
+ENDIF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/sph+nln)
 
 # snsph driver
 IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/snsph)
@@ -248,7 +239,7 @@ IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/snsph)
 		${LIBUNWIND_LIBRARIES} ${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
 		-ldl -lm -lrt
 	)
-ENDIF()
+ENDIF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/snsph)
 
 # interp_cylgrid driver/utility
 IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/wvt)
@@ -273,4 +264,4 @@ IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/wvt)
 		${LIBUNWIND_LIBRARIES} ${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
 		-ldl -lm -lrt
 	)
-ENDIF()
+ENDIF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/wvt)
