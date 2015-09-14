@@ -156,6 +156,7 @@ endforeach(FUNC)
 # Findlibdl
 # TODO: Probably should do this here?
 
+
 ######################################
 # Actual Targets                     #
 ######################################
@@ -174,43 +175,45 @@ add_subdirectory(libtree)
 # libmpmy
 add_subdirectory(libmpmy)
 
-# nln driver
-IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/nln)
-	message(STATUS "nlna driver enabled")
+# nln driver: Does not compile with Intel Compiler as is
+IF(NOT ${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
+	IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/nln)
+		message(STATUS "nlna driver enabled")
 
-	# nln driver's Version.c
-	file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/nln)
-	add_custom_command(
-		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/nln/version.c
-		COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/genNLNVersion.sh" "${CONFIG_ARCH}" "${CMAKE_CURRENT_BINARY_DIR}/nln/version.c"
-		COMMENT "Generating version.c for nln ..."
-	)
+		# nln driver's Version.c
+		file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/nln)
+		add_custom_command(
+			OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/nln/version.c
+			COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/genNLNVersion.sh" "${CONFIG_ARCH}" "${CMAKE_CURRENT_BINARY_DIR}/nln/version.c"
+			COMMENT "Generating version.c for nln ..."
+		)
 
-	# nlna driver
-	add_executable(nlna
-		${CMAKE_SOURCE_DIR}/nln/cofm.c
-		${CMAKE_SOURCE_DIR}/nln/grav.c
-		${CMAKE_SOURCE_DIR}/nln/mac.c
-		${CMAKE_SOURCE_DIR}/nln/main.c
-		${CMAKE_SOURCE_DIR}/nln/physics.c
-		${CMAKE_SOURCE_DIR}/nln/print.c
-		${CMAKE_SOURCE_DIR}/nln/output.c
-		${CMAKE_SOURCE_DIR}/nln/integrate.c
-		${CMAKE_SOURCE_DIR}/nln/ewald_le2.c
-		${CMAKE_SOURCE_DIR}/nln/do_grav_sse4.c
-		${CMAKE_SOURCE_DIR}/nln/do_grav_avx8.c
-		${CMAKE_SOURCE_DIR}/nln/pgrav_vec.c
-		${CMAKE_SOURCE_DIR}/nln/ewald.c
-		${CMAKE_SOURCE_DIR}/nln/grav_n2.c
-		${CMAKE_BINARY_DIR}/nln/version.c
-	)
+		# nlna driver
+		add_executable(nlna
+			${CMAKE_SOURCE_DIR}/nln/cofm.c
+			${CMAKE_SOURCE_DIR}/nln/grav.c
+			${CMAKE_SOURCE_DIR}/nln/mac.c
+			${CMAKE_SOURCE_DIR}/nln/main.c
+			${CMAKE_SOURCE_DIR}/nln/physics.c
+			${CMAKE_SOURCE_DIR}/nln/print.c
+			${CMAKE_SOURCE_DIR}/nln/output.c
+			${CMAKE_SOURCE_DIR}/nln/integrate.c
+			${CMAKE_SOURCE_DIR}/nln/ewald_le2.c
+			${CMAKE_SOURCE_DIR}/nln/do_grav_sse4.c
+			${CMAKE_SOURCE_DIR}/nln/do_grav_avx8.c
+			${CMAKE_SOURCE_DIR}/nln/pgrav_vec.c
+			${CMAKE_SOURCE_DIR}/nln/ewald.c
+			${CMAKE_SOURCE_DIR}/nln/grav_n2.c
+			${CMAKE_BINARY_DIR}/nln/version.c
+		)
 
-	target_link_libraries(nlna
-		libsw libtree libSDF libmpmy
-		${LIBUNWIND_LIBRARIES} ${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
-		-ldl -lm -lrt
-	)
-ENDIF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/nln)
+		target_link_libraries(nlna
+			libsw libtree libSDF libmpmy
+			${LIBUNWIND_LIBRARIES} ${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
+			-ldl -lm -lrt
+		)
+	ENDIF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/nln)
+ENDIF(NOT ${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
 
 # sph+nln driver
 IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/sph+nln)
@@ -245,7 +248,7 @@ IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/snsph)
 
 	# TODO: What does -mp1 do and should it be an FFLAG?
 
-	# sph+nln driver
+	# snsph driver
 	add_executable(snsph
 		${CMAKE_SOURCE_DIR}/snsph/cofm.c ${CMAKE_SOURCE_DIR}/snsph/grav.c
 		${CMAKE_SOURCE_DIR}/snsph/mac.c ${CMAKE_SOURCE_DIR}/snsph/main.c
@@ -261,6 +264,10 @@ IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/snsph)
 		${CMAKE_SOURCE_DIR}/snsph/nse4d.f ${CMAKE_SOURCE_DIR}/snsph/ocean.f
 		${CMAKE_SOURCE_DIR}/snsph/eosgen.f
 	)
+
+	IF(${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
+		set_target_properties(snsph PROPERTIES LINK_FLAGS -nofor-main)
+	ENDIF(${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
 
 	target_link_libraries(snsph
 		libsw libtree libSDF libmpmy
