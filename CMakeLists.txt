@@ -63,9 +63,9 @@ SET(PROCS_PER_NODE "16" CACHE STRING "Number of Processors per Node (Integer)")
 # TODO: Figure out if we care about ARCH outside of version.c
 SET(CONFIG_ARCH "cmake" CACHE STRING "String Representing Architecture/Target Machine")
 
-SET(CONFIG_PAROS "seq" CACHE STRING "Parallelization Scheme")
+SET(CONFIG_PAROS "mpi" CACHE STRING "Parallelization Scheme")
 
-SET(CONFIG_MPIIO false CACHE BOOLEAN "Use MPIIO")
+SET(CONFIG_MPIIO true CACHE BOOLEAN "Use MPIIO")
 
 SET(CONFIG_USEHWCLK true CACHE BOOLEAN "Use Hardware Clock")
 
@@ -84,13 +84,18 @@ add_definitions(-D_GNU_SOURCE)
 # Specify number of processors per node for libraries
 add_definitions(-DPROCS_PER_NODE=${PROCS_PER_NODE})
 
+# If OSX, we need an extra define
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	add_definitions(-D_DARWIN_C_SOURCE)
+endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+
 # Set mpmy Variables
 if(CONFIG_USEHWCLK)
 	message(STATUS "Hardware Clock Enabled")
 	add_definitions(-DUSE_HWCLOCK)
 elseif(CONFIG_USEGETTIME)
 	message(STATUS "gettime() based Clock Enabled")
-	message(FATAL_ERROR "./libmpmy/timers_gettime.c incomplete, Build will Fail")
+	# message(FATAL_ERROR "./libmpmy/timers_gettime.c incomplete, Build will Fail")
 	add_definitions(-DUSE_GETTIME)
 endif()
 
@@ -102,7 +107,7 @@ if (${CONFIG_PAROS} STREQUAL "mpi")
 
 	if(NOT CONFIG_USEHWCLK AND NOT CONFIG_USEGETTIME)
 		message(STATUS "MPMY Timers Enabled")
-		message(FATAL_ERROR "./libmpmy/timers_mpi.c incomplete, Build will Fail")
+		# message(FATAL_ERROR "./libmpmy/timers_mpi.c incomplete, Build will Fail")
 		add_definitions(-DHAVE_MPMY_TIMERS)
 	endif()
 endif(${CONFIG_PAROS} STREQUAL "mpi")
@@ -117,9 +122,11 @@ endif(${CONFIG_PAROS} STREQUAL "mpi")
 find_package(OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIRS})
 
-# Find libunwind
-find_package(Libunwind REQUIRED)
-include_directories(${LIBUNWIND_INCLUDE_DIRS})
+# Find libunwind if not OSX
+if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	find_package(Libunwind REQUIRED)
+	include_directories(${LIBUNWIND_INCLUDE_DIRS})
+endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 # Find MPI: Only required if PAROS=mpi
 if(${CONFIG_PAROS} STREQUAL "mpi")
@@ -134,6 +141,14 @@ find_package(FLEX REQUIRED)
 
 # Bison
 find_package(BISON REQUIRED)
+
+#Get obstack.h if OSX
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	message(STATUS "Downloading obstack.h")
+	file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/obstack")
+	file(DOWNLOAD "https://raw.githubusercontent.com/lattera/glibc/master/malloc/obstack.h" "${CMAKE_CURRENT_BINARY_DIR}/obstack/obstack.h")
+	include_directories(${CMAKE_CURRENT_BINARY_DIR}/obstack)
+endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 ########################################################################
 # Basic system tests (standard libraries, headers, functions, types)   #
@@ -155,7 +170,6 @@ endforeach(FUNC)
 
 # Findlibdl
 # TODO: Probably should do this here?
-
 
 ######################################
 # Actual Targets                     #
@@ -209,9 +223,16 @@ IF(NOT ${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
 
 		target_link_libraries(nlna
 			libsw libtree libSDF libmpmy
-			${LIBUNWIND_LIBRARIES} ${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
-			-ldl -lm -lrt
+			${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
+			-ldl -lm
 		)
+		# Only link libunwind and librt if not OSX
+		if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+			target_link_libraries(nlna
+				${LIBUNWIND_LIBRARIES}
+				-lrt
+			)
+		endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	ENDIF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/nln)
 ENDIF(NOT ${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
 
@@ -237,9 +258,16 @@ IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/sph+nln)
 
 	target_link_libraries(sph+nln
 		libsw libtree libSDF libmpmy
-		${LIBUNWIND_LIBRARIES} ${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
-		-ldl -lm -lrt
+		${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
+		-ldl -lm
 	)
+	# Only link libunwind and librt if not OSX
+	if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+		target_link_libraries(sph+nln
+			${LIBUNWIND_LIBRARIES}
+			-lrt
+		)
+	endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 ENDIF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/sph+nln)
 
 # snsph driver
@@ -271,9 +299,16 @@ IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/snsph)
 
 	target_link_libraries(snsph
 		libsw libtree libSDF libmpmy
-		${LIBUNWIND_LIBRARIES} ${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
-		-ldl -lm -lrt
+		${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
+		-ldl -lm
 	)
+	# Only link libunwind and librt if not OSX
+	if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+		target_link_libraries(snsph
+			${LIBUNWIND_LIBRARIES}
+			-lrt
+		)
+	endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 ENDIF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/snsph)
 
 # interp_cylgrid driver/utility
@@ -296,7 +331,14 @@ IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/wvt)
 
 	target_link_libraries(interp_cylgrid
 		libsw libtree libSDF libmpmy
-		${LIBUNWIND_LIBRARIES} ${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
-		-ldl -lm -lrt
+		${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
+		-ldl -lm
 	)
+	# Only link libunwind and librt if not OSX
+	if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+		target_link_libraries(interp_cylgrid
+			${LIBUNWIND_LIBRARIES}
+			-lrt
+		)
+	endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 ENDIF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/wvt)
