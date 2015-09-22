@@ -31,6 +31,15 @@ int MPMY_DestroyTimer(void *p){
     return MPMY_SUCCESS;
 }
 
+int MPMY_CopyTimer(void *p, void *q)
+{
+    MPMY_Timer *t = p;
+    MPMY_Timer *u = q;
+
+    *u = *t;
+    return MPMY_SUCCESS;
+}
+
 int MPMY_StartTimer(void *p){
     MPMY_Timer *t = p;
 
