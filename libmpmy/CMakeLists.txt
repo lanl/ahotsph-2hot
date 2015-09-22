@@ -13,6 +13,10 @@ add_library(libmpmy
      ${LIBMPMY_SOURCES}
 )
 
+target_link_libraries(libmpmy
+    libsw
+)
+
 if(${CONFIG_PAROS} STREQUAL "mpi")
     target_link_libraries(libmpmy
         ${MPI_C_LIBRARIES}
