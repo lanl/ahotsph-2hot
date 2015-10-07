@@ -40,5 +40,5 @@ else()
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 target_link_libraries(libsw
-    libmpmy
+	libmpmy ${OPENSSL_LIBRARIES}
 )
