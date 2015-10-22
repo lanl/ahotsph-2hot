@@ -13,8 +13,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_C_FLAGS)
 endif(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_C_FLAGS)
 string(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE)
 
-message(STATUS "${CMAKE_BUILD_TYPE}")
-
 enable_language(C)
 include(CMakeDetermineCCompiler)
 
@@ -194,7 +192,7 @@ add_subdirectory(libmpmy)
 # nln driver: Does not compile with Intel Compiler as is... or Debug...
 IF(NOT ${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
 	IF(NOT ${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
-		IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/nln)
+		IF(EXISTS ${CMAKE_SOURCE_DIR}/nln/main.c)
 			message(STATUS "nlna driver enabled")
 
 			# nln driver's Version.c
@@ -236,12 +234,12 @@ IF(NOT ${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
 					-lrt
 				)
 			endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-		ENDIF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/nln)
+		ENDIF(EXISTS ${CMAKE_SOURCE_DIR}/nln/main.c)
 	ENDIF(NOT ${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
 ENDIF(NOT ${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
 
 # sph+nln driver
-IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/sph+nln)
+IF(EXISTS ${CMAKE_SOURCE_DIR}/sph+nln/main.c)
 	message(STATUS "sph+nln driver enabled")
 
 	# sph+nln driver
@@ -272,11 +270,11 @@ IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/sph+nln)
 			-lrt
 		)
 	endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-ENDIF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/sph+nln)
+ENDIF(EXISTS ${CMAKE_SOURCE_DIR}/sph+nln/main.c)
 
 # snsph driver - Doesn't build with Debug...
 IF(NOT ${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
-	IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/snsph)
+	IF(EXISTS ${CMAKE_SOURCE_DIR}/snsph/main.c)
 		message(STATUS "snsph driver enabled")
 
 		# TODO: What does -mp1 do and should it be an FFLAG?
@@ -314,11 +312,11 @@ IF(NOT ${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
 				-lrt
 			)
 		endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	ENDIF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/snsph)
+	ENDIF(EXISTS ${CMAKE_SOURCE_DIR}/snsph/main.c)
 ENDIF(NOT ${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
 
 # interp_cylgrid driver/utility
-IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/wvt)
+IF(EXISTS ${CMAKE_SOURCE_DIR}/wvt/wvt.c)
 	message(STATUS "interp_cylgrid driver/utility enabled")
 
 	# interp_cylgrid driver
@@ -347,4 +345,4 @@ IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/wvt)
 			-lrt
 		)
 	endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-ENDIF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/wvt)
+ENDIF(EXISTS ${CMAKE_SOURCE_DIR}/wvt/wvt.c)
