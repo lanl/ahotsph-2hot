@@ -13,8 +13,20 @@ add_library(libmpmy
      ${LIBMPMY_SOURCES}
 )
 
+target_link_libraries(libmpmy
+    libsw
+)
+
 if(${CONFIG_PAROS} STREQUAL "mpi")
     target_link_libraries(libmpmy
         ${MPI_C_LIBRARIES}
     )
 endif()
+
+	# Only link libunwind and librt if not OSX
+if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	target_link_libraries(libmpmy
+		${LIBUNWIND_LIBRARIES}
+		-lrt
+	)
+endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

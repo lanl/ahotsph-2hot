@@ -189,55 +189,57 @@ add_subdirectory(libtree)
 # libmpmy
 add_subdirectory(libmpmy)
 
-# nln driver: Does not compile with Intel Compiler as is
+# nln driver: Does not compile with Intel Compiler as is... or Debug...
 IF(NOT ${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
-	IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/nln)
-		message(STATUS "nlna driver enabled")
+	IF(NOT ${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
+		IF(EXISTS ${CMAKE_SOURCE_DIR}/nln/main.c)
+			message(STATUS "nlna driver enabled")
 
-		# nln driver's Version.c
-		file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/nln)
-		add_custom_command(
-			OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/nln/version.c
-			COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/genNLNVersion.sh" "${CONFIG_ARCH}" "${CMAKE_CURRENT_BINARY_DIR}/nln/version.c"
-			COMMENT "Generating version.c for nln ..."
-		)
-
-		# nlna driver
-		add_executable(nlna
-			${CMAKE_SOURCE_DIR}/nln/cofm.c
-			${CMAKE_SOURCE_DIR}/nln/grav.c
-			${CMAKE_SOURCE_DIR}/nln/mac.c
-			${CMAKE_SOURCE_DIR}/nln/main.c
-			${CMAKE_SOURCE_DIR}/nln/physics.c
-			${CMAKE_SOURCE_DIR}/nln/print.c
-			${CMAKE_SOURCE_DIR}/nln/output.c
-			${CMAKE_SOURCE_DIR}/nln/integrate.c
-			${CMAKE_SOURCE_DIR}/nln/ewald_le2.c
-			${CMAKE_SOURCE_DIR}/nln/do_grav_sse4.c
-			${CMAKE_SOURCE_DIR}/nln/do_grav_avx8.c
-			${CMAKE_SOURCE_DIR}/nln/pgrav_vec.c
-			${CMAKE_SOURCE_DIR}/nln/ewald.c
-			${CMAKE_SOURCE_DIR}/nln/grav_n2.c
-			${CMAKE_BINARY_DIR}/nln/version.c
-		)
-
-		target_link_libraries(nlna
-			libsw libtree libSDF libmpmy
-			${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
-			-ldl -lm
-		)
-		# Only link libunwind and librt if not OSX
-		if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-			target_link_libraries(nlna
-				${LIBUNWIND_LIBRARIES}
-				-lrt
+			# nln driver's Version.c
+			file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/nln)
+			add_custom_command(
+				OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/nln/version.c
+				COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/genNLNVersion.sh" "${CONFIG_ARCH}" "${CMAKE_CURRENT_BINARY_DIR}/nln/version.c"
+				COMMENT "Generating version.c for nln ..."
 			)
-		endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	ENDIF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/nln)
+
+			# nlna driver
+			add_executable(nlna
+				${CMAKE_SOURCE_DIR}/nln/cofm.c
+				${CMAKE_SOURCE_DIR}/nln/grav.c
+				${CMAKE_SOURCE_DIR}/nln/mac.c
+				${CMAKE_SOURCE_DIR}/nln/main.c
+				${CMAKE_SOURCE_DIR}/nln/physics.c
+				${CMAKE_SOURCE_DIR}/nln/print.c
+				${CMAKE_SOURCE_DIR}/nln/output.c
+				${CMAKE_SOURCE_DIR}/nln/integrate.c
+				${CMAKE_SOURCE_DIR}/nln/ewald_le2.c
+				${CMAKE_SOURCE_DIR}/nln/do_grav_sse4.c
+				${CMAKE_SOURCE_DIR}/nln/do_grav_avx8.c
+				${CMAKE_SOURCE_DIR}/nln/pgrav_vec.c
+				${CMAKE_SOURCE_DIR}/nln/ewald.c
+				${CMAKE_SOURCE_DIR}/nln/grav_n2.c
+				${CMAKE_BINARY_DIR}/nln/version.c
+			)
+
+			target_link_libraries(nlna
+				libsw libtree libSDF libmpmy
+				${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
+				-ldl -lm
+			)
+			# Only link libunwind and librt if not OSX
+			if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+				target_link_libraries(nlna
+					${LIBUNWIND_LIBRARIES}
+					-lrt
+				)
+			endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+		ENDIF(EXISTS ${CMAKE_SOURCE_DIR}/nln/main.c)
+	ENDIF(NOT ${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
 ENDIF(NOT ${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
 
 # sph+nln driver
-IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/sph+nln)
+IF(EXISTS ${CMAKE_SOURCE_DIR}/sph+nln/main.c)
 	message(STATUS "sph+nln driver enabled")
 
 	# sph+nln driver
@@ -268,51 +270,53 @@ IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/sph+nln)
 			-lrt
 		)
 	endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-ENDIF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/sph+nln)
+ENDIF(EXISTS ${CMAKE_SOURCE_DIR}/sph+nln/main.c)
 
-# snsph driver
-IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/snsph)
-	message(STATUS "snsph driver enabled")
+# snsph driver - Doesn't build with Debug...
+IF(NOT ${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
+	IF(EXISTS ${CMAKE_SOURCE_DIR}/snsph/main.c)
+		message(STATUS "snsph driver enabled")
 
-	# TODO: What does -mp1 do and should it be an FFLAG?
+		# TODO: What does -mp1 do and should it be an FFLAG?
 
-	# snsph driver
-	add_executable(snsph
-		${CMAKE_SOURCE_DIR}/snsph/cofm.c ${CMAKE_SOURCE_DIR}/snsph/grav.c
-		${CMAKE_SOURCE_DIR}/snsph/mac.c ${CMAKE_SOURCE_DIR}/snsph/main.c
-		${CMAKE_SOURCE_DIR}/snsph/physics.c
-		${CMAKE_SOURCE_DIR}/snsph/print.c ${CMAKE_SOURCE_DIR}/snsph/integrate.c
-		${CMAKE_SOURCE_DIR}/snsph/sphcofm.c
-		${CMAKE_SOURCE_DIR}/snsph/sph.c ${CMAKE_SOURCE_DIR}/snsph/sphinit.c
-		${CMAKE_SOURCE_DIR}/snsph/physics_sph.c
-		${CMAKE_SOURCE_DIR}/snsph/shrink.c
-		${CMAKE_SOURCE_DIR}/snsph/sphprint.c
-		${CMAKE_SOURCE_DIR}/snsph/sphplus.c ${CMAKE_SOURCE_DIR}/snsph/sn.c
-		${CMAKE_SOURCE_DIR}/snsph/eos3.f ${CMAKE_SOURCE_DIR}/snsph/sleos.f
-		${CMAKE_SOURCE_DIR}/snsph/nse4d.f ${CMAKE_SOURCE_DIR}/snsph/ocean.f
-		${CMAKE_SOURCE_DIR}/snsph/eosgen.f
-	)
-
-	IF(${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
-		set_target_properties(snsph PROPERTIES LINK_FLAGS -nofor-main)
-	ENDIF(${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
-
-	target_link_libraries(snsph
-		libsw libtree libSDF libmpmy
-		${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
-		-ldl -lm
-	)
-	# Only link libunwind and librt if not OSX
-	if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-		target_link_libraries(snsph
-			${LIBUNWIND_LIBRARIES}
-			-lrt
+		# snsph driver
+		add_executable(snsph
+			${CMAKE_SOURCE_DIR}/snsph/cofm.c ${CMAKE_SOURCE_DIR}/snsph/grav.c
+			${CMAKE_SOURCE_DIR}/snsph/mac.c ${CMAKE_SOURCE_DIR}/snsph/main.c
+			${CMAKE_SOURCE_DIR}/snsph/physics.c
+			${CMAKE_SOURCE_DIR}/snsph/print.c ${CMAKE_SOURCE_DIR}/snsph/integrate.c
+			${CMAKE_SOURCE_DIR}/snsph/sphcofm.c
+			${CMAKE_SOURCE_DIR}/snsph/sph.c ${CMAKE_SOURCE_DIR}/snsph/sphinit.c
+			${CMAKE_SOURCE_DIR}/snsph/physics_sph.c
+			${CMAKE_SOURCE_DIR}/snsph/shrink.c
+			${CMAKE_SOURCE_DIR}/snsph/sphprint.c
+			${CMAKE_SOURCE_DIR}/snsph/sphplus.c ${CMAKE_SOURCE_DIR}/snsph/sn.c
+			${CMAKE_SOURCE_DIR}/snsph/eos3.f ${CMAKE_SOURCE_DIR}/snsph/sleos.f
+			${CMAKE_SOURCE_DIR}/snsph/nse4d.f ${CMAKE_SOURCE_DIR}/snsph/ocean.f
+			${CMAKE_SOURCE_DIR}/snsph/eosgen.f
 		)
-	endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-ENDIF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/snsph)
+
+		IF(${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
+			set_target_properties(snsph PROPERTIES LINK_FLAGS -nofor-main)
+		ENDIF(${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
+
+		target_link_libraries(snsph
+			libsw libtree libSDF libmpmy
+			${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
+			-ldl -lm
+		)
+		# Only link libunwind and librt if not OSX
+		if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+			target_link_libraries(snsph
+				${LIBUNWIND_LIBRARIES}
+				-lrt
+			)
+		endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	ENDIF(EXISTS ${CMAKE_SOURCE_DIR}/snsph/main.c)
+ENDIF(NOT ${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
 
 # interp_cylgrid driver/utility
-IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/wvt)
+IF(EXISTS ${CMAKE_SOURCE_DIR}/wvt/wvt.c)
 	message(STATUS "interp_cylgrid driver/utility enabled")
 
 	# interp_cylgrid driver
@@ -341,4 +345,4 @@ IF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/wvt)
 			-lrt
 		)
 	endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-ENDIF(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/wvt)
+ENDIF(EXISTS ${CMAKE_SOURCE_DIR}/wvt/wvt.c)
