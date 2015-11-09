@@ -138,7 +138,20 @@ if(${CONFIG_PAROS} STREQUAL "mpi")
 endif()
 
 # HOT_CLASS Stuff
-find_package(HOTCLASS REQUIRED)
+find_package(HOTCLASS)
+if(NOT FOUND_HOTCLASS)
+	include(ExternalProject)
+	ExternalProject_Add(HOTCLASS_BUILD URL https://github.com/lesgourg/class_public/archive/v2.2.0.tar.gz
+		URL_MD5 965a76dfa29bd0072698f8c7aef8991c
+		BUILD_IN_SOURCE 1 CONFIGURE_COMMAND "" INSTALL_COMMAND "")
+	add_library(hotclass STATIC IMPORTED GLOBAL)
+	set_target_properties(hotclass PROPERTIES IMPORTED_LOCATION
+		${CMAKE_CURRENT_BINARY_DIR}/HOTCLASS_BUILD-prefix/src/HOTCLASS_BUILD/libclass.a)
+	add_dependencies(hotclass HOTCLASS_BUILD)
+	set(HOTCLASS_LIBRARIES hotclass)
+	set(HOTCLASS_INCLUDE_DIRS
+		${CMAKE_CURRENT_BINARY_DIR}/HOTCLASS_BUILD-prefix/src/HOTCLASS_BUILD/include)
+endif()
 
 # Flex
 find_package(FLEX REQUIRED)
