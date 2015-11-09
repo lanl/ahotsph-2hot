@@ -5,6 +5,10 @@ project(2hot)
 # Cmake modules/macros are in a subdirectory to keep this file cleaner
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMakeModules)
 
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+	message(FATAL_ERROR "In source build is not supported, do 'git clean` and build out of source")
+endif()
+
 # TODO: Add fortran flags
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_C_FLAGS)
 	#release comes with -O3 by default
