@@ -150,6 +150,14 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	include_directories(${CMAKE_CURRENT_BINARY_DIR}/obstack)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
+#Set libraries for OSX or Not OSX
+if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	SET(OSSPECIFIC_LIBRARIES ${LIBUNWIND_LIBRARIES} -lrt)
+else()
+	SET(OSSPECIFIC_LIBRARIES )
+endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+
+
 ########################################################################
 # Basic system tests (standard libraries, headers, functions, types)   #
 ########################################################################
@@ -225,15 +233,8 @@ IF(NOT ${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
 			target_link_libraries(nlna
 				libsw libtree libSDF libmpmy
 				${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
-				-ldl -lm
+				-ldl -lm ${OSSPECIFIC_LIBRARIES}
 			)
-			# Only link libunwind and librt if not OSX
-			if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-				target_link_libraries(nlna
-					${LIBUNWIND_LIBRARIES}
-					-lrt
-				)
-			endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 		ENDIF(EXISTS ${CMAKE_SOURCE_DIR}/nln/main.c)
 	ENDIF(NOT ${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
 ENDIF(NOT ${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
@@ -261,15 +262,8 @@ IF(EXISTS ${CMAKE_SOURCE_DIR}/sph+nln/main.c)
 	target_link_libraries(sph+nln
 		libsw libtree libSDF libmpmy
 		${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
-		-ldl -lm
+		-ldl -lm ${OSSPECIFIC_LIBRARIES}
 	)
-	# Only link libunwind and librt if not OSX
-	if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-		target_link_libraries(sph+nln
-			${LIBUNWIND_LIBRARIES}
-			-lrt
-		)
-	endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 ENDIF(EXISTS ${CMAKE_SOURCE_DIR}/sph+nln/main.c)
 
 # snsph driver - Doesn't build with Debug...
@@ -303,15 +297,8 @@ IF(NOT ${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
 		target_link_libraries(snsph
 			libsw libtree libSDF libmpmy
 			${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
-			-ldl -lm
+			-ldl -lm ${OSSPECIFIC_LIBRARIES}
 		)
-		# Only link libunwind and librt if not OSX
-		if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-			target_link_libraries(snsph
-				${LIBUNWIND_LIBRARIES}
-				-lrt
-			)
-		endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	ENDIF(EXISTS ${CMAKE_SOURCE_DIR}/snsph/main.c)
 ENDIF(NOT ${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
 
@@ -336,13 +323,6 @@ IF(EXISTS ${CMAKE_SOURCE_DIR}/wvt/wvt.c)
 	target_link_libraries(interp_cylgrid
 		libsw libtree libSDF libmpmy
 		${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
-		-ldl -lm
+		-ldl -lm ${OSSPECIFIC_LIBRARIES}
 	)
-	# Only link libunwind and librt if not OSX
-	if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-		target_link_libraries(interp_cylgrid
-			${LIBUNWIND_LIBRARIES}
-			-lrt
-		)
-	endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 ENDIF(EXISTS ${CMAKE_SOURCE_DIR}/wvt/wvt.c)
