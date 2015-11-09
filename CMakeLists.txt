@@ -5,6 +5,10 @@ project(2hot)
 # Cmake modules/macros are in a subdirectory to keep this file cleaner
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMakeModules)
 
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+	message(FATAL_ERROR "In source build is not supported, do 'git clean` and build out of source")
+endif()
+
 # TODO: Add fortran flags
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_C_FLAGS)
 	#release comes with -O3 by default
@@ -124,7 +128,7 @@ include_directories(${OPENSSL_INCLUDE_DIRS})
 
 # Find libunwind if not OSX
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	find_package(Libunwind REQUIRED)
+	find_package(LIBUNWIND REQUIRED)
 	include_directories(${LIBUNWIND_INCLUDE_DIRS})
 endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
@@ -134,7 +138,20 @@ if(${CONFIG_PAROS} STREQUAL "mpi")
 endif()
 
 # HOT_CLASS Stuff
-find_package(Hotclass REQUIRED)
+find_package(HOTCLASS)
+if(NOT FOUND_HOTCLASS)
+	include(ExternalProject)
+	ExternalProject_Add(HOTCLASS_BUILD URL https://github.com/lesgourg/class_public/archive/v2.2.0.tar.gz
+		URL_MD5 965a76dfa29bd0072698f8c7aef8991c
+		BUILD_IN_SOURCE 1 CONFIGURE_COMMAND "" INSTALL_COMMAND "")
+	add_library(hotclass STATIC IMPORTED GLOBAL)
+	set_target_properties(hotclass PROPERTIES IMPORTED_LOCATION
+		${CMAKE_CURRENT_BINARY_DIR}/HOTCLASS_BUILD-prefix/src/HOTCLASS_BUILD/libclass.a)
+	add_dependencies(hotclass HOTCLASS_BUILD)
+	set(HOTCLASS_LIBRARIES hotclass)
+	set(HOTCLASS_INCLUDE_DIRS
+		${CMAKE_CURRENT_BINARY_DIR}/HOTCLASS_BUILD-prefix/src/HOTCLASS_BUILD/include)
+endif()
 
 # Flex
 find_package(FLEX REQUIRED)
