@@ -124,7 +124,7 @@ include_directories(${OPENSSL_INCLUDE_DIRS})
 
 # Find libunwind if not OSX
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	find_package(Libunwind REQUIRED)
+	find_package(LIBUNWIND REQUIRED)
 	include_directories(${LIBUNWIND_INCLUDE_DIRS})
 endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
@@ -134,7 +134,7 @@ if(${CONFIG_PAROS} STREQUAL "mpi")
 endif()
 
 # HOT_CLASS Stuff
-find_package(Hotclass REQUIRED)
+find_package(HOTCLASS REQUIRED)
 
 # Flex
 find_package(FLEX REQUIRED)
