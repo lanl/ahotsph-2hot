@@ -1,0 +1,11 @@
+--- OldMake	2015-12-07 14:40:01.000000000 -0700
++++ Makefile	2015-12-07 14:40:12.000000000 -0700
+@@ -30,7 +30,7 @@
+ #OPTFLAG = -fast
+ 
+ # your openmp flag (comment for compiling without openmp)
+-OMPFLAG   = -fopenmp
++#OMPFLAG   = -fopenmp
+ #OMPFLAG   = -mp -mp=nonuma -mp=allcores -g
+ #OMPFLAG   = -openmp
+ 
