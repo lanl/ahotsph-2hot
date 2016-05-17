@@ -1,12 +1,12 @@
 [submodule "nln"]
 	path = nln
-	url = ssh://git@xcp-stash.lanl.gov:7999/ngc/2hot_nln.git
+	url = git@gitlab.lanl.gov:CoDesignSummerSchool2016/2hot_nln.git
 [submodule "snsph"]
 	path = snsph
-	url = ssh://git@xcp-stash.lanl.gov:7999/ngc/2hot_snsph.git
+	url = git@gitlab.lanl.gov:CoDesignSummerSchool2016/2hot_snsph.git
 [submodule "wvt"]
 	path = wvt
-	url = ssh://git@xcp-stash.lanl.gov:7999/ngc/2hot_wvt.git
+	url = git@gitlab.lanl.gov:CoDesignSummerSchool2016/2hot_wvt.git
 [submodule "sph+nln"]
 	path = sph+nln
-	url = ssh://git@xcp-stash.lanl.gov:7999/ngc/2hot_sphnln.git
+	url = git@gitlab.lanl.gov:CoDesignSummerSchool2016/2hot_sphnln.git
