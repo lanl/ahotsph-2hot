@@ -1,12 +1,12 @@
 [submodule "nln"]
 	path = nln
-	url = ssh://git@xcp-stash.lanl.gov:7999/~carolae/2hot-cie/2hot_nln.git
+	url = ssh://git@xcp-stash.lanl.gov:7999/~carolae/2hot_nln.git
 [submodule "snsph"]
 	path = snsph
-	url = ssh://git@xcp-stash.lanl.gov:7999/~carolae/2hot-cie/2hot_snsph.git
+	url = ssh://git@xcp-stash.lanl.gov:7999/~carolae/2hot_snsph.git
 [submodule "wvt"]
 	path = wvt
-	url = ssh://git@xcp-stash.lanl.gov:7999/~carolae/2hot-cie/2hot_wvt.git
+	url = ssh://git@xcp-stash.lanl.gov:7999/~carolae/2hot_wvt.git
 [submodule "sph+nln"]
 	path = sph+nln
-	url = ssh://git@xcp-stash.lanl.gov:7999/~carolae/2hot-cie/2hot_sphnln.git
+	url = ssh://git@xcp-stash.lanl.gov:7999/~carolae/2hot_sphnln.git
