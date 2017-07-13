@@ -343,7 +343,7 @@ IF(EXISTS ${CMAKE_SOURCE_DIR}/wvt/wvt.c)
 	)
 
 	target_link_libraries(interp_cylgrid
-		libsw libtree libSDF libmpmy
+		libsw libmpmy libtree libSDF
 		${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
 		-ldl -lm ${OSSPECIFIC_LIBRARIES}
 	)
