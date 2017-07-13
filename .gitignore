@@ -11,3 +11,4 @@ Objfiles
 version.proto
 version.c
 devel
+bld
