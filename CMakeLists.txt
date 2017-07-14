@@ -279,7 +279,8 @@ IF(EXISTS ${CMAKE_SOURCE_DIR}/sph+nln/main.c)
 		${CMAKE_SOURCE_DIR}/sph+nln/physics_sph.c
 		${CMAKE_SOURCE_DIR}/sph+nln/sphprint.c
 		${CMAKE_SOURCE_DIR}/sph+nln/sphplus.c ${CMAKE_SOURCE_DIR}/sph+nln/wind.c
-		${CMAKE_SOURCE_DIR}/sph+nln/nrutil.c ${CMAKE_SOURCE_DIR}/sph+nln/coolandburn.c
+		${CMAKE_SOURCE_DIR}/sph+nln/nrutil.c
+		${CMAKE_SOURCE_DIR}/sph+nln/coolandburn.c
         ${CMAKE_SOURCE_DIR}/sph+nln/params.c
 		${CMAKE_SOURCE_DIR}/sph+nln/find.f ${CMAKE_SOURCE_DIR}/sph+nln/getfkt.f
 		${CMAKE_SOURCE_DIR}/sph+nln/abinit.f
