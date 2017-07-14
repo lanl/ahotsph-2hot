@@ -279,7 +279,32 @@ IF(EXISTS ${CMAKE_SOURCE_DIR}/sph+nln/main.c)
 		${CMAKE_SOURCE_DIR}/sph+nln/physics_sph.c
 		${CMAKE_SOURCE_DIR}/sph+nln/sphprint.c
 		${CMAKE_SOURCE_DIR}/sph+nln/sphplus.c ${CMAKE_SOURCE_DIR}/sph+nln/wind.c
+		${CMAKE_SOURCE_DIR}/sph+nln/nrutil.c ${CMAKE_SOURCE_DIR}/sph+nln/coolandburn.c
+        ${CMAKE_SOURCE_DIR}/sph+nln/params.c
+		${CMAKE_SOURCE_DIR}/sph+nln/find.f ${CMAKE_SOURCE_DIR}/sph+nln/getfkt.f
+		${CMAKE_SOURCE_DIR}/sph+nln/abinit.f
+		${CMAKE_SOURCE_DIR}/sph+nln/masses.f
+		${CMAKE_SOURCE_DIR}/sph+nln/sparse_ma28.f
+		${CMAKE_SOURCE_DIR}/sph+nln/naray.f
+		${CMAKE_SOURCE_DIR}/sph+nln/weakread.f
+		${CMAKE_SOURCE_DIR}/sph+nln/build.f
+		${CMAKE_SOURCE_DIR}/sph+nln/locate.f
+		${CMAKE_SOURCE_DIR}/sph+nln/partfun.f
+		${CMAKE_SOURCE_DIR}/sph+nln/bilenshort.f
+		${CMAKE_SOURCE_DIR}/sph+nln/weakintp.f
+		${CMAKE_SOURCE_DIR}/sph+nln/rate.f
+		${CMAKE_SOURCE_DIR}/sph+nln/rhside.f
+		${CMAKE_SOURCE_DIR}/sph+nln/jacob.f
+		${CMAKE_SOURCE_DIR}/sph+nln/dtnuc.f
+		${CMAKE_SOURCE_DIR}/sph+nln/nse.f
+		${CMAKE_SOURCE_DIR}/sph+nln/leqs.f
+		${CMAKE_SOURCE_DIR}/sph+nln/rated.f
+		${CMAKE_SOURCE_DIR}/sph+nln/solven.f
 	)
+
+	IF(${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
+	    set_target_properties(sph+nln PROPERTIES LINK_FLAGS -nofor-main)
+    ENDIF(${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
 
 	target_link_libraries(sph+nln
 		libsw libtree libSDF libmpmy
