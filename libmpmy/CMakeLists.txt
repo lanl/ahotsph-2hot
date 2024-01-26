@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.0)
 
 # Determine which version to build, based on PAROS
 if (${CONFIG_PAROS} STREQUAL "mpi")

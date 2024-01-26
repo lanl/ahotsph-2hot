@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.0)
 
 #Add HOT_CLASS dirs as they are generic enough to be dangerous
 include_directories(${HOTCLASS_INCLUDE_DIRS})
