@@ -18,7 +18,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         msgdirinit.c	singlio.c	abm.c
         mpi_bcast.c	mpi_reduce.c	keycvt.c
         peano.c		SDFreadf.c	hwclock.c
-        class_params.c	cosmo_tbl.c
+    	cosmo_tbl.c
         obstack.c
     )
 else()
@@ -35,7 +35,7 @@ else()
         msgdirinit.c	singlio.c	abm.c
         mpi_bcast.c	mpi_reduce.c	keycvt.c
         peano.c		SDFreadf.c	hwclock.c
-        class_params.c	cosmo_tbl.c
+        cosmo_tbl.c
     )
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
