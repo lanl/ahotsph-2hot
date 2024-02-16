@@ -1,5 +1,5 @@
 #ifndef _SDFWriteDOTh
-#define _SDFWRiteDOTh
+#define _SDFWriteDOTh
 
 #ifdef __cplusplus
 extern "C" {

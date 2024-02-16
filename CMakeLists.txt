@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.0)
 
 project(2hot)
 
@@ -308,7 +308,7 @@ IF(EXISTS ${CMAKE_SOURCE_DIR}/sph+nln/main.c)
     ENDIF(${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
 
 	target_link_libraries(sph+nln
-		libsw libtree libSDF libmpmy
+		libsw libSDF libtree libmpmy
 		${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
 		-ldl -lm ${OSSPECIFIC_LIBRARIES}
 	)
@@ -343,7 +343,7 @@ IF(NOT ${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
 		ENDIF(${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
 
 		target_link_libraries(snsph
-			libsw libtree libSDF libmpmy
+			libsw libSDF libtree libmpmy
 			${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
 			-ldl -lm ${OSSPECIFIC_LIBRARIES}
 		)
@@ -369,7 +369,7 @@ IF(EXISTS ${CMAKE_SOURCE_DIR}/wvt/wvt.c)
 	)
 
 	target_link_libraries(interp_cylgrid
-		libsw libmpmy libtree libSDF
+		libsw libSDF libtree libmpmy
 		${OPENSSL_LIBRARIES} ${HOTCLASS_LIBRARIES}
 		-ldl -lm ${OSSPECIFIC_LIBRARIES}
 	)

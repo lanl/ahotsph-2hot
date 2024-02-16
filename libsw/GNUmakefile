@@ -5,7 +5,7 @@ treedir=..
 treedir_sed=\.\.
 appexcludes=
 libname=libsw
-EXTRACFLAGS=-I$(HOT_CLASS)/include
+EXTRACFLAGS=-I$(HOT_CLASS)/include -L$(HOT_CLASS)/libclass.a -lclass
 
 # The "Salmon Warren Utility library"
 src:= \
@@ -21,7 +21,8 @@ mpmy_gather.c	memfile.c 	rsort.c \
 msgdirinit.c	singlio.c	abm.c \
 mpi_bcast.c	mpi_reduce.c	keycvt.c \
 peano.c		SDFreadf.c	hwclock.c \
-class_params.c	cosmo_tbl.c
+cosmo_tbl.c
+#class_params.c	
 # batch.c		poll.c	\
  
 include $(treedir)/Make-common/Make.$(ARCH)

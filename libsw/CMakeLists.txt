@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.0)
 
 #Add HOT_CLASS dirs as they are generic enough to be dangerous
 include_directories(${HOTCLASS_INCLUDE_DIRS})
@@ -18,7 +18,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         msgdirinit.c	singlio.c	abm.c
         mpi_bcast.c	mpi_reduce.c	keycvt.c
         peano.c		SDFreadf.c	hwclock.c
-        class_params.c	cosmo_tbl.c
+    	cosmo_tbl.c
         obstack.c
     )
 else()
@@ -35,7 +35,7 @@ else()
         msgdirinit.c	singlio.c	abm.c
         mpi_bcast.c	mpi_reduce.c	keycvt.c
         peano.c		SDFreadf.c	hwclock.c
-        class_params.c	cosmo_tbl.c
+        cosmo_tbl.c
     )
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 

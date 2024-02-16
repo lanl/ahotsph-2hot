@@ -8,6 +8,7 @@ Objfiles
 *.i7-mpi
 *.native
 *.native-mpi
+*.x86_64
 version.proto
 version.c
 devel

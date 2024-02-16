@@ -20,6 +20,7 @@ all: All
 include Make-common/Make.generic
 
 subdirs:= libsw libSDF libtree libmpmy nln sph+nln snsph wvt
+#nln # currently has compile errors in sse stuff
 
 All:
 	for dir in $(subdirs); do (cd $$dir; $(MAKE) all); done
