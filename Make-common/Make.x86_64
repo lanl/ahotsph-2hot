@@ -23,8 +23,8 @@ ifeq ($(PAROS),mpi)
 #LOADLIBES:=-L$(MPI_ROOT)/lib64 -lmpi
 #PAROSCFLAGS:=-I$(MPI_ROOT)/include
 
-LOADLIBES:=-L/opt/cray/pe/mpich/8.1.25/ofi/intel/19.0/lib -lmpich -lunwind
-PAROSCFLAGS:=-I/opt/cray/pe/mpich/8.1.25/ofi/intel/19.0/include -I/opt/cray/pe/perftools/23.03.0/include
+LOADLIBES:=-L/opt/cray/pe/mpich/8.1.25/ofi/gnu/9.1/lib -lmpich -lunwind
+PAROSCFLAGS:=-I/opt/cray/pe/mpich/8.1.25/ofi/gnu/9.1//include -I/opt/cray/pe/perftools/23.03.0/include
 endif
 
 ifeq ($(PAROS),mvapich2)
