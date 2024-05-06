@@ -2,15 +2,3 @@
 	path = nln
 	url = git@gitlab.lanl.gov:sph/2hot-apps-subgroup/nln.git
     branch = main
-[submodule "snsph"]
-	path = snsph
-	url = git@gitlab.lanl.gov:sph/2hot-apps-subgroup/snsph.git
-    branch = main
-[submodule "wvt"]
-	path = wvt
-	url = git@gitlab.lanl.gov:sph/2hot-apps-subgroup/wvt.git
-    branch = main
-[submodule "sph+nln"]
-	path = sph+nln
-	url = git@gitlab.lanl.gov:sph/2hot-apps-subgroup/sph-nln.git
-    branch = main
