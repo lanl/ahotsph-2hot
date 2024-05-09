@@ -414,7 +414,7 @@ bsend(int s, const void *outbuf, int sent, int dest, int type)
     int inbuf[MAXLEN/sizeof(int)];
     int src, seq, intype, inlen;
     struct sockaddr_in src_addr;
-    int len = sizeof(struct sockaddr_in);
+    socklen_t len = sizeof(struct sockaddr_in);
     int retry = 0;
     int nfail = 0;
     int nsent;
@@ -558,7 +558,7 @@ brecv(int s, void *inb, int sent, int *dest, int type, int block)
 {
     int src = 0, seq, incnt;
     struct sockaddr_in src_addr;
-    int len = sizeof(struct sockaddr_in);
+    socklen_t len = sizeof(struct sockaddr_in);
     int inlen, i;
     int intype;
     int inbuf[(BLOCK+HLEN)/sizeof(int)];
@@ -751,7 +751,7 @@ sock_init(struct sockaddr_in *acc, int bind_flag)
 
     if (bind_flag) {
 	int ret;
-	int len = sizeof(struct sockaddr_in);
+	socklen_t len = sizeof(struct sockaddr_in);
 	char hostname[256];
 	struct hostent *hp;
 	char *p;
