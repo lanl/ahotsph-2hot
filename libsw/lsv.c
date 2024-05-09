@@ -556,7 +556,7 @@ bsend(int s, const void *outbuf, int sent, int dest, int type)
 static int
 brecv(int s, void *inb, int sent, int *dest, int type, int block)
 {
-    int src, seq, incnt;
+    int src = 0, seq, incnt;
     struct sockaddr_in src_addr;
     int len = sizeof(struct sockaddr_in);
     int inlen, i;
