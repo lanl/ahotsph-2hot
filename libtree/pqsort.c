@@ -28,6 +28,7 @@
 #include "decomp.h"
 #include "abm.h"
 #include "rsort.h"
+#include "sw_malloc.h"
 
 Timer_t PQSortTm;
 Timer_t PQSortCommTm;
