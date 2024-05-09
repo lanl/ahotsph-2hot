@@ -628,7 +628,7 @@ extend_mem(size_t n)
     fheader_t *hdr;
     trailer_t *trl;
     char *old_top;
-    void *max_brk, *begin;
+    void *begin;
 
     Msgf(("extend_mem(%ld)\n", (long)n));
     /* Check structure sizes */
