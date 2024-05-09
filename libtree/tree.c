@@ -455,6 +455,7 @@ make_tree(tree_t *tp)
 	    Set_Sub_Flag(parent, (1<<sub_last));
 	    parent->ptr = NULL;
 	    new = Enter(tp, lastckey, oldptr, 0);
+        if (new) Msgf(("new is null!\n"));
 	    /* Msgf(("Created new copy of lastbody: %s\n", hcellPrint(new))); */
 	    /* Msgf(("New Parent: %s\n", hcellPrint(parent))); */
 	}
@@ -464,6 +465,7 @@ make_tree(tree_t *tp)
 	    sub = KeyAndInt(ckey, nsub1);
 	    Set_Sub_Flag(parent, 1<<sub);
 	    new = Enter(tp, ckey, bp, 0);
+        if (new) Msgf(("new is null!\n"));
 	    /* Msgf(("Created new body: %s\n", hcellPrint(new))); */
 	    /* Msgf(("Body's Parent: %s\n", hcellPrint(parent))); */
 	}
@@ -709,7 +711,7 @@ void Traverse(tree_t *tp, hcellptr pp,
 char
 *PrintType(hcell_type type)
 {
-    static char str[64];
+    static char str[128];
 
     sprintf(str, "Nonlocal:%1d, DataHere:%1d,  KidsHere:%1d"
 	    "Req: %1d, Shared:%1d, Subflags: %#x, Source: %d\n",

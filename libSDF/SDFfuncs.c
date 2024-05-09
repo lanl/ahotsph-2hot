@@ -96,7 +96,7 @@ SDF *SDFopen(const char *hdrfname, const char *datafname)
     }
 
     if( datafname == NULL ){
-	sprintf(SDFerrstring, "SDFopen: NULL data file %s\n", datafname);
+	sprintf(SDFerrstring, "SDFopen: NULL data file\n");
 	return NULL;
     }	
 
