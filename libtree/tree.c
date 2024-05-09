@@ -711,7 +711,7 @@ void Traverse(tree_t *tp, hcellptr pp,
 char
 *PrintType(hcell_type type)
 {
-    static char str[64];
+    static char str[128];
 
     sprintf(str, "Nonlocal:%1d, DataHere:%1d,  KidsHere:%1d"
 	    "Req: %1d, Shared:%1d, Subflags: %#x, Source: %d\n",
