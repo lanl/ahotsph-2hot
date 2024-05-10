@@ -1,0 +1,35 @@
+defaultCC:=gcc
+defaultFC:=gfortran
+
+CC_SPECIFIC:=-g -Wall
+#ARCH_SPECIFIC:=-D__iX86__=x86_64 -DLONG_NK1_KEY -DSTK_FORCE_ALIGNMENT=4 -D_FILE_OFFSET_BITS=64 -DUSE_SYSTEM_MALLOC -DUSE_MPIIO -DUSE_HWCLOCK -DPROCS_PER_NODE=24 
+ARCH_SPECIFIC:=-msse4.2 -DPROCS_PER_NODE=40 -D__iX86__=x86_64 -DUSE_HWCLOCK 
+OPTIMIZE=-O2
+AGGRESSIVE_OPT=-O3
+LDFLAGS=-L$(HOME)/repos/libunwind/bld/lib/
+LEX:=flex
+YACC:=bison -y
+
+include $(treedir)/Make-common/Make.default
+
+swsrc:=lsv.c swampi.c
+asmdir:=asm-sse
+asmsrc=do_grav_sse64_noswiz.s do_grav_sse64_noswiz_eps.s do_grav_sse64_nr.s
+cppasmsrc=do_grav_sse16_ivec.S
+
+LOADLIBES=-lrt
+
+ifeq ($(PAROS),mpi)
+LOADLIBES:=-L/projects/opt/rhel8/x86_64/openmpi/4.1.5-gcc_12.2.0/lib -lmpi
+PAROSCFLAGS:=-I/projects/opt/rhel8/x86_64/openmpi/4.1.5-gcc_12.2.0/include -I$(HOME)/repos/libunwind/bld/include
+endif
+
+ifeq ($(PAROS),mvapich2)
+LOADLIBES:=-L/usr/projects/packages/hpctools/mustang/mvapich2/1.7-gcc/lib64 -lmpich -lmpl
+PAROSCFLAGS:=-I/usr/projects/packages/hpctools/mustang/mvapich2/1.7-gcc/include
+endif
+
+ifeq ($(PAROS),mpich)
+LOADLIBES:=-L/opt/cray/pe/mpich/8.1.25/ofi/intel/19.0/lib -lmpich
+PAROSCFLAGS:=-I/opt/cray/pe/mpich/8.1.25/ofi/intel/19.0/include
+endif
