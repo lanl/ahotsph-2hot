@@ -4,20 +4,20 @@
 #include "chn.h"
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 
-typedef struct Dll_elmt_s{
+typedef struct Dll_elmt_s {
     struct Dll_elmt_s *up, *down;
-    void *stuff[1];		/* Will be alloc'ed to something else! */
+    void *stuff[1]; /* Will be alloc'ed to something else! */
     /* DON'T PUT ANYTHING HERE!!! It will be silently mangleded */
 } Dll_elmt;
 
 typedef struct {
     Dll_elmt Sup, Inf;
     Chn *chn;
-    int length;			/* why not? */
-} Dll ;
+    int length; /* why not? */
+} Dll;
 
 /* Create a Chain suitable for passing to DllCreate */
 void DllCreateChn(Chn *chn, int sz, int n);
@@ -56,7 +56,7 @@ void DllMoveToBottom(Dll *dll, Dll_elmt *mover);
 /* Move to top */
 void DllMoveToTop(Dll *dll, Dll_elmt *mover);
 
-/* Should we bother with __inline__.  These are simple enough that #define 
+/* Should we bother with __inline__.  These are simple enough that #define
  is sufficient. */
 
 /* How many elements? */

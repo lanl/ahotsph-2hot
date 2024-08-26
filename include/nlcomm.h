@@ -1,10 +1,10 @@
 #ifndef _newCommDOTh
 #define _newCommDOTh
 
-#include "tree.h"
 #include "timers.h"
+#include "tree.h"
 
-#define NLHISTLEN 16		/* a logarithmic histogram of msg lens */
+#define NLHISTLEN 16 /* a logarithmic histogram of msg lens */
 extern Counter_t NLBytesCnt;
 extern Counter_t NLHist[NLHISTLEN];
 

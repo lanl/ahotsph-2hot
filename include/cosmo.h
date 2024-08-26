@@ -13,7 +13,7 @@ struct cosmo_s {
     double wa;
     double Lambda;
     double Gnewt;
-    double Zel_f;/* the 'f' factor for linearly growing modes */
+    double Zel_f; /* the 'f' factor for linearly growing modes */
 };
 
 /* new struct for CLASS interface */
@@ -27,7 +27,7 @@ typedef struct cosmology {
     double Omega_m;
     double Omega_r;
     double conf_distance;
-    double kick;		/* union with tau? */
+    double kick; /* union with tau? */
     double drift;
     double growthfac;
     double velfac;
@@ -35,9 +35,9 @@ typedef struct cosmology {
     /* constants */
     double h_100;
     double H0;
-    double Omega0;		/* m+r+lambda+fld */
-    double Omega0_m;		/* cdm+b+ur+some ncdm */
-    double Omega0_r;		/* g+ur+rest of ncdm */
+    double Omega0;   /* m+r+lambda+fld */
+    double Omega0_m; /* cdm+b+ur+some ncdm */
+    double Omega0_r; /* g+ur+rest of ncdm */
     double Omega0_lambda;
     double Omega0_cdm;
     double Omega0_ncdm_tot;
@@ -93,14 +93,14 @@ double kick_delta(struct cosmo_s *c, double t0, double t1);
 double drift_delta(struct cosmo_s *c, double t0, double t1);
 void CosmoPush(struct cosmo_s *c, double time);
 
-#define one_kpc 3.08567802e16 /* km */
+#define one_kpc 3.08567802e16   /* km */
 #define one_Gyr 3.1558149984e16 /* sec */
-#define cm_kpc  3.08567802e21
+#define cm_kpc 3.08567802e21
 #define sec_Gyr 3.1558149984e16
-#define g_Msol  1.98892e33
-#define g_Msol10 1.98892e43	/* 10^10 Msol */
+#define g_Msol 1.98892e33
+#define g_Msol10 1.98892e43 /* 10^10 Msol */
 /* http://physics.nist.gov/cgi-bin/cuu/Value?bg|search_for=G */
-/* #define G_cgs (6.67384e-8) cm3 g-1 s-2 */ 
+/* #define G_cgs (6.67384e-8) cm3 g-1 s-2 */
 #define G_cgs (6.67259e-8)
 #define speed_of_light (299792.458) /* km/sec */
 /* Gaussian Gravitational Constant */
@@ -108,7 +108,3 @@ void CosmoPush(struct cosmo_s *c, double time);
 #define GM_cgs 1.32712442099e26
 /* GM_cgs*sec_Gyr*sec_Gyr/cm_kpc*cm_kpc*cm_kpc */
 #define GNEWT 44986.564
-
-
-
-

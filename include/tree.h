@@ -6,11 +6,12 @@
 #define _TreeDOTh
 
 #include <string.h>
-#include "timers.h"
-#include "key.h"
-#include "stk.h"
+
 #include "chn.h"
+#include "key.h"
 #include "pqsort.h"
+#include "stk.h"
+#include "timers.h"
 
 /* Why not use bitfields???  Can't the compiler can do as well as these */
 /* ugly macros... */
@@ -19,11 +20,11 @@
 /* If we try to go to NDIM>4, we'll run out of bits in the Source field! */
 #define MAXNDIM 3
 #define MAXNSUB (1 << MAXNDIM)
-#define Sub_Flags_Type(x) ((x) & ((1<<MAXNSUB) - 1))
+#define Sub_Flags_Type(x) ((x) & ((1 << MAXNSUB) - 1))
 #define Sub_Flags(x) Sub_Flags_Type(x->type)
 #define Set_Sub_Flag(x, b) ((x)->type |= (b))
 
-/* 
+/*
   NONLOCAL tells us if the data in a cell must/has come from somewhere else.
   The GetSource macro is only valid for NONLOCAL cells.
 
@@ -36,38 +37,38 @@
   still far too ugly!
 
   SHARED means the cell spans processor boundaries.  The sub_flags are
-  valid.  Find'ing the daughters will return one or more 
+  valid.  Find'ing the daughters will return one or more
   SHARED|NONLOCAL cells.
 
   Determine if a cell is terminal by looking at its sub_flags.  There is
   no way to determine if a NONLOCAL, !HERE cell is terminal without requesting
-  it. 
+  it.
 
   LOCKED tells us if the program has locked the cell in memory.  If not,
   it is a candidate for removal to conserve memory.  NOT IMPLEMENTED!
 */
-#define NONLOCAL (1<<(0+MAXNSUB))
-#define DATAHERE	(1<<(1+MAXNSUB))
-#define KIDSHERE	(1<<(2+MAXNSUB))
-#define REQUESTED (1<<(3+MAXNSUB))
-#define SHARED (1<<(4+MAXNSUB))
+#define NONLOCAL (1 << (0 + MAXNSUB))
+#define DATAHERE (1 << (1 + MAXNSUB))
+#define KIDSHERE (1 << (2 + MAXNSUB))
+#define REQUESTED (1 << (3 + MAXNSUB))
+#define SHARED (1 << (4 + MAXNSUB))
 /* This says how many bits are used above.  It controls where the */
 /* subflags go.  It should be one more than the last #define above...*/
 #define NTYPEBITS 5
 
-#define TreeDataOK(type) ((!(type&NONLOCAL))||(type&DATAHERE))
-#define TreeKidsOK(type) ((!(type&NONLOCAL))||(type&KIDSHERE))
-#define TreeShared(type) (type&SHARED)
-#define TreeLocal(type) (!(type&NONLOCAL))
+#define TreeDataOK(type) ((!(type & NONLOCAL)) || (type & DATAHERE))
+#define TreeKidsOK(type) ((!(type & NONLOCAL)) || (type & KIDSHERE))
+#define TreeShared(type) (type & SHARED)
+#define TreeLocal(type) (!(type & NONLOCAL))
 
 /* We offset by one to distinguish a source of zero from an unset source  */
 #define MAXDOC 18
-#define MAXSRCBITS (MAXDOC+1)
-#define SOURCEBIT (NTYPEBITS+MAXNSUB)
-#define SOURCEMASK (((1<<MAXSRCBITS)-1)<<SOURCEBIT)
-#define GetSource(x) (((x) >> SOURCEBIT)-1)
-#define PutSource(x) (((x)+1) << SOURCEBIT)
-#define PutSource2(src,typ) (((typ)&(~SOURCEMASK)) | (((src)+1)<<SOURCEBIT))
+#define MAXSRCBITS (MAXDOC + 1)
+#define SOURCEBIT (NTYPEBITS + MAXNSUB)
+#define SOURCEMASK (((1 << MAXSRCBITS) - 1) << SOURCEBIT)
+#define GetSource(x) (((x) >> SOURCEBIT) - 1)
+#define PutSource(x) (((x) + 1) << SOURCEBIT)
+#define PutSource2(src, typ) (((typ) & (~SOURCEMASK)) | (((src) + 1) << SOURCEBIT))
 
 #ifndef HASH_BITS
 #define HASH_BITS 22
@@ -81,9 +82,9 @@
 /* allocate tbodies, cells, etc. be.  Larger leads to possible */
 /* fragmentation, but smaller makes malloc work harder and makes */
 /* malloc_print output somewhat unwieldy. */
-#define CHUNKSZ (8384512*2)
+#define CHUNKSZ (8384512 * 2)
 
-typedef int hcell_type;	/* Try to anticipate future need for more bits */
+typedef int hcell_type; /* Try to anticipate future need for more bits */
 
 typedef struct hashref {
     struct hashref *next;
@@ -93,15 +94,15 @@ typedef struct hashref {
 } hcell, *hcellptr;
 #define Type(h) ((h)->type)
 
-typedef struct tree_s{
+typedef struct tree_s {
     sortresult_t *bodies;
-    int body_sz;		/* entries in btab */
-    int tbody_sz;		/* communicated bodies */
-    int cell_sz;		/* communicated cells */
-    int cell2_sz;		/* communicated cells */
-    int cell4_sz;		/* communicated cells */
-    int cell8_sz;		/* communicated cells */
-    int cofmdata_sz;		/* intermediate cofm data objects */
+    int body_sz;     /* entries in btab */
+    int tbody_sz;    /* communicated bodies */
+    int cell_sz;     /* communicated cells */
+    int cell2_sz;    /* communicated cells */
+    int cell4_sz;    /* communicated cells */
+    int cell8_sz;    /* communicated cells */
+    int cofmdata_sz; /* intermediate cofm data objects */
     int ndim;
     Chn cellchn;
     Chn cell2chn;
@@ -115,7 +116,7 @@ typedef struct tree_s{
     Key_t (*GetKey)(const void *);
     float (*GetCost)(const void *);
     void (*CofmFromDaugh)(hcell *, hcell **, sortresult_t *);
-    void *(*CellFromCofm)(void */*cofm*/);
+    void *(*CellFromCofm)(void * /*cofm*/);
     int (*CellSz)(void *cp);
     int (*CellActive)(const void *);
     int (*BodyActive)(const void *);
@@ -134,52 +135,73 @@ typedef void (*inherit_t)(const void *, void *, hcell *);
 
 /* in tree.c */
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif /* __cplusplus */
-void SetupTree(tree_t *tp, int ndim,
-	       int bodysz, int cellsz, int cell2sz, int cell4sz,
-	       int tbodysz, int cofmdatasz,
-	       Key_t (*GetKey)(const void *), float (*GetCost)(const void *),
-	       void (*CofmFromDaugh)(hcell *, hcell **, sortresult_t *),
-	       void *(*CellFromCofm)(void *cofm),
-	       int (*CellSz)(void *p));
-void SetupTree8(tree_t *tp, int ndim,
-		int bodysz, int cellsz, int cell2sz, int cell4sz, int cell8sz,
-		int tbodysz, int cofmdatasz,
-		Key_t (*GetKey)(const void *), float (*GetCost)(const void *),
-		void (*CofmFromDaugh)(hcell *, hcell **, sortresult_t *),
-		void *(*CellFromCofm)(void *cofm),
-		int (*CellSz)(void *p));
+void SetupTree(tree_t *tp,
+               int ndim,
+               int bodysz,
+               int cellsz,
+               int cell2sz,
+               int cell4sz,
+               int tbodysz,
+               int cofmdatasz,
+               Key_t (*GetKey)(const void *),
+               float (*GetCost)(const void *),
+               void (*CofmFromDaugh)(hcell *, hcell **, sortresult_t *),
+               void *(*CellFromCofm)(void *cofm),
+               int (*CellSz)(void *p));
+void SetupTree8(tree_t *tp,
+                int ndim,
+                int bodysz,
+                int cellsz,
+                int cell2sz,
+                int cell4sz,
+                int cell8sz,
+                int tbodysz,
+                int cofmdatasz,
+                Key_t (*GetKey)(const void *),
+                float (*GetCost)(const void *),
+                void (*CofmFromDaugh)(hcell *, hcell **, sortresult_t *),
+                void *(*CellFromCofm)(void *cofm),
+                int (*CellSz)(void *p));
 void BuildTree(tree_t *treep, sortresult_t *bodies);
 void FreeTree(tree_t *treep);
 void LoadTNodes2(tree_t *tp, void *inbuf, void *endbuf);
 hcell *Enter(tree_t *tp, Key_t key, void *c, hcell_type type);
 char *PrintType(hcell_type type);
 char *hcellPrint(hcellptr p);
-void Traverse(tree_t *tp, hcellptr pp,
-	      int (*pref)(tree_t *, hcellptr), 
-	      void (*postf)(tree_t *, hcellptr, hcellptr *));
-void *Tr0(tree_t *tp, Key_t key,
-	  int (*pref)(hcellptr), void *(*postf)(hcellptr, void **));
+void Traverse(tree_t *tp,
+              hcellptr pp,
+              int (*pref)(tree_t *, hcellptr),
+              void (*postf)(tree_t *, hcellptr, hcellptr *));
+void *Tr0(tree_t *tp, Key_t key, int (*pref)(hcellptr), void *(*postf)(hcellptr, void **));
 void PrintTree(tree_t *tp,
-	  char *(*PrintBody)(/* const cell * */),
-	  char *(*PrintCell)(/* const body * */));
+               char *(*PrintBody)(/* const cell * */),
+               char *(*PrintCell)(/* const body * */));
 
 /* A few accumulators for diagnostic purposes */
-extern Counter_t DeferCnt;	/* in walk.c */
-extern Counter_t RequestCnt;	/* in walk.c */
-extern Timer_t WalkDeferTm;	/* in walk.c */
-extern Timer_t MakeTreeTm;	/* in tree.c */
-extern Timer_t SharedCellsTm;	/* in tree.c */
+extern Counter_t DeferCnt;        /* in walk.c */
+extern Counter_t RequestCnt;      /* in walk.c */
+extern Timer_t WalkDeferTm;       /* in walk.c */
+extern Timer_t MakeTreeTm;        /* in tree.c */
+extern Timer_t SharedCellsTm;     /* in tree.c */
 extern Timer_t SharedCellsCommTm; /* in tree.c */
-extern Counter_t SharedCnt;	/* in tree.c */
+extern Counter_t SharedCnt;       /* in tree.c */
 
 /* in walk.c */
-void Walk(tree_t *srctp, tree_t *sinktp, int sinksz, 
-	  walkinit_t init_src, macv_t MACv, inherit_t InheritSink);
-void WalkInit(tree_t *srctp, tree_t *sinktp, int sinksz, 
-	      walkinit_t init_src, macv_t MAC, inherit_t InheritSink);
-void  WalkNT(tree_t *sinktp);
+void Walk(tree_t *srctp,
+          tree_t *sinktp,
+          int sinksz,
+          walkinit_t init_src,
+          macv_t MACv,
+          inherit_t InheritSink);
+void WalkInit(tree_t *srctp,
+              tree_t *sinktp,
+              int sinksz,
+              walkinit_t init_src,
+              macv_t MAC,
+              inherit_t InheritSink);
+void WalkNT(tree_t *sinktp);
 void WalkPoll(void);
 void WalkTerminate(void);
 int WalkFlushFreq(int flush_freq);
@@ -191,10 +213,10 @@ int WalkFlushFreq(int flush_freq);
 /* are in tree.c */
 
 #undef INLINE
-#if (__STDC_VERSION__ >= 199901L) && !defined (TREEdotC)
+#if (__STDC_VERSION__ >= 199901L) && !defined(TREEdotC)
 #define INLINE inline
 #else
-#if (defined (__GNUC__) || defined(__ICC__)) && !defined (TREEdotC)
+#if (defined(__GNUC__) || defined(__ICC__)) && !defined(TREEdotC)
 #define INLINE extern __inline__
 #else
 #define INLINE
@@ -210,31 +232,30 @@ int WalkFlushFreq(int flush_freq);
    2) Relinking the found pointer to the head of the chain costs 4 operations.
    It's cheap enough that we don't need a separate Find_And_Relink.
 */
-   
-INLINE hcellptr
-Find(const tree_t *tp, Key_t key)
-{
-    hcellptr *firstp = tp->htab+KeyAndInt(key, tp->hash_mask);
+
+INLINE hcellptr Find(const tree_t *tp, Key_t key) {
+    hcellptr *firstp = tp->htab + KeyAndInt(key, tp->hash_mask);
     hcellptr np;
     hcellptr *prevnext;
 
     /* Look for a match.  Don't go past the end of the chain. Remember */
     /* the 'next' that points to 'np' */
-    for(np = *(prevnext = firstp);
-#if NK==1
-	np && np->key.k[0] != key.k[0]) ; 
+    for (np = *(prevnext = firstp);
+#if NK == 1
+         np && np->key.k[0] != key.k[0])
+        ;
 #else
-	np && (np->key.k[0] != key.k[0] || np->key.k[1] != key.k[1]); /* hot spot */
+         np && (np->key.k[0] != key.k[0] || np->key.k[1] != key.k[1]); /* hot spot */
 #endif
-	np = *(prevnext = &np->next) ){}
+        np = *(prevnext = &np->next) ){}
 
-    if (np) {
-	/* Put the 'found' np at the head of the chain.  */
-	*prevnext = np->next;
-	np->next = *firstp;
-	*firstp = np;
-    }
-    return(np);
+        if (np) {
+            /* Put the 'found' np at the head of the chain.  */
+            *prevnext = np->next;
+            np->next = *firstp;
+            *firstp = np;
+        }
+        return (np);
 }
 
 #undef INLINE

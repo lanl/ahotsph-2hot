@@ -14,21 +14,23 @@
    could probably still be improved for the worst case, but I am not
    convinced that the tree code runs with totalmem < 2*(bodymem) anyway,
    so what would be the point.  */
-#define EXPENSIVE_ASSERTIONS  /* Allow some assertions involving DestDecomp */
-#include <stdlib.h>
+#define EXPENSIVE_ASSERTIONS /* Allow some assertions involving DestDecomp */
 #include "pqsort.h"
+
+#include <stdlib.h>
+
 #include "Assert.h"
-#include "key.h"
 #include "Malloc.h"
-#include "mpmy.h"
-#include "gc.h"
 #include "Msgs.h"
-#include "stk.h"
-#include "timers.h"
-#include "decomp.h"
 #include "abm.h"
+#include "decomp.h"
+#include "gc.h"
+#include "key.h"
+#include "mpmy.h"
 #include "rsort.h"
+#include "stk.h"
 #include "sw_malloc.h"
+#include "timers.h"
 
 Timer_t PQSortTm;
 Timer_t PQSortCommTm;
@@ -43,54 +45,60 @@ struct sortpair {
     void *p;
 };
 
-static int cmpsort(const void *k1, const void *k2); 
+static int cmpsort(const void *k1, const void *k2);
 static Key_t (*getkey_s)(const void *);
 
 #define SORT_TAG 4326
 
-#define pswap(a, b, sz) do {    \
-	char _c[sz]; \
-	memcpy((void *)&_c, (void *)(a), sz);	\
-	memcpy((void *)(a), (void *)(b), sz);	\
-	memcpy((void *)(b), (void *)&_c, sz);	\
+#define pswap(a, b, sz)                       \
+    do {                                      \
+        char _c[sz];                          \
+        memcpy((void *)&_c, (void *)(a), sz); \
+        memcpy((void *)(a), (void *)(b), sz); \
+        memcpy((void *)(b), (void *)&_c, sz); \
     } while (0)
 
 Key_t keyptr(const void *ptr) {
     Key_t k = *(Key_t *)ptr;
-#if NK==2
-    k.k[1] &= (1 << (KEYBITS-sizeof(_KTYPE)*8)) - 1;
+#if NK == 2
+    k.k[1] &= (1 << (KEYBITS - sizeof(_KTYPE) * 8)) - 1;
 #else
-    k.k[0] &= (1 << KEYBITS) -1;
+    k.k[0] &= (1 << KEYBITS) - 1;
 #endif
     return k;
 }
 
-void pqsortsetup(sortresult_t *decompp, void *bp, int nobj, 
-		int size, float median_tol,
-		void *(*realloc_like)(void *, size_t)) {
+void pqsortsetup(sortresult_t *decompp,
+                 void *bp,
+                 int nobj,
+                 int size,
+                 float median_tol,
+                 void *(*realloc_like)(void *, size_t)) {
     pqsortsetup_order(decompp, bp, nobj, size, median_tol, 0, realloc_like);
 }
 
 /* This should replace pqsortsetup in the next "major release" */
-void pqsortsetup_order(sortresult_t *decompp, void *bp, int nobj, 
-		int size, float median_tol, int proc_order, 
-		void *(*realloc_like)(void *, size_t)) {
+void pqsortsetup_order(sortresult_t *decompp,
+                       void *bp,
+                       int nobj,
+                       int size,
+                       float median_tol,
+                       int proc_order,
+                       void *(*realloc_like)(void *, size_t)) {
     decompp->data = bp;
     decompp->nobj = nobj;
     decompp->size = size;
     decompp->median_tol = median_tol;
     decompp->proc_order = proc_order;
     decompp->method = 0;
-    decompp->loadbal_target = 1.0;  /* default to no load balance */
+    decompp->loadbal_target = 1.0; /* default to no load balance */
     decompp->realloc_like = realloc_like;
 }
 
-void *pqsort(sortresult_t *decompp,
-	    float (*weight)(const void *), Key_t (*getkey)(const void *))
-{
+void *pqsort(sortresult_t *decompp, float (*weight)(const void *), Key_t (*getkey)(const void *)) {
     int i;
     size_t size;
-    int  nobj;
+    int nobj;
     /* Lots of char*, really should be void*, but we do so much arithmetic
        that it's just too tedious to use void* */
     char *p, *q;
@@ -107,51 +115,48 @@ void *pqsort(sortresult_t *decompp,
     int nsends = 0, nrecvs = 0, maxn = 0;
 
     StartTimer(&PQSortTm);
-    if( Msg_test(__FILE__) )
-	malloc_debug_reset = malloc_debug(2);
+    if (Msg_test(__FILE__))
+        malloc_debug_reset = malloc_debug(2);
     Msgf(("pqsort: nobj is %d\n", decompp->nobj));
     getkey_s = getkey;
-    
+
     size = decompp->size;
     nobj = decompp->nobj;
     data = decompp->data;
-    if (MPMY_Nproc() == 1) goto sort;
+    if (MPMY_Nproc() == 1)
+        goto sort;
 
     nsendarr = Calloc(MPMY_Nproc(), sizeof(int));
     tmp = Malloc(size);
 
     SetupDecomp(decompp, weight, getkey);
     p = data;
-    q = data + nobj*size;
+    q = data + nobj * size;
 
-    assert(size > 0);		/* otherwise it loops forever */
-    while (p<q) {
-	while (p < q && DestDecomp(p) == MPMY_Procnum()) {
-	    p += size;
-	}
-	while (p < q && (q -= size, DestDecomp(q)) != MPMY_Procnum()) 
-	    /* do nothing */;
-	if (p < q ) {
-	    memcpy(tmp, p, size);
-	    memcpy(p, q, size);
-	    memcpy(q, tmp, size);
-	    p += size;
-	}
+    assert(size > 0); /* otherwise it loops forever */
+    while (p < q) {
+        while (p < q && DestDecomp(p) == MPMY_Procnum()) { p += size; }
+        while (p < q && (q -= size, DestDecomp(q)) != MPMY_Procnum()) /* do nothing */;
+        if (p < q) {
+            memcpy(tmp, p, size);
+            memcpy(p, q, size);
+            memcpy(q, tmp, size);
+            p += size;
+        }
     }
     Free(tmp);
-    nkeep = (p - data)/size;
+    nkeep = (p - data) / size;
     nsend = nobj - nkeep;
-    Msgf(("Finished testing particle destinations, nsend=%d, nkeep=%d\n",
-	  nsend, nkeep));
+    Msgf(("Finished testing particle destinations, nsend=%d, nkeep=%d\n", nsend, nkeep));
     /* If I were clever, I could have incremented nsendarr while doing
        the loop above.  The loop overhead is trivial, but DestDecomp
        might be expensive.  But this way I can read the code! */
 
-    q = data + nobj*size;
+    q = data + nobj * size;
     nsendarr[MPMY_Procnum()] = nkeep;
     while (p < q) {
-	nsendarr[DestDecomp(p)]++;
-	p += size;
+        nsendarr[DestDecomp(p)]++;
+        p += size;
     }
     assert(nsendarr[MPMY_Procnum()] == nkeep);
     StartTimer(&PQSortWaitTm);
@@ -166,13 +171,13 @@ void *pqsort(sortresult_t *decompp,
     Free(nsendarr);
     Msgf(("Preparing for final particle count of %d\n", incoming));
     if (Msg_test("memleak")) {
-	Msg_do("Memory map before pqsort realloc\n");
-	malloc_print();
+        Msg_do("Memory map before pqsort realloc\n");
+        malloc_print();
     }
     if (incoming > nobj) {
-	data = Realloc(data, (size_t)size*incoming);
+        data = Realloc(data, (size_t)size * incoming);
     }
-    
+
     /* It would have been nice to keep nsendarr around, but we had to free
        it to avoid fragmentation when we Realloc the data buffer. */
     nsendarr = Calloc(MPMY_Nproc(), sizeof(int));
@@ -180,40 +185,38 @@ void *pqsort(sortresult_t *decompp,
        DestDecomp(), and minimizing the number of calls to
        DestDecomp().   Of course, it burns temp space.  This is the
        source of the +8*nsend temp space cited in the header comment. */
-    sortarr = Malloc(nsend*sizeof(sortarr[0]));
+    sortarr = Malloc(nsend * sizeof(sortarr[0]));
 
-    p = data + nkeep*size;
-    outend = p + nsend*size;
+    p = data + nkeep * size;
+    outend = p + nsend * size;
     sortp = sortarr;
-    Msgf(("After {M,C,Re}alloc: data=%p, p=%p, outend=%p, sortp=%p\n",
-	  data, p, outend, sortp));
+    Msgf(("After {M,C,Re}alloc: data=%p, p=%p, outend=%p, sortp=%p\n", data, p, outend, sortp));
     while (p < outend) {
-	dest = DestDecomp(p);
-	nsendarr[dest]++;
-	sortp->sortkey = dest;
-	sortp->p = p;
-	p += size;
-	sortp++;
+        dest = DestDecomp(p);
+        nsendarr[dest]++;
+        sortp->sortkey = dest;
+        sortp->p = p;
+        p += size;
+        sortp++;
     }
     Msgf(("Before qsort:  nsend=%d, sortarr=%p\n", nsend, sortarr));
     if (nsend > 0) {
-	qsort(sortarr, nsend, sizeof(sortarr[0]), cmpsort);
+        qsort(sortarr, nsend, sizeof(sortarr[0]), cmpsort);
     }
     Msgf(("After qsort!\n"));
-    aux = Malloc((size_t)nsend*size);
-    auxend = aux + nsend*size;
+    aux = Malloc((size_t)nsend * size);
+    auxend = aux + nsend * size;
     q = aux;
     sortp = sortarr;
-    Msgf(("Before copying to aux: q=%p, auxend=%p, sortp=%p\n",
-	  q, auxend, sortp));
+    Msgf(("Before copying to aux: q=%p, auxend=%p, sortp=%p\n", q, auxend, sortp));
     while (q < auxend) {
-	memcpy(q, sortp->p, size);
-	/* Verify that it's truly sorted. */
+        memcpy(q, sortp->p, size);
+        /* Verify that it's truly sorted. */
 #ifdef EXPENSIVE_ASSERTIONS
-	assert(q==aux || DestDecomp(q) >= DestDecomp(q-size));
+        assert(q == aux || DestDecomp(q) >= DestDecomp(q - size));
 #endif
-	q += size;
-	sortp++;
+        q += size;
+        sortp++;
     }
     Free(sortarr);
     /* We're done with sorting for now. */
@@ -227,26 +230,29 @@ void *pqsort(sortresult_t *decompp,
     StopTimer(&PQSortWaitTm);
 
     outstart = aux;
-    instart = data + nkeep*size;
+    instart = data + nkeep * size;
     Msgf(("aux=%p, data=%p, instart=%p\n", aux, data, instart));
 
     sendoffsets = Calloc(MPMY_Nproc(), sizeof(int));
     recvoffsets = Calloc(MPMY_Nproc(), sizeof(int));
-    
+
     assert(size % sizeof(int) == 0);
     for (i = 0; i < MPMY_Nproc(); i++) {
-	if (nsendarr[i]) nsends++;
-	if (nrecvarr[i]) nrecvs++;
-	if (nsendarr[i] > maxn) maxn = nsendarr[i]*size;
-	nsendarr[i] *= size/sizeof(int);
-	nrecvarr[i] *= size/sizeof(int);
-	if (i != 0) {
-	    sendoffsets[i] = sendoffsets[i-1] + nsendarr[i-1];
-	    recvoffsets[i] = recvoffsets[i-1] + nrecvarr[i-1];
-	} else {
-	    sendoffsets[i] = 0;
-	    recvoffsets[i] = 0;
-	}
+        if (nsendarr[i])
+            nsends++;
+        if (nrecvarr[i])
+            nrecvs++;
+        if (nsendarr[i] > maxn)
+            maxn = nsendarr[i] * size;
+        nsendarr[i] *= size / sizeof(int);
+        nrecvarr[i] *= size / sizeof(int);
+        if (i != 0) {
+            sendoffsets[i] = sendoffsets[i - 1] + nsendarr[i - 1];
+            recvoffsets[i] = recvoffsets[i - 1] + nrecvarr[i - 1];
+        } else {
+            sendoffsets[i] = 0;
+            recvoffsets[i] = 0;
+        }
 #if 0
 	if (nsendarr[i] || nrecvarr[i]) {
 	    Msgf(("[%5d] %5d @ %5d %5d @ %5d\n", i, nsendarr[i], sendoffsets[i],
@@ -264,23 +270,23 @@ void *pqsort(sortresult_t *decompp,
     Native_MPMY_Alltoallv(outstart, nsendarr, sendoffsets, MPMY_INT, 
 			  instart, nrecvarr, recvoffsets, MPMY_INT);
 #else
-    MPMY_Alltoallv_simple(outstart, nsendarr, sendoffsets, MPMY_INT, 
-			  instart, nrecvarr, recvoffsets, MPMY_INT);
+    MPMY_Alltoallv_simple(
+        outstart, nsendarr, sendoffsets, MPMY_INT, instart, nrecvarr, recvoffsets, MPMY_INT);
 #endif
     StopTimer(&PQSortAtoavTm);
     Msgf(("After Alltoallv:\n"));
     StopTimer(&PQSortCommTm);
 #ifdef EXPENSIVE_ASSERTIONS
     for (i = 0; i < MPMY_Nproc(); i++) {
-	if (nrecvarr[i]) {
-	    dest = DestDecomp(instart+recvoffsets[i]*sizeof(int));
-	    if (dest != MPMY_Procnum()) {
-		Error("Bad dest from %d (%d) after Alltoallv\n", i, dest);
-	    }
-	}
+        if (nrecvarr[i]) {
+            dest = DestDecomp(instart + recvoffsets[i] * sizeof(int));
+            if (dest != MPMY_Procnum()) {
+                Error("Bad dest from %d (%d) after Alltoallv\n", i, dest);
+            }
+        }
     }
 #endif
-    
+
     Free(recvoffsets);
     Free(sendoffsets);
     Free(nrecvarr);
@@ -288,60 +294,62 @@ void *pqsort(sortresult_t *decompp,
     Free(nsendarr);
 
     if (incoming < nobj) {
-	data = Realloc(data, size*incoming);
+        data = Realloc(data, size * incoming);
     }
     Msgf(("calling FinishDecomp\n"));
     FinishDecomp();
 
     decompp->data = data;
     decompp->nobj = incoming;
-    
-  sort:
-    if (decompp->nobj ==  0) {
-	Msgf(("first key is (null)\nlast key is (null)\n"));
+
+sort:
+    if (decompp->nobj == 0) {
+        Msgf(("first key is (null)\nlast key is (null)\n"));
     } else {
-	StartTimer(&SortTm);
-	/* Only need to sort on the final cycle */
-	if (decompp->decomp_cycles == 0 || decompp->cycle == decompp->decomp_cycles-1) {
+        StartTimer(&SortTm);
+        /* Only need to sort on the final cycle */
+        if (decompp->decomp_cycles == 0 || decompp->cycle == decompp->decomp_cycles - 1) {
 #if 1
-	    /* Permutation no faster on Titan/Opterons, but wins on Eos/Intel */
-	    rsort(decompp->data, decompp->nobj, decompp->size, 12, KEYBITS-1, getkey);
+            /* Permutation no faster on Titan/Opterons, but wins on Eos/Intel */
+            rsort(decompp->data, decompp->nobj, decompp->size, 12, KEYBITS - 1, getkey);
 #else
-	    /* Make an index array, sort it, and then permute the data array */
-	    /* This saves a bunch of getkey calls inside rsort */
-	    /* It also reduces the amount of data moving around inside rsort */
-	    int n = decompp->nobj;
-	    int sz = decompp->size;
-	    Key_t *kindex = Malloc(n * sizeof(Key_t));
-	    char *ddata = (char *)decompp->data;
-	    for (int i = 0; i < n; i++) {
-		/* Stuff the index into the empty high bits of the Key */
-		/* this will break if KEYBITS + ilog2(n) overflows the key */
-		/* need to mask in keyptr() or isort part of rsort will fail */
-		kindex[i] = KeyOr(getkey(ddata + i * sz), KeyLshift(KeyInt(i), KEYBITS));
-	    }
-	    rsort(kindex, n, sizeof(Key_t), 12, KEYBITS-1, keyptr);
-	    /* Take indices out of key array, throw rest away */
-	    int *permute = Malloc(n * sizeof(int));
-	    for (int i = 0; i < n; i++) {
-		permute[i] = KeyAndInt(KeyRshift(kindex[i], KEYBITS), (1<<30)-1);
-	    }
-	    Free(kindex);
-	    /* helpful hint from http://stackoverflow.com/questions/7365814/in-place-array-reordering */
-	    for (int i = 0; i < n; i++) {
-		char tmp[sz];
-		memcpy(tmp, ddata + i * sz, sz);
-		int j = i;
-		while (1) {
-		    int k = permute[j];
-		    permute[j] = j;
-		    if (i == k) break;
-		    memcpy(ddata + j * sz, ddata + k * sz, sz);
-		    j = k;
-		}
-		memcpy(ddata + j * sz, tmp, sz);
-	    }
-	    Free(permute);
+            /* Make an index array, sort it, and then permute the data array */
+            /* This saves a bunch of getkey calls inside rsort */
+            /* It also reduces the amount of data moving around inside rsort */
+            int n = decompp->nobj;
+            int sz = decompp->size;
+            Key_t *kindex = Malloc(n * sizeof(Key_t));
+            char *ddata = (char *)decompp->data;
+            for (int i = 0; i < n; i++) {
+                /* Stuff the index into the empty high bits of the Key */
+                /* this will break if KEYBITS + ilog2(n) overflows the key */
+                /* need to mask in keyptr() or isort part of rsort will fail */
+                kindex[i] = KeyOr(getkey(ddata + i * sz), KeyLshift(KeyInt(i), KEYBITS));
+            }
+            rsort(kindex, n, sizeof(Key_t), 12, KEYBITS - 1, keyptr);
+            /* Take indices out of key array, throw rest away */
+            int *permute = Malloc(n * sizeof(int));
+            for (int i = 0; i < n; i++) {
+                permute[i] = KeyAndInt(KeyRshift(kindex[i], KEYBITS), (1 << 30) - 1);
+            }
+            Free(kindex);
+            /* helpful hint from
+             * http://stackoverflow.com/questions/7365814/in-place-array-reordering */
+            for (int i = 0; i < n; i++) {
+                char tmp[sz];
+                memcpy(tmp, ddata + i * sz, sz);
+                int j = i;
+                while (1) {
+                    int k = permute[j];
+                    permute[j] = j;
+                    if (i == k)
+                        break;
+                    memcpy(ddata + j * sz, ddata + k * sz, sz);
+                    j = k;
+                }
+                memcpy(ddata + j * sz, tmp, sz);
+            }
+            Free(permute);
 #endif
 #if 0
 	    /* DEBUG */
@@ -355,20 +363,19 @@ void *pqsort(sortresult_t *decompp,
 		}
 	    }
 #endif
-	}
-	/* qsort(decompp->data, decompp->nobj, decompp->size, cmpkey); */
-	StopTimer(&SortTm);
-	Msgf(("first key is %s, ",  PrintKey(getkey(decompp->data))));
-	Msgf(("last key is %s\n", 
-	      PrintKey(getkey((char *)decompp->data + (decompp->nobj-1)*size))));
+        }
+        /* qsort(decompp->data, decompp->nobj, decompp->size, cmpkey); */
+        StopTimer(&SortTm);
+        Msgf(("first key is %s, ", PrintKey(getkey(decompp->data))));
+        Msgf(("last key is %s\n",
+              PrintKey(getkey((char *)decompp->data + (decompp->nobj - 1) * size))));
     }
-    if( malloc_debug_reset >= 0 )
-	malloc_debug(malloc_debug_reset);
+    if (malloc_debug_reset >= 0)
+        malloc_debug(malloc_debug_reset);
     StopTimer(&PQSortTm);
     return decompp->data;
-}	     
-
-static int cmpsort(const void *a, const void *b){
-    return ((struct sortpair *)a)->sortkey - ((struct sortpair *)b)->sortkey;
 }
 
+static int cmpsort(const void *a, const void *b) {
+    return ((struct sortpair *)a)->sortkey - ((struct sortpair *)b)->sortkey;
+}

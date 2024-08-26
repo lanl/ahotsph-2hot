@@ -5,7 +5,7 @@
 
 /* These are the generic definitions. */
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif /* __cplusplus */
 float recip8bit(float);
 float recipsqrt8bit(float);
@@ -22,26 +22,30 @@ double sqrt(double);
 #define recipsqrt8bit recipsqrtf
 #define recip8bit recipf
 #define recipsqrtf(x) (recipf(sqrtf_fast(x)))
-#define recipf(x) (((float)1.0)/(x))
+#define recipf(x) (((float)1.0) / (x))
 #define sqrtf_fast(x) (sqrt(x))
 
 /* Now we conditionally redefine some of them. */
-#if defined (sparc) && defined(__GNUC__) && !defined(__INSIGHT__)
+#if defined(sparc) && defined(__GNUC__) && !defined(__INSIGHT__)
 #undef sqrtf_fast
-#define sqrtf_fast(x) \
-     ({ float __value, __arg = (x);   \
-        asm ("fsqrts %1,%0": "=f" (__value): "f" (__arg));  \
-        __value; })
+#define sqrtf_fast(x)                                     \
+    ({                                                    \
+        float __value, __arg = (x);                       \
+        asm("fsqrts %1,%0" : "=f"(__value) : "f"(__arg)); \
+        __value;                                          \
+    })
 #endif
 
-#if defined(mips) 
+#if defined(mips)
 #undef sqrtf_fast
 #if defined(__GNUC__)
 /* I'm not positive the sqrt.s instruction is right (msw) */
-#define sqrtf_fast(x) \
-     ({ float __value, __arg = (x);   \
-        asm ("sqrt.s %1, %0" : "=f" (__value): "f" (__arg));  \
-        __value; })
+#define sqrtf_fast(x)                                      \
+    ({                                                     \
+        float __value, __arg = (x);                        \
+        asm("sqrt.s %1, %0" : "=f"(__value) : "f"(__arg)); \
+        __value;                                           \
+    })
 #else
 /* Compilation with -OPT:fast_sqrt -OPT:IEEE_arithmetic=3 seems to
    make a big difference on an R8000.  The first enables use of the fast
@@ -65,14 +69,18 @@ double sqrt(double);
 #define HAS_FAST_APPROX_SQRT
 #define HAS_FAST_APPROX_RECIP
 
-#define recipsqrt8bit(x) \
-  ({ float __value, __arg = (x); \
-     asm ("frsqr.ss %1,%0": "=f" (__value): "f" (__arg)); \
-     __value; })
-#define recip8bit(x) \
-  ({ float __value, __arg = (x); \
-     asm ("frcp.ss %1,%0": "=f" (__value): "f" (__arg)); \
-     __value; })
+#define recipsqrt8bit(x)                                    \
+    ({                                                      \
+        float __value, __arg = (x);                         \
+        asm("frsqr.ss %1,%0" : "=f"(__value) : "f"(__arg)); \
+        __value;                                            \
+    })
+#define recip8bit(x)                                       \
+    ({                                                     \
+        float __value, __arg = (x);                        \
+        asm("frcp.ss %1,%0" : "=f"(__value) : "f"(__arg)); \
+        __value;                                           \
+    })
 #endif /* __GNUC__ */
 
 #endif /* __INTEL_SSD__ */
@@ -89,10 +97,12 @@ double sqrt(double);
 /* Is this the same as -ffast-math -mcpu=rios2 ? */
 #if defined(_ARCH_PWR2) && defined(__GNUC__)
 #undef sqrtf_fast
-#define sqrtf_fast(x) \
-  ({ float __value, __arg = (x); \
-     asm ("fsqrt %0,%1" : "=f" (__value) : "f" (__arg)); \
-     __value; })
+#define sqrtf_fast(x)                                    \
+    ({                                                   \
+        float __value, __arg = (x);                      \
+        asm("fsqrt %0,%1" : "=f"(__value) : "f"(__arg)); \
+        __value;                                         \
+    })
 #endif
 
 #if defined(_ARCH_PPC64) && defined(__GNUC__)
@@ -102,21 +112,27 @@ double sqrt(double);
 #define HAS_FAST_APPROX_SQRT
 #define HAS_FAST_APPROX_RECIP
 
-#define sqrtf_fast(x) \
-  ({ float __value, __arg = (x); \
-     asm ("fsqrts %0,%1" : "=f" (__value) : "f" (__arg)); \
-     __value; })
+#define sqrtf_fast(x)                                     \
+    ({                                                    \
+        float __value, __arg = (x);                       \
+        asm("fsqrts %0,%1" : "=f"(__value) : "f"(__arg)); \
+        __value;                                          \
+    })
 
-#define recip8bit(x) \
-  ({ float __value, __arg = (x); \
-     asm ("fres %0,%1" : "=f" (__value) : "f" (__arg)); \
-     __value; })
+#define recip8bit(x)                                    \
+    ({                                                  \
+        float __value, __arg = (x);                     \
+        asm("fres %0,%1" : "=f"(__value) : "f"(__arg)); \
+        __value;                                        \
+    })
 
 /* Really 5bit */
-#define recipsqrt8bit(x) \
-  ({ float __value, __arg = (x); \
-     asm ("frsqrte %0,%1" : "=f" (__value) : "f" (__arg)); \
-     __value; })
+#define recipsqrt8bit(x)                                   \
+    ({                                                     \
+        float __value, __arg = (x);                        \
+        asm("frsqrte %0,%1" : "=f"(__value) : "f"(__arg)); \
+        __value;                                           \
+    })
 #endif
 
 #if defined(__alpha) && !defined(__linux)
@@ -128,10 +144,12 @@ extern float F_sqrtf(float);
 #if defined(__hppa__)
 #undef sqrtf_fast
 #ifdef __GNUC__
-#define sqrtf_fast(x) \
-  ({ float __value, __arg = (x); \
-     asm ("fsqrt,sgl %1,%0" : "=fx" (__value) : "fx" (__arg)); \
-     __value; })
+#define sqrtf_fast(x)                                          \
+    ({                                                         \
+        float __value, __arg = (x);                            \
+        asm("fsqrt,sgl %1,%0" : "=fx"(__value) : "fx"(__arg)); \
+        __value;                                               \
+    })
 #else
 #define sqrtf_fast sqrtf
 extern float sqrtf(float);

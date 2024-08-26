@@ -4,12 +4,12 @@
 #define LSV_ANY (-2)
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif /* __cplusplus */
 extern int LSV_procnum;
 extern int LSV_nproc;
 
-extern char Smy_name[];		/* my hostname or inet address */
+extern char Smy_name[]; /* my hostname or inet address */
 
 void Ssend(const void *outb, int outcnt, int dest, int type);
 int Srecv_block(void *inb, int size, int type, int *from);

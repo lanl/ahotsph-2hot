@@ -2,20 +2,20 @@
 #define _MallocDOTh
 #include <stddef.h>
 
-#if defined(RENAME_MALLOC) || (!defined(USE_SYSTEM_MALLOC)&&!defined(REPLACE_MALLOC))
-/* There are really three possibilities:  
+#if defined(RENAME_MALLOC) || (!defined(USE_SYSTEM_MALLOC) && !defined(REPLACE_MALLOC))
+/* There are really three possibilities:
  a) the system malloc works perfectly and we aren't interested in the
     debugging features of libsw/malloc.c:  use -DUSE_SYSTEM_MALLOC.
     You will also need to do this if brk and/or sbrk are broken on your
     machine.
  b) we want libsw/malloc.c, but other system "utilities" (e.g., crt0.o)
-    rely on or configure undocumented features of the system malloc.  
-    Therefore we can't simply drop in a replacement for 
+    rely on or configure undocumented features of the system malloc.
+    Therefore we can't simply drop in a replacement for
     malloc/calloc, etc.:  use -DRENAME_MALLOC (or nothing. This is the default)
- c) it's ok to just drop in a replacement for the system malloc: 
+ c) it's ok to just drop in a replacement for the system malloc:
     use -DREPLACE_MALLOC.
 
-    Note that it is probably only necessary to modify CFLAGS in 
+    Note that it is probably only necessary to modify CFLAGS in
     libsw/Make.$(ARCH) because "user-level" memory allocation is done through
     Malloc.[ch] anyway.
 */
@@ -30,7 +30,7 @@
 #endif /* RENAME_MALLOC */
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif /* __cplusplus */
 extern int malloc_debug(int);
 extern int malloc_verify(void);

@@ -2,12 +2,12 @@
 #define _MPMYAbnormalDOTh_
 #include "gccextensions.h"
 
-/* Abhndlrs are void functions of void.  Use them as arguments to 
+/* Abhndlrs are void functions of void.  Use them as arguments to
    MPMY_OnAbnormal. */
 typedef void (*Abhndlr)(void);
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 
 /* MPMY_Abort will execute MPMY_RaiseAbnormal(SIGABRT) and then call
@@ -32,7 +32,7 @@ void MPMY_RaiseAbnormal(int sig); /* fake a signal of type 'sig' */
    they were requested by MPMY_OnAbnormal, so later functions
    might 'override' earlier ones.  This isn't perfect, but it's better than
    the monolithic handler we had before.  The handler can
-   find out which signal is being handled by looking at 
+   find out which signal is being handled by looking at
      int MPMY_current_signal ;
 
    As a final twist, it is possible to bail out of the stack and just
@@ -47,12 +47,12 @@ void MPMY_SystemAbort(void) __NORETURN__;
 
 /* Really, truly, exit(MPMY_exit_arg).  Now! */
 extern int MPMY_exit_arg;
-void MPMY_SystemExit(void) __NORETURN__;	/* An Abhndlr */
+void MPMY_SystemExit(void) __NORETURN__; /* An Abhndlr */
 
-/* Do a mkdir/chdir to the directory named by MPMY_abchdir_arg. 
+/* Do a mkdir/chdir to the directory named by MPMY_abchdir_arg.
    This can be extremely useful before dumping core... */
 extern char MPMY_Abchdir_arg[];
-void MPMY_Abchdir(void);	/* An Abhndlr */
+void MPMY_Abchdir(void); /* An Abhndlr */
 
 /* Announce (Shout) that we are handling a signal.  Try not to repeat
  yourself if it's been said already... */

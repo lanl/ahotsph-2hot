@@ -2,9 +2,9 @@
  * Copyright 1993 Michael S. Warren and John K. Salmon.  All Rights Reserved.
  */
 
-#include "tree.h"
 #include "key.h"
 #include "timers.h"
+#include "tree.h"
 
 #define NDIM 2
 
@@ -29,7 +29,7 @@ typedef struct {
 /* This is the descriptor that goes into the SDF header. */
 
 #define OUTBODYDESC \
-"struct {\n\
+    "struct {\n\
     unsigned char value;\n\
 }"
 

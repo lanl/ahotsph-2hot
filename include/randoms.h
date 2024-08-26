@@ -3,7 +3,7 @@
 
 #define NTAB 32
 
-typedef struct{
+typedef struct {
     long idum, idum2;
     long iy, iv[NTAB];
     int did_init;
@@ -12,7 +12,7 @@ typedef struct{
 } ran_state;
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif /* __cplusplus */
 void ran_init(int seed, ran_state *st);
 float uniform_rand(ran_state *s);

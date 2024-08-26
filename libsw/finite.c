@@ -5,7 +5,4 @@
 #define HUGE 1.e38
 #endif
 
-int finite(double x){
-    return x<HUGE && x>-HUGE;
-}
-
+int finite(double x) { return x < HUGE && x > -HUGE; }

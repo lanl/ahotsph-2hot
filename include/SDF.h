@@ -21,7 +21,7 @@
 #define SDF_MULTI 1
 
 #ifndef INT64_MAX
-#if __WORDSIZE==64
+#if __WORDSIZE == 64
 #define INT64_MAX LONG_MAX
 #else
 /* #define INT64_MAX LLONG_MAX Why doesn't this work? */
@@ -36,15 +36,17 @@
 typedef char *SDF[32];
 
 /* Identical to declaration in SDF-private.h */
-enum SDF_type_enum{SDF_NOTYPE, 
-		       SDF_CHAR, 
-		       SDF_SHORT, 
-		       SDF_INT,
-		       SDF_LONG,
-		       SDF_INT64,
-		       SDF_FLOAT, 
-		       SDF_DOUBLE, 
-		       SDF_STRING};
+enum SDF_type_enum {
+    SDF_NOTYPE,
+    SDF_CHAR,
+    SDF_SHORT,
+    SDF_INT,
+    SDF_LONG,
+    SDF_INT64,
+    SDF_FLOAT,
+    SDF_DOUBLE,
+    SDF_STRING
+};
 #endif
 
 /* Provided for backwards compatibility.  Not recommended! */
@@ -66,9 +68,9 @@ extern int SDFtype_sizes[];
 
 extern char SDFerrstring[];
 
-int SDFissdf(const char *filename);		/* Not guaranteed correct! */
+int SDFissdf(const char *filename); /* Not guaranteed correct! */
 SDF *SDFopen(const char *hdrfname, const char *datafname);
-int SDFseekable(SDF *hdr);	/* are non-sequential reads allowed? */
+int SDFseekable(SDF *hdr); /* are non-sequential reads allowed? */
 int SDFclose(SDF *hdr);
 int SDFnvecs(SDF *hdr);
 int SDFhasname(const char *name, SDF *hdr);
@@ -90,16 +92,15 @@ int SDFrdvecs(SDF *hdr, ...
 		NULL */ );
 int SDFrdvecsv(SDF *hdr, va_list ap);
 /* Where is the const supposed to go? */
-int SDFrdvecsarr(SDF *hdr, int nreq, 
-	  char **names, int *ns, void **addresses, int *strides);
+int SDFrdvecsarr(SDF *hdr, int nreq, char **names, int *ns, void **addresses, int *strides);
 
 int SDFseekrdvecs(SDF *hdr, ...
 	     /* char *name, int start, int n, void *addr, int stride,  
 		... ,
 		NULL */ );
 int SDFseekrdvecsv(SDF *hdr, va_list ap);
-int SDFseekrdvecsarr(SDF *hdr, int nreq, 
-	  char **names, int64_t *starts, int *ns, void **addresses, int *strides);
+int SDFseekrdvecsarr(
+    SDF *hdr, int nreq, char **names, int64_t *starts, int *ns, void **addresses, int *strides);
 void SDFsetiomode(int mode);
 
 /* These two subvert the SDF "abstraction" and tell you about */
@@ -120,46 +121,71 @@ int SDFgetstring(SDF *sdfp, const char *name, char *string, int size);
 #endif
 
 /* four macros that call SDFget and bail out if the value isn't there */
-#define SDFgetintOrDie(sdfp, name, value) \
-    do{ if( SDFgetint(sdfp, name, value) ) \
-	    Error("SDFgetint(\"%s\") failed\n", name); } while(0)
+#define SDFgetintOrDie(sdfp, name, value)              \
+    do {                                               \
+        if (SDFgetint(sdfp, name, value))              \
+            Error("SDFgetint(\"%s\") failed\n", name); \
+    } while (0)
 
-#define SDFgetint64OrDie(sdfp, name, value) \
-    do{ if( SDFgetint64(sdfp, name, value) ) \
-	    Error("SDFgetint64(\"%s\") failed\n", name); } while(0)
+#define SDFgetint64OrDie(sdfp, name, value)              \
+    do {                                                 \
+        if (SDFgetint64(sdfp, name, value))              \
+            Error("SDFgetint64(\"%s\") failed\n", name); \
+    } while (0)
 
-#define SDFgetfloatOrDie(sdfp, name, value) \
-    do{ if( SDFgetfloat(sdfp, name, value) ) \
-	    Error("SDFgetfloat(\"%s\") failed\n", name); } while(0)
+#define SDFgetfloatOrDie(sdfp, name, value)              \
+    do {                                                 \
+        if (SDFgetfloat(sdfp, name, value))              \
+            Error("SDFgetfloat(\"%s\") failed\n", name); \
+    } while (0)
 
-#define SDFgetdoubleOrDie(sdfp, name, value) \
-    do{ if( SDFgetdouble(sdfp, name, value) ) \
-	    Error("SDFgetdouble(\"%s\") failed\n", name); } while(0)
+#define SDFgetdoubleOrDie(sdfp, name, value)              \
+    do {                                                  \
+        if (SDFgetdouble(sdfp, name, value))              \
+            Error("SDFgetdouble(\"%s\") failed\n", name); \
+    } while (0)
 
-#define SDFgetstringOrDie(sdfp, name, string, size) \
-    do{ if( SDFgetstring(sdfp, name, string, size) ) \
-	    Error("SDFgetstring(\"%s\") failed", name); } while(0)
+#define SDFgetstringOrDie(sdfp, name, string, size)     \
+    do {                                                \
+        if (SDFgetstring(sdfp, name, string, size))     \
+            Error("SDFgetstring(\"%s\") failed", name); \
+    } while (0)
 
 /* And four more that use a default if the value isn't there */
 #define SDFgetintOrDefault(sdfp, name, value, def) \
-    do{ if( SDFgetint(sdfp, name, value) ){ \
-	    *value = def;}} while(0)
+    do {                                           \
+        if (SDFgetint(sdfp, name, value)) {        \
+            *value = def;                          \
+        }                                          \
+    } while (0)
 
 #define SDFgetint64OrDefault(sdfp, name, value, def) \
-    do{ if( SDFgetint64(sdfp, name, value) ){ \
-	    *value = def;}} while(0)
+    do {                                             \
+        if (SDFgetint64(sdfp, name, value)) {        \
+            *value = def;                            \
+        }                                            \
+    } while (0)
 
 #define SDFgetfloatOrDefault(sdfp, name, value, def) \
-    do{ if( SDFgetfloat(sdfp, name, value) ){ \
-	    *value = def;} } while(0)
+    do {                                             \
+        if (SDFgetfloat(sdfp, name, value)) {        \
+            *value = def;                            \
+        }                                            \
+    } while (0)
 
 
 #define SDFgetdoubleOrDefault(sdfp, name, value, def) \
-    do{ if( SDFgetdouble(sdfp, name, value) ){ \
-	    *value = def;} } while(0)
+    do {                                              \
+        if (SDFgetdouble(sdfp, name, value)) {        \
+            *value = def;                             \
+        }                                             \
+    } while (0)
 
 #define SDFgetstringOrDefault(sdfp, name, value, size, def) \
-    do{ if( SDFgetstring(sdfp, name, value, size) ){ \
-	    strncpy(value, def, size);} } while(0)
+    do {                                                    \
+        if (SDFgetstring(sdfp, name, value, size)) {        \
+            strncpy(value, def, size);                      \
+        }                                                   \
+    } while (0)
 
 #endif /* sdfDOTh */

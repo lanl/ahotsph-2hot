@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <string.h>
+
 #include "Malloc.h"
 
 /* A quick and dirty stack implementation.  Less functionality than */
@@ -12,7 +13,7 @@
    but I think it's easier to just -Define it in Make.$ARCH */
 
 /* Use char * so we can do arithmetic without annoying casts. */
-typedef struct stk{
+typedef struct stk {
     char *bottom;
     char *ptr;
     char *top;
@@ -22,19 +23,23 @@ typedef struct stk{
 } Stk;
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif /* __cplusplus */
 /* StkInitWithData starts with the given DATA ptr */
-void StkInitWithData(struct stk *s, size_t initial_sz,
-		     void *(*realloc_like)(void *, size_t), void *data,
-		     unsigned int alignment);
+void StkInitWithData(struct stk *s,
+                     size_t initial_sz,
+                     void *(*realloc_like)(void *, size_t),
+                     void *data,
+                     unsigned int alignment);
 
 /* StkCopy makes a completely new stack, initialized with the data in FROM */
 
 void StkCopy(struct stk *to, const struct stk *from);
 /* StkInit initializes a stack. */
-void StkInit(struct stk *s, size_t initial_sz, 
-	     void *(*realloc_like)(void *, size_t), unsigned int alignment);
+void StkInit(struct stk *s,
+             size_t initial_sz,
+             void *(*realloc_like)(void *, size_t),
+             unsigned int alignment);
 
 /* StkGrow adds at least nbytes to the available space in the stack. */
 /* FOR INTERNAL USE ONLY */
@@ -117,71 +122,61 @@ extern void *StkCrunch(struct stk *s);
 #if (defined(__GNUC__) || defined(__ICC__)) || defined(STKdotC)
 
 #undef INLINE
-#if (__STDC_VERSION__ >= 199901L) && !defined (STKdotC)
+#if (__STDC_VERSION__ >= 199901L) && !defined(STKdotC)
 #define INLINE inline
 #else
-#if (defined (__GNUC_STDC_INLINE__) || defined(__ICC__)) && !defined (STKdotC)
+#if (defined(__GNUC_STDC_INLINE__) || defined(__ICC__)) && !defined(STKdotC)
 #define INLINE extern __inline__
 #else
 #define INLINE
 #endif
 #endif
 
-INLINE int StkAlign(const struct stk *s, unsigned int nbytes){
-  return (nbytes + s->align_mask ) & ~s->align_mask;
+INLINE int StkAlign(const struct stk *s, unsigned int nbytes) {
+    return (nbytes + s->align_mask) & ~s->align_mask;
 }
 
-INLINE void StkInitEz(struct stk *s){
-    StkInit(s, 1024, Realloc_f, _STK_DEFAULT_ALIGNMENT);
-}
+INLINE void StkInitEz(struct stk *s) { StkInit(s, 1024, Realloc_f, _STK_DEFAULT_ALIGNMENT); }
 
-INLINE void *StkPush(struct stk *s, int nbytes){
+INLINE void *StkPush(struct stk *s, int nbytes) {
     char *ret;
     nbytes = StkAlign(s, nbytes);
-    
-    if( s->ptr + nbytes > s->top ){
-	StkGrow(s, nbytes);
+
+    if (s->ptr + nbytes > s->top) {
+        StkGrow(s, nbytes);
     }
     ret = s->ptr;
     s->ptr += nbytes;
     return ret;
 }
 
-INLINE void *StkPushData(struct stk *s, void *p, int nbytes){
+INLINE void *StkPushData(struct stk *s, void *p, int nbytes) {
     return memcpy(StkPush(s, nbytes), p, nbytes);
 }
 
-INLINE void *StkPop(struct stk *s, int nbytes){
-     nbytes = StkAlign(s, nbytes);
+INLINE void *StkPop(struct stk *s, int nbytes) {
+    nbytes = StkAlign(s, nbytes);
 #ifdef NO_CHECK
     return s->ptr -= nbytes;
 #else
     s->ptr -= nbytes;
-    if( s->ptr < s->bottom ){
-	s->ptr += nbytes;	/* undo the damage */
-	return NULL;
-    }else
-	return s->ptr;
+    if (s->ptr < s->bottom) {
+        s->ptr += nbytes; /* undo the damage */
+        return NULL;
+    } else
+        return s->ptr;
 #endif
 }
 
-INLINE void *StkPeek(const struct stk *s, int nbytes){
-    return s->ptr - nbytes;
-}
+INLINE void *StkPeek(const struct stk *s, int nbytes) { return s->ptr - nbytes; }
 
-INLINE void StkClear(struct stk *s){
-    s->ptr = s->bottom;
-}
+INLINE void StkClear(struct stk *s) { s->ptr = s->bottom; }
 
-INLINE void *StkBase(const struct stk *s){
-    return s->bottom;
-}
+INLINE void *StkBase(const struct stk *s) { return s->bottom; }
 
-INLINE size_t StkSz(const struct stk *s){
-    return s->ptr - s->bottom;
-}
+INLINE size_t StkSz(const struct stk *s) { return s->ptr - s->bottom; }
 
-INLINE void *StkTop(const struct stk *s){
+INLINE void *StkTop(const struct stk *s) {
     /* NOTE that StkTop is NOT s->top !! */
     return s->ptr;
 }

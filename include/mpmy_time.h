@@ -7,7 +7,7 @@
 #define MPMY_WC_TIME 2
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif /* __cplusplus */
 void *MPMY_CreateTimer(int type);
 int MPMY_StartTimer(void *);

@@ -6,17 +6,17 @@
 /* little functions for doing gray-code stuff. */
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif /* __cplusplus */
 
 /* Return the parity of num, i.e., parity(0x22)=0 */
 unsigned int parity(unsigned int num);
 
-/* Return the index of the highest bit in num, i.e., 
+/* Return the index of the highest bit in num, i.e.,
    hibit(3) = 1, hibit(1)=0, hibit(513)=9, hibit(0)=-1 */
 int hibit(unsigned int num);
 
-/* Return the index of the lowest bit in num, i.e., 
+/* Return the index of the lowest bit in num, i.e.,
    lobit(3) = 0, lobit(2)=1, lobit(512)=9, lobit(513)=0, lobit(0)=BITSPERWORD
    */
 int lobit(unsigned int num);

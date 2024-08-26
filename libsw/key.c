@@ -1,27 +1,29 @@
 #define KEYdotC
 /* Most of the definitions are in key.h */
-#include <stdio.h>		/* just for sprintf */
 #include "key.h"
+
+#include <stdio.h> /* just for sprintf */
+
 #include "protos.h"
 
 /* Non-inlined definitions go here. */
 
-char *
-PrintKey(Key_t key)
-{
+char* PrintKey(Key_t key) {
     static char str[128];
 
     if (NK == 1)
-      sprintf(str, "%lo", key.k[0]);
+        sprintf(str, "%lo", key.k[0]);
     else {
-	if (key.k[1] == 0) {
-	    sprintf(str, "%lo", key.k[0]);
-	} else {
-	    /* This only works for NDIM==3 */
-	    sprintf(str, "%lo%01lo%021lo", key.k[1] >> 2, /* bits 66-126*/
-		    ((key.k[1] & 03) << 1) | (key.k[0] >> 63), /* bits 63,64,65 */
-		    key.k[0] & ~(1L << 63));	/* bits 0-62 */
-	}
+        if (key.k[1] == 0) {
+            sprintf(str, "%lo", key.k[0]);
+        } else {
+            /* This only works for NDIM==3 */
+            sprintf(str,
+                    "%lo%01lo%021lo",
+                    key.k[1] >> 2,                             /* bits 66-126*/
+                    ((key.k[1] & 03) << 1) | (key.k[0] >> 63), /* bits 63,64,65 */
+                    key.k[0] & ~(1L << 63));                   /* bits 0-62 */
+        }
     }
     return str;
 }

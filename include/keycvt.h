@@ -11,7 +11,7 @@
 #define PH_ORDER 2
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif /* __cplusplus */
 
 typedef struct {
@@ -20,7 +20,7 @@ typedef struct {
        be better than others.  This is one of them... */
     float rmin[MAXNDIMKU];
     float sz[MAXNDIMKU];
-} tbbox;			/* a tree-bbox,  */
+} tbbox; /* a tree-bbox,  */
 
 /* For now, we will break the OO secrecy rule and just let routines know
    what's inside the tbbox.  Otherwise I have to write a dozen functions
@@ -48,7 +48,8 @@ void UnionBbox(tbbox *bb1, tbbox *bb2, tbbox *bbu);
 
 /* Generate keys for an array of positions (imagine sizeof(body) as the
    stride argument!) */
-void GenerateKeys(float *pstart, int nobj, int pstride, tbbox *bb, Key_t *kstart, int kstride, int ordering);
+void GenerateKeys(
+    float *pstart, int nobj, int pstride, tbbox *bb, Key_t *kstart, int kstride, int ordering);
 /* This will be set when GenerateKeys detects that a key is out of
    bounds.  GenerateKeys will not crash and burn, but prudent callers
    will check KeyOutOfBounds after calling it.  It is cumulative. */

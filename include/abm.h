@@ -9,24 +9,24 @@
 /* Notice that memcpy is a perfectly good ABMpktz_t.  Overzealous
  compilers will complain because arg2 isn't const and arg3 is an int
  rather than a size_t.  AAAARRRRGGGGHHHH....  */
-typedef void (ABMpktz_t)(void *to, void *arg, int sz);
-typedef void (ABMhndlr_t)(int src, int len, void *ptr);
+typedef void(ABMpktz_t)(void *to, void *arg, int sz);
+typedef void(ABMhndlr_t)(int src, int len, void *ptr);
 
 typedef struct {
     int nfuncs;
     ABMhndlr_t **hndlarray;
-    Dll undeliveredLL;  /* An LL of all messages that have been ISent, but
-			   not Test'ed affirmative. */
-    int done;			/* I hate these! */
+    Dll undeliveredLL; /* An LL of all messages that have been ISent, but
+                          not Test'ed affirmative. */
+    int done;          /* I hate these! */
     int doc;
     int allbitsdone;
-    int alldone;   
-    Dll *Enqueued;		/* array of DLL's, one for each dest */
-    int *destarr;		/* which of Enqueued are non-empty? */
-    int ndests;			/* how many of Enqueued are non-empty? */
-    int *cntarr;		/* how much data for each dest? */
-    Chn undelChn;		/* chain for undelivereLL */
-    Chn QelmtChn;		/* chain for all of the Enqueued Dll's */
+    int alldone;
+    Dll *Enqueued; /* array of DLL's, one for each dest */
+    int *destarr;  /* which of Enqueued are non-empty? */
+    int ndests;    /* how many of Enqueued are non-empty? */
+    int *cntarr;   /* how much data for each dest? */
+    Chn undelChn;  /* chain for undelivereLL */
+    Chn QelmtChn;  /* chain for all of the Enqueued Dll's */
     MPMY_Comm_request Recv_Hndl;
     int tag;
     int pktsize;
@@ -34,10 +34,10 @@ typedef struct {
     char *recvbuf2;
     char *recvbufA;
     char *recvbufB;
-} ABM ;
+} ABM;
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 /* Set the whole thing up.  State goes into abm */
 void ABMSetup(ABM *abm, int pktsize, int tag, int nfuncs, ABMhndlr_t *hndlarray[]);
@@ -76,11 +76,11 @@ void ABMShutdown(ABM *abm);
    lo and hi. */
 void ABMHistEnable(int log2lo, int log2hi);
 
-#define ABMHISTFIRST 3		/* don't bother with the hist below 8 bytes */
+#define ABMHISTFIRST 3 /* don't bother with the hist below 8 bytes */
 #define ABMHISTLEN 16
-extern Counter_t ABMIsendCnt;	/* How many 'buffers' did we actualy Isend. */
-extern Counter_t ABMPostCnt;	/* How many 'messages' did we Post. */
-extern Counter_t ABMByteCnt;	/* How many bytes were Isent. */
+extern Counter_t ABMIsendCnt; /* How many 'buffers' did we actualy Isend. */
+extern Counter_t ABMPostCnt;  /* How many 'messages' did we Post. */
+extern Counter_t ABMByteCnt;  /* How many bytes were Isent. */
 extern Counter_t ABMHistCnt[ABMHISTLEN];
 
 #ifdef __cplusplus

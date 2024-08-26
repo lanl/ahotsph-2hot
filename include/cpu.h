@@ -35,8 +35,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define UTIL_CPU_H__ 1
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifndef Msgf
 #define Msgf(args)
@@ -49,31 +49,31 @@ struct CPU_s {
 };
 
 #define WHITESPACE " \t\f\v\n"
-static char *nameclean(char *s)
-{
+static char *nameclean(char *s) {
     char *cp = s, *cp2, *cpend = s + strlen(s);
     size_t i;
     char **e, *erase[] = {"(R)", "(TM)", "(tm)", "CPU", "Processor", "@", NULL};
 
     for (e = erase; *e; e++) {
-	cp2 = s;
-	while ((cp2 = strstr(cp2, *e)) != NULL) {
-	    for (i = 0; i < strlen(*e); i++) 
-		*cp2++ = ' ';
-	}
+        cp2 = s;
+        while ((cp2 = strstr(cp2, *e)) != NULL) {
+            for (i = 0; i < strlen(*e); i++) *cp2++ = ' ';
+        }
     }
     while ((i = strcspn(cp, WHITESPACE)) > 0) {
-	cp += i;
-	i = strspn(cp, WHITESPACE);
-	if (i > 0) {
-	    cp2 = cp + i;
-	    if (cp2 < cpend - 1) *cp++ = ' ';
-	    else *cp++ = '\0';
-	    if (cpend > cp2) {
-		memmove(cp, cp2, cpend - cp2);
-		cpend -= cp2 - cp;
-	    }
-	}
+        cp += i;
+        i = strspn(cp, WHITESPACE);
+        if (i > 0) {
+            cp2 = cp + i;
+            if (cp2 < cpend - 1)
+                *cp++ = ' ';
+            else
+                *cp++ = '\0';
+            if (cpend > cp2) {
+                memmove(cp, cp2, cpend - cp2);
+                cpend -= cp2 - cp;
+            }
+        }
     }
     return s;
 }
@@ -86,110 +86,119 @@ static char *nameclean(char *s)
  * before reading /proc/cpuinfo, might fool
  * energy-saving CPU into showing its true speed
  */
-static double warmupCPU(long n){
+static double warmupCPU(long n) {
     double d = 0.3;
     int i;
-    for (i = 0; i < n; i++) {
-	d = 3.6 * d * (1. - d);
-    }
+    for (i = 0; i < n; i++) { d = 3.6 * d * (1. - d); }
     Msgf(("logistic map produced %f\n", d));
     return d;
 }
 
 #if defined(__APPLE__)
-static double clockspeedHz(int *ncores, char **modelnamep){
+static double clockspeedHz(int *ncores, char **modelnamep) {
     FILE *fp = popen("sysctl hw.cpufrequency", "r");
     double hz = 0.;
-    double d = warmupCPU(100L*1000L*1000L);
-    if( fscanf(fp, "%*s %lf", &hz)  != 1 )
- 	return 0.;
+    double d = warmupCPU(100L * 1000L * 1000L);
+    if (fscanf(fp, "%*s %lf", &hz) != 1)
+        return 0.;
     pclose(fp);
-    if(ncores) *ncores = 1;
-    if(modelnamep) *modelnamep = strdup("Apple");
+    if (ncores)
+        *ncores = 1;
+    if (modelnamep)
+        *modelnamep = strdup("Apple");
     return hz;
 }
-#elif defined(__SUNPRO_CC) || defined(__SUNPRO_C) || (defined(__GNUC__)&&defined(__sun__))
-static double clockspeedHz(int *ncores, char  **modelnamep){
+#elif defined(__SUNPRO_CC) || defined(__SUNPRO_C) || (defined(__GNUC__) && defined(__sun__))
+static double clockspeedHz(int *ncores, char **modelnamep) {
     FILE *fp = popen("kstat -p -s current_clock_Hz", "r");
     double hz = 0.;
-    double d = warmupCPU(100L*1000L*1000L);
+    double d = warmupCPU(100L * 1000L * 1000L);
     /* To-do: get a model name from kstat too */
-    if(modelnamep) *modelnamep = strdup("Solaris");
+    if (modelnamep)
+        *modelnamep = strdup("Solaris");
     int nc = 0;
-    while( fscanf(fp, "%*s %lf", &hz) == 1 ){
-        nc++;
-    }
-    if(ncores) *ncores = nc;
+    while (fscanf(fp, "%*s %lf", &hz) == 1) { nc++; }
+    if (ncores)
+        *ncores = nc;
     return hz;
 }
 #elif defined(__linux__)
 /* Read the clock speed from /proc/cpuinfo - Linux-specific! */
-static double clockspeedHz(int *ncores, char **modelnamep){
+static double clockspeedHz(int *ncores, char **modelnamep) {
     char *s, buf[1024]; /* long enough for any /proc/cpuinfo line */
     double Mhz = 0.;
     double xMhz;
     int i;
-    double d = warmupCPU(100L*1000L*1000L);
+    double d = warmupCPU(100L * 1000L * 1000L);
     FILE *fp;
     if ((fp = fopen("/proc/cpuinfo", "r")) == NULL) {
-	if (ncores) *ncores = 1;
-	if (modelnamep) *modelnamep = strdup("unknown");
-	return 0.;
+        if (ncores)
+            *ncores = 1;
+        if (modelnamep)
+            *modelnamep = strdup("unknown");
+        return 0.;
     }
-    if (ncores) *ncores = 0;
+    if (ncores)
+        *ncores = 0;
     while (fgets(buf, sizeof buf, fp) != NULL) {
-	if (modelnamep && (s = strstr(buf, "model name")) != NULL) {
-	    s = strchr(s, ':');
-	    if (s) {
-		while (*++s == ' ')
-		    ;
-		i = strchr(s, '\n') - s;
-		*modelnamep = (char *)malloc(i + 1);
-		memcpy(*modelnamep, s, i);
-		(*modelnamep)[i] = '\0';
-		Msgf(("raw modelname is %d bytes: %s\n", i, *modelnamep));
-		nameclean(*modelnamep);
-		Msgf(("cleaned modelname is %s\n", *modelnamep));
-	    } else *modelnamep = NULL;
-	}
-	if ((s = strstr(buf, "cpu MHz")) || (s = strstr(buf, "clock"))) {
-	    if (s[1] == 'p') // cpu MHz
-		sscanf(s, "cpu MHz : %lf %n", &xMhz, &i);
-	    else // clock
-		sscanf(s, "clock : %lfMHz %n", &xMhz, &i);
-	    if (s) {
-		Msgf(("parsed %f %d\n", xMhz, i));
-		if (xMhz > Mhz) Mhz = xMhz;
-		s += i;
-		if (ncores) *ncores += 1;
-	    }
-	}
+        if (modelnamep && (s = strstr(buf, "model name")) != NULL) {
+            s = strchr(s, ':');
+            if (s) {
+                while (*++s == ' ')
+                    ;
+                i = strchr(s, '\n') - s;
+                *modelnamep = (char *)malloc(i + 1);
+                memcpy(*modelnamep, s, i);
+                (*modelnamep)[i] = '\0';
+                Msgf(("raw modelname is %d bytes: %s\n", i, *modelnamep));
+                nameclean(*modelnamep);
+                Msgf(("cleaned modelname is %s\n", *modelnamep));
+            } else
+                *modelnamep = NULL;
+        }
+        if ((s = strstr(buf, "cpu MHz")) || (s = strstr(buf, "clock"))) {
+            if (s[1] == 'p')  // cpu MHz
+                sscanf(s, "cpu MHz : %lf %n", &xMhz, &i);
+            else  // clock
+                sscanf(s, "clock : %lfMHz %n", &xMhz, &i);
+            if (s) {
+                Msgf(("parsed %f %d\n", xMhz, i));
+                if (xMhz > Mhz)
+                    Mhz = xMhz;
+                s += i;
+                if (ncores)
+                    *ncores += 1;
+            }
+        }
     }
-    d = Mhz*1e6;
+    d = Mhz * 1e6;
     Msgf(("clockspeed is %f\n", d));
     return d;
 }
 #elif defined(__FreeBSD__)
-static double clockspeedHz(int *nnodes, char **modelnamep){
+static double clockspeedHz(int *nnodes, char **modelnamep) {
     /* Seems to work with FreeBSD 8.2. */
     FILE *fp = popen("sysctl hw.ncpu hw.clockrate hw.model", "r");
     int ncpu, clockrate;
-    if( fscanf(fp, "%*s%d%*s%d%*s", &ncpu, &clockrate) != 2 )
-	return 0;
-    if(nnodes) *nnodes = ncpu;
-    if(modelnamep){
-	char buf[256];
-	if(fgets(buf, sizeof(buf), fp) == NULL) 
-	    *modelnamep = strdup("error reading sysctl");
-	else
-	    *modelnamep = strdup(buf);
+    if (fscanf(fp, "%*s%d%*s%d%*s", &ncpu, &clockrate) != 2)
+        return 0;
+    if (nnodes)
+        *nnodes = ncpu;
+    if (modelnamep) {
+        char buf[256];
+        if (fgets(buf, sizeof(buf), fp) == NULL)
+            *modelnamep = strdup("error reading sysctl");
+        else
+            *modelnamep = strdup(buf);
     }
-    return 1.e6*clockrate;
+    return 1.e6 * clockrate;
 }
 #else
-static double clockspeedHz(int *nnodes, char **modelnamep){
-    if(nnodes) *nnodes = 1;
-    if(modelnamep) *modelnamep = strdup("unknown");
+static double clockspeedHz(int *nnodes, char **modelnamep) {
+    if (nnodes)
+        *nnodes = 1;
+    if (modelnamep)
+        *modelnamep = strdup("unknown");
     return 0.;
 }
 #endif /* ! ___APPLE__ */

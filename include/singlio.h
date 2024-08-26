@@ -2,7 +2,7 @@
 #define _SinglIODOTh
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif /* __cplusplus */
 int singlPrintf(const char *, ...);
 void singlFflush(void);

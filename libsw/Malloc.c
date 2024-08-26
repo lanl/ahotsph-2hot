@@ -2,19 +2,21 @@
  * Copyright 1991 Michael S. Warren and John K. Salmon.  All Rights Reserved.
  */
 
+#include "Malloc.h"
+
+#include <stdarg.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <stdarg.h>
+
 #include "Msgs.h"
-#include "Malloc.h"
 #include "sw_malloc.h"
 
-#define WARNSIZEINITIAL (1024L*1024*1024*2)
+#define WARNSIZEINITIAL (1024L * 1024 * 1024 * 2)
 static size_t WarnSize = WARNSIZEINITIAL;
 
 #include "error.h"
 
-static void Error_and_mprint(const char *fmt, ...){
+static void Error_and_mprint(const char *fmt, ...) {
     va_list alist;
     malloc_print();
     va_start(alist, fmt);
@@ -25,93 +27,83 @@ static void Error_and_mprint(const char *fmt, ...){
 /* Try to do this without the typedef Error_t!!! */
 static Error_t reporter = Error_and_mprint;
 
-Error_t MallocHandler(Error_t new){
-     Error_t ret = reporter;
-     reporter = new;
-     return ret;
+Error_t MallocHandler(Error_t new) {
+    Error_t ret = reporter;
+    reporter = new;
+    return ret;
 }
 
-void
-xFree(void *ptr, const char *file, int lineno)
-{
+void xFree(void *ptr, const char *file, int lineno) {
     Msgf(("%s(%d): f(%#lx)\n", file, lineno, (unsigned long)ptr));
-    if( ptr != (void *)0 )
-	free(ptr);
+    if (ptr != (void *)0)
+        free(ptr);
 }
 
-void *
-xMalloc(size_t size, const char *file, int lineno)
-{
+void *xMalloc(size_t size, const char *file, int lineno) {
     void *ptr;
 
     Msgf(("%s(%d): m(%lu)=", file, lineno, (unsigned long)size));
-    if (size > WarnSize){
-	Shout("Large Malloc Warning, size %ld\n", (long)size);
-	WarnSize *=2;
+    if (size > WarnSize) {
+        Shout("Large Malloc Warning, size %ld\n", (long)size);
+        WarnSize *= 2;
     }
     if (size == 0) {
-	Msgf(("0x0"));
-	return (void *)0;
+        Msgf(("0x0"));
+        return (void *)0;
     }
     ptr = malloc(size);
     if (ptr == (void *)0 && reporter) {
-	reporter("%s(%d) Malloc(%ld) failed\n", file, lineno, (long)size);
+        reporter("%s(%d) Malloc(%ld) failed\n", file, lineno, (long)size);
     }
     Msgf(("%#lx\n", (unsigned long)ptr));
-    return(ptr);
+    return (ptr);
 }
 
 
-void *
-xRealloc(void *ptr, size_t size, const char *file, int lineno)
-{
+void *xRealloc(void *ptr, size_t size, const char *file, int lineno) {
     void *p1 = ptr;
 
-    Msgf(("%s(%d): r(%#lx,%lu)=", file, lineno, (unsigned long)ptr, 
-	  (unsigned long)size));
-    if (size > WarnSize){
-	Shout("Large Realloc Warning, size %ld\n", (long)size);
-	WarnSize *= 2;
+    Msgf(("%s(%d): r(%#lx,%lu)=", file, lineno, (unsigned long)ptr, (unsigned long)size));
+    if (size > WarnSize) {
+        Shout("Large Realloc Warning, size %ld\n", (long)size);
+        WarnSize *= 2;
     }
 
-    if( ptr == (void *)0 ){
-	Msgf(("-> malloc\n"));
-	return Malloc(size);
+    if (ptr == (void *)0) {
+        Msgf(("-> malloc\n"));
+        return Malloc(size);
     }
-    if( size == 0 ){
-	Msgf(("-> free\n"));
-	Free(ptr);
-	return (void *)0;
+    if (size == 0) {
+        Msgf(("-> free\n"));
+        Free(ptr);
+        return (void *)0;
     }
     ptr = realloc(ptr, size);
     if (ptr == (void *)0 && reporter) {
-	reporter("%s(%d): Realloc(%p, %ld) failed\n", file, lineno, p1, (long)size);
+        reporter("%s(%d): Realloc(%p, %ld) failed\n", file, lineno, p1, (long)size);
     }
     Msgf(("%#lx\n", (unsigned long)ptr));
-    return(ptr);
+    return (ptr);
 }
 
-void *
-xCalloc(size_t n, size_t s, const char *file, int lineno)
-{
+void *xCalloc(size_t n, size_t s, const char *file, int lineno) {
     void *ptr;
 
-    Msgf(("%s(%d): c(%lu,%lu)=", file, lineno, 
-	  (unsigned long)n, (unsigned long)s));
-    if (n*s > WarnSize){
-	Shout("Large Calloc Warning, size %ld\n", (long)n*s);
-	WarnSize *= 2;
+    Msgf(("%s(%d): c(%lu,%lu)=", file, lineno, (unsigned long)n, (unsigned long)s));
+    if (n * s > WarnSize) {
+        Shout("Large Calloc Warning, size %ld\n", (long)n * s);
+        WarnSize *= 2;
     }
-    if( n==0 || s==0 ){
-	Msgf(("0x0\n"));
-	return (void *)0;
+    if (n == 0 || s == 0) {
+        Msgf(("0x0\n"));
+        return (void *)0;
     }
-    ptr = calloc(n,s);
+    ptr = calloc(n, s);
     if (ptr == (void *)0 && reporter) {
-	reporter("%s(%d): Calloc(%ld) failed\n", file, lineno, (long)n);
+        reporter("%s(%d): Calloc(%ld) failed\n", file, lineno, (long)n);
     }
     Msgf(("%#lx\n", (unsigned long)ptr));
-    return(ptr);
+    return (ptr);
 }
 
 /* Use these, for example, when you pass a ptr-to-function arg */
@@ -121,19 +113,11 @@ xCalloc(size_t n, size_t s, const char *file, int lineno)
 /* foo(Realloc), and you could call these functions, e.g., Realloc */
 /* and everything would be fine...   */
 
-void *Realloc_f(void *ptr, size_t size){
-    return Realloc(ptr, size);
-}
+void *Realloc_f(void *ptr, size_t size) { return Realloc(ptr, size); }
 
-void *Malloc_f(size_t n){
-    return Malloc(n);
-}
+void *Malloc_f(size_t n) { return Malloc(n); }
 
-void *Calloc_f(size_t n, size_t s){
-    return Calloc(n, s);
-}
+void *Calloc_f(size_t n, size_t s) { return Calloc(n, s); }
 
-void Free_f(void *p){
-    Free(p);
-}
+void Free_f(void *p) { Free(p); }
 /* void MallocOnNULLReturn(void (*printf_like)(const char *fmt, ...)) */

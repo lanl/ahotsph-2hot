@@ -1,8 +1,8 @@
 #ifndef _RdDataDOTh
 #define _RdDataDOTh
 
-#include "timers.h"
 #include "SDF.h"
+#include "timers.h"
 /* Can read distributed datafiles if csdfp contains something like:
 struct {char datafiles[64];}[4] = {"foo1", "foo2", "foo3", "foo4"};
 */
@@ -25,14 +25,32 @@ extern char *SDFread_hdrfile;
    storest the name of that variable.  Default:  "npart"; */
 extern char *SDFread_npart;
 
-SDF *SDFread(SDF *csdfp, void **btabp, int *gnobjp, int *nobjp, int stride,
-	    /* char *name, offset_t offset, int *confirm */...);
-SDF *SDFread64(SDF *csdfp, void **btabp, int64_t *gnobjp, int *nobjp, int stride,
-	    /* char *name, offset_t offset, int *confirm */...);
-SDF *SDFreadf(char *hdr, char *name, void **btabp, int *gnobjp, int *nobjp, 
-	    int stride, /* char *name, offset_t offset, int *confirm */...);
-SDF *SDFreadf64(char *hdr, char *name, void **btabp, int64_t *gnobjp, int *nobjp, 
-		int stride, /* char *name, offset_t offset, int *confirm */...);
+SDF *SDFread(SDF *csdfp,
+             void **btabp,
+             int *gnobjp,
+             int *nobjp,
+             int stride,
+             /* char *name, offset_t offset, int *confirm */...);
+SDF *SDFread64(SDF *csdfp,
+               void **btabp,
+               int64_t *gnobjp,
+               int *nobjp,
+               int stride,
+               /* char *name, offset_t offset, int *confirm */...);
+SDF *SDFreadf(char *hdr,
+              char *name,
+              void **btabp,
+              int *gnobjp,
+              int *nobjp,
+              int stride,
+              /* char *name, offset_t offset, int *confirm */...);
+SDF *SDFreadf64(char *hdr,
+                char *name,
+                void **btabp,
+                int64_t *gnobjp,
+                int *nobjp,
+                int stride,
+                /* char *name, offset_t offset, int *confirm */...);
 #ifdef __cplusplus
 }
 #endif

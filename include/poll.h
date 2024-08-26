@@ -4,7 +4,7 @@
 #include "timers.h"
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 void PollSetup(void put(void *buf, int size), int max_size, int tag);
 void Poll(int tag);
