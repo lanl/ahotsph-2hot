@@ -1,4 +1,0 @@
-[submodule "nln"]
-	path = nln
-	url = git@gitlab.lanl.gov:sph/2hot-apps-subgroup/nln.git
-    branch = main
